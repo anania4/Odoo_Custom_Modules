@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="fleet_operations_pro.Dashboard">
+        <div class="o_fleet_dashboard">
+            <!-- Dashboard Header -->
+            <div class="o_dashboard_header">
+                <h2>Fleet Operations Dashboard</h2>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" t-on-click="refresh">
+                        <i class="fa fa-refresh"/> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <t t-if="state.loading">
+                <div class="text-center p-5">
+                    <i class="fa fa-spinner fa-spin fa-3x text-primary"/>
+                    <p class="mt-3 text-muted">Loading dashboard data...</p>
+                </div>
+            </t>
+
+            <t t-else="">
+                <t t-if="state.data">
+                    <!-- Primary KPI Cards -->
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="card-title text-white-50">Total Vehicles</h5>
+                                            <h2 class="mb-0"><t t-esc="state.data.kpis.total_vehicles"/></h2>
+                                            <small class="text-white-50">
+                                                <t t-esc="state.data.kpis.available_vehicles"/> Available
+                                            </small>
+                                        </div>
+                                        <i class="fa fa-car fa-2x opacity-50"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="card-title text-white-50">Active Drivers</h5>
+                                            <h2 class="mb-0"><t t-esc="state.data.kpis.active_drivers"/></h2>
+                                            <small class="text-white-50">
+                                                of <t t-esc="state.data.kpis.total_drivers"/> Total
+                                            </small>
+                                        </div>
+                                        <i class="fa fa-users fa-2x opacity-50"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card bg-warning text-dark">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="card-title">Total Costs (30d)</h5>
+                                            <h2 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.total_costs)"/></h2>
+                                            <small class="text-muted">
+                                                Fuel: <t t-esc="formatCurrency(state.data.kpis.total_fuel_cost)"/>
+                                            </small>
+                                        </div>
+                                        <i class="fa fa-money fa-2x opacity-50"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h5 class="card-title text-white-50">Rental Revenue</h5>
+                                            <h2 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.rental_revenue)"/></h2>
+                                            <small class="text-white-50">
+                                                <t t-esc="state.data.kpis.active_rentals"/> Active Rentals
+                                            </small>
+                                        </div>
+                                        <i class="fa fa-line-chart fa-2x opacity-50"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary KPI Cards -->
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-road text-primary me-2"/>
+                                        <h6 class="card-title mb-0">Total Distance</h6>
+                                    </div>
+                                    <h4 class="mb-0"><t t-esc="formatNumber(state.data.kpis.total_distance, 0)"/> km</h4>
+                                    <small class="text-muted"><t t-esc="state.data.kpis.total_trips"/> trips</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-tint text-primary me-2"/>
+                                        <h6 class="card-title mb-0">Fuel Efficiency</h6>
+                                    </div>
+                                    <h4 class="mb-0"><t t-esc="formatNumber(state.data.kpis.avg_fuel_efficiency, 2)"/> km/L</h4>
+                                    <small class="text-muted">Average</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-wrench text-primary me-2"/>
+                                        <h6 class="card-title mb-0">Maintenance Cost</h6>
+                                    </div>
+                                    <h4 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.total_maintenance_cost)"/></h4>
+                                    <small class="text-muted">Last 30 days</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fa fa-percent text-primary me-2"/>
+                                        <h6 class="card-title mb-0">Utilization Rate</h6>
+                                    </div>
+                                    <h4 class="mb-0"><t t-esc="formatNumber(state.data.kpis.vehicle_utilization, 1)"/>%</h4>
+                                    <small class="text-muted">Fleet usage</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts and Analytics Row -->
+                    <div class="row mb-4">
+                        <!-- Vehicle Status Chart -->
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fa fa-car"/> Vehicles by Status</h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="state.data.charts.vehicle_by_status.length">
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="state.data.charts.vehicle_by_status" t-as="item" t-key="item.name">
+                                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                    <span><t t-esc="item.name"/></span>
+                                                    <span class="badge bg-primary rounded-pill"><t t-esc="item.value"/></span>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center mb-0">No data available</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Vehicle Category Chart -->
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fa fa-tags"/> Vehicles by Category</h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="state.data.charts.vehicle_by_category.length">
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="state.data.charts.vehicle_by_category" t-as="item" t-key="item.name">
+                                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                    <span><t t-esc="item.name"/></span>
+                                                    <span class="badge bg-success rounded-pill"><t t-esc="item.value"/></span>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center mb-0">No data available</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cost by Category -->
+                        <div class="col-lg-4 col-md-12 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fa fa-pie-chart"/> Cost by Category</h5>
+                                    <span class="badge bg-secondary">30 days</span>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="state.data.charts.cost_by_category.length">
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="state.data.charts.cost_by_category" t-as="item" t-key="item.name">
+                                                <div class="list-group-item px-0">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <span><t t-esc="item.name"/></span>
+                                                        <strong><t t-esc="formatCurrency(item.value)"/></strong>
+                                                    </div>
+                                                    <div class="progress" style="height: 6px;">
+                                                        <div class="progress-bar bg-warning" role="progressbar" 
+                                                             t-att-style="'width: ' + (item.percentage || 0) + '%'"/>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center mb-0">No cost data available</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Performers Row -->
+                    <div class="row mb-4">
+                        <!-- Top Cost Vehicles -->
+                        <div class="col-lg-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fa fa-exclamation-circle"/> Top Cost Vehicles</h5>
+                                    <span class="badge bg-warning">Last 30 days</span>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="state.data.charts.top_cost_vehicles.length">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Vehicle</th>
+                                                        <th class="text-end">Total Cost</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="state.data.charts.top_cost_vehicles" t-as="vehicle" t-key="vehicle.name">
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="fa fa-car text-muted me-2"/>
+                                                                    <t t-esc="vehicle.name"/>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-end">
+                                                                <strong><t t-esc="formatCurrency(vehicle.value)"/></strong>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center mb-0">No vehicle cost data available</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Performing Drivers -->
+                        <div class="col-lg-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fa fa-star"/> Top Performing Drivers</h5>
+                                    <span class="badge bg-success">By Trips (30d)</span>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="state.data.charts.top_drivers.length">
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="state.data.charts.top_drivers" t-as="driver" t-key="driver.name">
+                                                <div class="list-group-item px-0">
+                                                    <div class="d-flex align-items-center">
+                                                        <t t-if="driver.image">
+                                                            <img t-att-src="'data:image/png;base64,' + driver.image" 
+                                                                 class="rounded-circle me-3" 
+                                                                 style="width: 40px; height: 40px; object-fit: cover;"
+                                                                 t-att-alt="driver.name"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" 
+                                                                 style="width: 40px; height: 40px;">
+                                                                <i class="fa fa-user text-white"/>
+                                                            </div>
+                                                        </t>
+                                                        <div class="flex-grow-1">
+                                                            <div class="fw-bold"><t t-esc="driver.name"/></div>
+                                                            <small class="text-muted"><t t-esc="driver.license_number"/></small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <div class="badge bg-success">
+                                                                <i class="fa fa-star"/> <t t-esc="formatNumber(driver.safety_score, 1)"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center mb-0">No driver data available</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerts and Notifications -->
+                    <div class="row mb-4">
+                        <!-- Certificate Alerts -->
+                        <div class="col-lg-4 mb-3">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h5 class="mb-0"><i class="fa fa-certificate"/> Certificate Alerts</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div>
+                                            <h3 class="mb-0 text-danger"><t t-esc="state.data.alerts.expired_certificates"/></h3>
+                                            <small class="text-muted">Expired</small>
+                                        </div>
+                                        <div>
+                                            <h3 class="mb-0 text-warning"><t t-esc="state.data.alerts.expiring_certificates"/></h3>
+                                            <small class="text-muted">Expiring Soon</small>
+                                        </div>
+                                    </div>
+                                    <t t-if="state.data.alerts.expiring_cert_details.length">
+                                        <h6 class="text-muted mb-2">Upcoming Expiries:</h6>
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="state.data.alerts.expiring_cert_details" t-as="cert" t-key="cert_index">
+                                                <div class="list-group-item px-0 py-2">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <div class="fw-bold small"><t t-esc="cert.vehicle"/></div>
+                                                            <small class="text-muted"><t t-esc="cert.certificate"/></small>
+                                                        </div>
+                                                        <small t-att-class="'badge bg-' + cert.status_class">
+                                                            <t t-esc="cert.days_left"/> days
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center small mb-0">No upcoming certificate expiries</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Maintenance Alerts -->
+                        <div class="col-lg-4 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning">
+                                    <h5 class="mb-0"><i class="fa fa-wrench"/> Upcoming Maintenance</h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="state.data.alerts.upcoming_maintenance.length">
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="state.data.alerts.upcoming_maintenance" t-as="maint" t-key="maint_index">
+                                                <div class="list-group-item px-0 py-2">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <div class="fw-bold small"><t t-esc="maint.vehicle"/></div>
+                                                            <small class="text-muted"><t t-esc="maint.maintenance_type"/></small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <small class="badge bg-warning"><t t-esc="maint.due_date"/></small>
+                                                            <t t-if="maint.odometer_due">
+                                                                <br/>
+                                                                <small class="text-muted"><t t-esc="formatNumber(maint.odometer_due, 0)"/> km</small>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center small mb-0">No upcoming maintenance scheduled</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- License Expiry Alerts -->
+                        <div class="col-lg-4 mb-3">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0"><i class="fa fa-id-card"/> License Expiries</h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-if="state.data.alerts.expiring_licenses.length">
+                                        <div class="list-group list-group-flush">
+                                            <t t-foreach="state.data.alerts.expiring_licenses" t-as="license" t-key="license_index">
+                                                <div class="list-group-item px-0 py-2">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <div class="fw-bold small"><t t-esc="license.driver"/></div>
+                                                            <small class="text-muted"><t t-esc="license.license_number"/></small>
+                                                        </div>
+                                                        <small class="badge bg-info">
+                                                            <t t-esc="license.expiry_date"/>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted text-center small mb-0">No expiring driver licenses</p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Info -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body py-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fa fa-info-circle"/> Dashboard data refreshed: 
+                                            <t t-if="state.lastUpdated">
+                                                <t t-esc="getTimeAgo(state.lastUpdated)"/>
+                                            </t>
+                                        </small>
+                                        <small class="text-muted">
+                                            Fleet Operations Pro v1.0.0
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </div>
+    </t>
+</templates>

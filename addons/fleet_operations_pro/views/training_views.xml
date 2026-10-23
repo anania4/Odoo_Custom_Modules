@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Training Actions -->
+    <record id="action_fleet_driver_training" model="ir.actions.act_window">
+        <field name="name">Driver Training</field>
+        <field name="res_model">fleet.driver.training</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_scheduled': 1, 'search_default_in_progress': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a new training record</p>
+            <p>Track driver training sessions and certifications.</p>
+        </field>
+    </record>
+    
+    <!-- Training List View -->
+    <record id="view_fleet_driver_training_list" model="ir.ui.view">
+        <field name="name">fleet.driver.training.list</field>
+        <field name="model">fleet.driver.training</field>
+        <field name="arch" type="xml">
+            <list string="Driver Training">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="driver_id"/>
+                <field name="training_name"/>
+                <field name="training_type"/>
+                <field name="duration_hours"/>
+                <field name="completion_status" widget="badge" decoration-info="completion_status == 'scheduled'" decoration-success="completion_status == 'completed'" decoration-danger="completion_status == 'failed'"/>
+                <field name="score"/>
+                <field name="passed" widget="boolean"/>
+                <field name="certificate_expiry_date" optional="show"/>
+                <field name="cost" widget="monetary" sum="Total Cost"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Training Form View -->
+    <record id="view_fleet_driver_training_form" model="ir.ui.view">
+        <field name="name">fleet.driver.training.form</field>
+        <field name="model">fleet.driver.training</field>
+        <field name="arch" type="xml">
+            <form string="Driver Training">
+                <header>
+                    <button name="action_mark_completed" string="Mark Completed" type="object" invisible="completion_status not in ['in_progress']" class="btn-primary"/>
+                    <button name="action_mark_failed" string="Mark Failed" type="object" invisible="completion_status not in ['in_progress']" class="btn-danger"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="completion_status not in ['scheduled', 'in_progress']"/>
+                    <field name="completion_status" widget="statusbar" statusbar_visible="scheduled,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(base.action_attachment)d" type="action" class="oe_stat_button" icon="fa-files-o" context="{'default_res_model': 'fleet.driver.training', 'default_res_id': id}">
+                            <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group name="basic_info" string="Training Information">
+                            <field name="driver_id"/>
+                            <field name="training_name"/>
+                            <field name="training_type"/>
+                            <field name="date"/>
+                            <field name="duration_hours" widget="float_time"/>
+                        </group>
+                        <group name="logistics" string="Logistics">
+                            <field name="trainer"/>
+                            <field name="location"/>
+                            <field name="cost" widget="monetary"/>
+                            <field name="cost_record_id" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="completion" string="Completion Details" invisible="completion_status not in ['completed', 'failed']">
+                            <field name="completion_date"/>
+                            <field name="score"/>
+                            <field name="passed" widget="boolean"/>
+                        </group>
+                        <group name="certification" string="Certification" invisible="completion_status not in ['completed']">
+                            <field name="certificate_number"/>
+                            <field name="certificate_expiry_date"/>
+                            <field name="is_certification_expired" widget="boolean" invisible="certificate_expiry_date == False"/>
+                        </group>
+                    </group>
+                    <group name="description" string="Description">
+                        <field name="description" nolabel="1" placeholder="Detailed description of training content..."/>
+                    </group>
+                    <group name="notes" string="Notes">
+                        <field name="notes" nolabel="1" placeholder="Additional notes..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Training Search View -->
+    <record id="view_fleet_driver_training_search" model="ir.ui.view">
+        <field name="name">fleet.driver.training.search</field>
+        <field name="model">fleet.driver.training</field>
+        <field name="arch" type="xml">
+            <search string="Search Training">
+                <field name="name" string="Reference"/>
+                <field name="driver_id" string="Driver"/>
+                <field name="training_name" string="Training Name"/>
+                <field name="trainer" string="Trainer"/>
+                
+                <filter name="scheduled" string="Scheduled" domain="[('completion_status', '=', 'scheduled')]"/>
+                <filter name="in_progress" string="In Progress" domain="[('completion_status', '=', 'in_progress')]"/>
+                <filter name="completed" string="Completed" domain="[('completion_status', '=', 'completed')]"/>
+                <filter name="failed" string="Failed" domain="[('completion_status', '=', 'failed')]"/>
+                
+                <separator/>
+                <filter name="passed" string="Passed" domain="[('passed', '=', True)]"/>
+                <filter name="certification_expired" string="Certification Expired" domain="[('certificate_expiry_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_driver" string="Driver" context="{'group_by': 'driver_id'}"/>
+                    <filter name="group_type" string="Training Type" context="{'group_by': 'training_type'}"/>
+                    <filter name="group_status" string="Status" context="{'group_by': 'completion_status'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+</odoo>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Insurance Records -->
+        <record id="insurance_demo_1" model="fleet.insurance">
+            <field name="name">Comprehensive Insurance - ABC-1234</field>
+            <field name="vehicle_id" ref="vehicle_demo_1"/>
+            <field name="insurance_company">SafeDrive Insurance</field>
+            <field name="policy_number">POL-2023-001</field>
+            <field name="start_date" eval="(datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')"/>
+            <field name="end_date" eval="(datetime.now() + timedelta(days=275)).strftime('%Y-%m-%d')"/>
+            <field name="premium_amount">1200.0</field>
+            <field name="deductible">500.0</field>
+            <field name="agent_name">Sarah Johnson</field>
+            <field name="policy_document_filename">fleet_insurance_policy_001.pdf</field>
+            <field name="notes">Includes roadside assistance and rental car coverage</field>
+        </record>
+
+        <record id="insurance_demo_2" model="fleet.insurance">
+            <field name="name">Commercial Policy - XYZ-5678</field>
+            <field name="vehicle_id" ref="vehicle_demo_2"/>
+            <field name="insurance_company">Commercial Shield</field>
+            <field name="policy_number">COMM-2023-045</field>
+            <field name="start_date" eval="(datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')"/>
+            <field name="end_date" eval="(datetime.now() + timedelta(days=305)).strftime('%Y-%m-%d')"/>
+            <field name="premium_amount">2500.0</field>
+            <field name="deductible">1000.0</field>
+            <field name="agent_name">Michael Brown</field>
+            <field name="policy_document_filename">commercial_policy_045.pdf</field>
+            <field name="notes">Includes $1M liability coverage and $50K cargo coverage</field>
+        </record>
+
+        <record id="insurance_demo_3" model="fleet.insurance">
+            <field name="name">Basic Liability - JKL-7890</field>
+            <field name="vehicle_id" ref="vehicle_demo_5"/>
+            <field name="insurance_company">Budget Insure</field>
+            <field name="policy_number">BUD-2023-112</field>
+            <field name="start_date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="end_date" eval="(datetime.now() + timedelta(days=335)).strftime('%Y-%m-%d')"/>
+            <field name="premium_amount">850.0</field>
+            <field name="deductible">1000.0</field>
+            <field name="agent_name">Jennifer Lee</field>
+            <field name="policy_document_filename">liability_policy_112.pdf</field>
+            <field name="notes">Basic coverage only, no collision or comprehensive</field>
+        </record>
+
+        <record id="insurance_demo_4" model="fleet.insurance">
+            <field name="name">Premium Coverage - DEF-3456</field>
+            <field name="vehicle_id" ref="vehicle_demo_3"/>
+            <field name="insurance_company">Elite Protection</field>
+            <field name="policy_number">ELITE-2023-078</field>
+            <field name="start_date" eval="(datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="end_date" eval="(datetime.now() + timedelta(days=350)).strftime('%Y-%m-%d')"/>
+            <field name="premium_amount">3200.0</field>
+            <field name="deductible">250.0</field>
+            <field name="agent_name">Robert Taylor</field>
+            <field name="policy_document_filename">premium_coverage_078.pdf</field>
+            <field name="notes">Includes rental car coverage and trip interruption benefits</field>
+        </record>
+
+        <record id="insurance_demo_5" model="fleet.insurance">
+            <field name="name">Fleet Policy - Vehicle ABC-1234</field>
+            <field name="vehicle_id" ref="vehicle_demo_1"/>
+            <field name="insurance_company">FleetGuard Insurance</field>
+            <field name="policy_number">FLEET-2023-005</field>
+            <field name="start_date" eval="(datetime.now() - timedelta(days=45)).strftime('%Y-%m-%d')"/>
+            <field name="end_date" eval="(datetime.now() + timedelta(days=320)).strftime('%Y-%m-%d')"/>
+            <field name="premium_amount">15000.0</field>
+            <field name="deductible">500.0</field>
+            <field name="agent_name">Amanda Chen</field>
+            <field name="policy_document_filename">fleet_policy_005.pdf</field>
+            <field name="notes">Master fleet policy - contact agent for coverage details on other vehicles</field>
+        </record>
+    </data>
+</odoo>

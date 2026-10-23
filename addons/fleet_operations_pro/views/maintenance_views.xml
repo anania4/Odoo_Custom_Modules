@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Maintenance Actions (defined first to be referenced in views) -->
+    <record id="action_fleet_maintenance" model="ir.actions.act_window">
+        <field name="name">Maintenance</field>
+        <field name="res_model">fleet.maintenance</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_filter_this_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first maintenance record
+            </p>
+            <p>
+                Track all vehicle maintenance activities including oil changes,
+                tire services, repairs, and inspections.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_fleet_maintenance_vehicle" model="ir.actions.act_window">
+        <field name="name">Maintenance Records</field>
+        <field name="res_model">fleet.maintenance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'default_vehicle_id': active_id, 'search_default_vehicle_id': active_id}</field>
+    </record>
+    
+    <record id="action_fleet_maintenance_type" model="ir.actions.act_window">
+        <field name="name">Maintenance Types</field>
+        <field name="res_model">fleet.maintenance.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <!-- Maintenance List View -->
+    <record id="view_fleet_maintenance_list" model="ir.ui.view">
+        <field name="name">fleet.maintenance.list</field>
+        <field name="model">fleet.maintenance</field>
+        <field name="arch" type="xml">
+            <list string="Maintenance Records" sample="1" decoration-info="state == 'scheduled'" 
+                  decoration-warning="state == 'in_progress'" decoration-success="state == 'completed'">
+                <field name="date"/>
+                <field name="vehicle_id"/>
+                <field name="maintenance_type_id"/>
+                <field name="description"/>
+                <field name="odometer"/>
+                <field name="cost" sum="Total Cost" widget="monetary"/>
+                <field name="service_provider"/>
+                <field name="state" widget="badge"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Maintenance Form View -->
+    <record id="view_fleet_maintenance_form" model="ir.ui.view">
+        <field name="name">fleet.maintenance.form</field>
+        <field name="model">fleet.maintenance</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Record">
+                <header>
+                    <button name="action_start_maintenance" string="Start Maintenance" 
+                            type="object" class="oe_highlight" 
+                            invisible="state != 'scheduled'"/>
+                    <button name="action_complete_maintenance" string="Complete" 
+                            type="object" class="oe_highlight" 
+                            invisible="state != 'in_progress'"/>
+                    <button name="action_cancel_maintenance" string="Cancel" 
+                            type="object" 
+                            invisible="state in ['completed', 'cancelled']"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="scheduled,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group name="basic_info" string="Basic Information">
+                            <field name="vehicle_id" options="{'no_create': True}"/>
+                            <field name="maintenance_type_id" options="{'no_create': True}"/>
+                            <field name="date"/>
+                            <field name="odometer"/>
+                        </group>
+                        
+                        <group name="financial_info" string="Financial">
+                            <field name="cost" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="under_warranty"/>
+                            <field name="invoice_reference"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <field name="description" placeholder="Detailed description of the maintenance work performed..."/>
+                    </group>
+                    
+                    <group>
+                        <group name="service_provider_info" string="Service Provider">
+                            <field name="service_provider_partner_id"/>
+                            <field name="service_provider"/>
+                            <field name="service_location"/>
+                        </group>
+                        
+                        <group name="completion_info" string="Completion">
+                            <field name="completion_date"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group name="warranty_info" string="Warranty" invisible="not under_warranty">
+                            <field name="warranty_details" placeholder="Warranty coverage details..."/>
+                        </group>
+                        
+                        <group name="parts_info" string="Parts Used">
+                            <field name="parts_used" placeholder="List of parts used during maintenance..."/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <field name="notes" placeholder="Additional notes..."/>
+                    </group>
+                    
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                    </group>
+                </sheet>
+                
+                <!-- Chatter -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Maintenance Kanban View -->
+    <record id="view_fleet_maintenance_kanban" model="ir.ui.view">
+        <field name="name">fleet.maintenance.kanban</field>
+        <field name="model">fleet.maintenance</field>
+        <field name="arch" type="xml">
+            <kanban string="Maintenance Records" sample="1" class="o_kanban_mobile" default_group_by="state">
+                <field name="id"/>
+                <field name="vehicle_id"/>
+                <field name="maintenance_type_id"/>
+                <field name="date"/>
+                <field name="cost"/>
+                <field name="state"/>
+                <field name="odometer"/>
+                
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="vehicle_id"/>
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle">
+                                        <field name="maintenance_type_id"/>
+                                    </div>
+                                </div>
+                                <span class="badge" t-att-class="
+                                    record.state.raw_value === 'scheduled' ? 'text-bg-info' :
+                                    record.state.raw_value === 'in_progress' ? 'text-bg-warning' :
+                                    record.state.raw_value === 'completed' ? 'text-bg-success' :
+                                    'text-bg-secondary'
+                                ">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+                            
+                            <div class="o_kanban_record_body">
+                                <div>
+                                    <i class="fa fa-calendar"/> <field name="date"/>
+                                </div>
+                                <div>
+                                    <i class="fa fa-money"/> <field name="cost" widget="monetary"/>
+                                </div>
+                                <div>
+                                    <i class="fa fa-tachometer"/> <field name="odometer"/> km
+                                </div>
+                                <div t-if="record.service_provider.raw_value">
+                                    <i class="fa fa-wrench"/> <field name="service_provider"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Maintenance Search View -->
+    <record id="view_fleet_maintenance_search" model="ir.ui.view">
+        <field name="name">fleet.maintenance.search</field>
+        <field name="model">fleet.maintenance</field>
+        <field name="arch" type="xml">
+            <search string="Search Maintenance">
+                <field name="vehicle_id"/>
+                <field name="maintenance_type_id"/>
+                <field name="service_provider"/>
+                <field name="date"/>
+                
+                <filter string="Scheduled" name="filter_scheduled" 
+                        domain="[('state', '=', 'scheduled')]"/>
+                <filter string="In Progress" name="filter_in_progress" 
+                        domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Completed" name="filter_completed" 
+                        domain="[('state', '=', 'completed')]"/>
+                <filter string="Cancelled" name="filter_cancelled" 
+                        domain="[('state', '=', 'cancelled')]"/>
+                
+                <separator/>
+                <filter string="Under Warranty" name="filter_warranty" 
+                        domain="[('under_warranty', '=', True)]"/>
+                
+                <separator/>
+                <filter string="This Month" name="filter_this_month" 
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="Last 3 Months" name="filter_last_3_months" 
+                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=90)).strftime('%Y-%m-%d'))]"/>
+                
+                <group expand="0" string="Group By">
+                    <filter string="Vehicle" name="group_vehicle" 
+                            context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Maintenance Type" name="group_type" 
+                            context="{'group_by': 'maintenance_type_id'}"/>
+                    <filter string="Status" name="group_state" 
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" 
+                            context="{'group_by': 'date:month'}"/>
+                    <filter string="Service Provider" name="group_provider" 
+                            context="{'group_by': 'service_provider'}"/>
+                    <filter string="Company" name="group_company" 
+                            context="{'group_by': 'company_id'}" 
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Maintenance Type Views -->
+    <record id="view_fleet_maintenance_type_list" model="ir.ui.view">
+        <field name="name">fleet.maintenance.type.list</field>
+        <field name="model">fleet.maintenance.type</field>
+        <field name="arch" type="xml">
+            <list string="Maintenance Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="description"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="view_fleet_maintenance_type_form" model="ir.ui.view">
+        <field name="name">fleet.maintenance.type.form</field>
+        <field name="model">fleet.maintenance.type</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Description of this maintenance type..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+</odoo>
+

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Certificate Types -->
+        <record id="certificate_type_registration" model="fleet.certificate.type">
+            <field name="name">Vehicle Registration</field>
+            <field name="code">REG</field>
+            <field name="description">Official vehicle registration document</field>
+            <field name="sequence">10</field>
+            <field name="reminder_days">60</field>
+            <field name="mandatory">True</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">12</field>
+            <field name="color">1</field>
+        </record>
+        
+        <record id="certificate_type_insurance" model="fleet.certificate.type">
+            <field name="name">Insurance Certificate</field>
+            <field name="code">INS</field>
+            <field name="description">Vehicle insurance policy certificate</field>
+            <field name="sequence">20</field>
+            <field name="reminder_days">30</field>
+            <field name="mandatory">True</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">12</field>
+            <field name="color">3</field>
+        </record>
+        
+        <record id="certificate_type_puc" model="fleet.certificate.type">
+            <field name="name">Pollution Certificate (PUC)</field>
+            <field name="code">PUC</field>
+            <field name="description">Pollution Under Control certificate - Emissions testing</field>
+            <field name="sequence">30</field>
+            <field name="reminder_days">15</field>
+            <field name="mandatory">True</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">6</field>
+            <field name="color">7</field>
+        </record>
+        
+        <record id="certificate_type_fitness" model="fleet.certificate.type">
+            <field name="name">Fitness Certificate (FC)</field>
+            <field name="code">FC</field>
+            <field name="description">Vehicle fitness and roadworthiness certificate</field>
+            <field name="sequence">40</field>
+            <field name="reminder_days">45</field>
+            <field name="mandatory">True</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">12</field>
+            <field name="color">5</field>
+        </record>
+        
+        <record id="certificate_type_road_tax" model="fleet.certificate.type">
+            <field name="name">Road Tax Certificate</field>
+            <field name="code">TAX</field>
+            <field name="description">Annual road tax payment receipt</field>
+            <field name="sequence">50</field>
+            <field name="reminder_days">60</field>
+            <field name="mandatory">True</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">12</field>
+            <field name="color">4</field>
+        </record>
+        
+        <record id="certificate_type_national_permit" model="fleet.certificate.type">
+            <field name="name">National Permit</field>
+            <field name="code">NPERM</field>
+            <field name="description">Interstate travel authorization permit</field>
+            <field name="sequence">60</field>
+            <field name="reminder_days">90</field>
+            <field name="mandatory">False</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">12</field>
+            <field name="color">2</field>
+        </record>
+        
+        <record id="certificate_type_state_permit" model="fleet.certificate.type">
+            <field name="name">State Permit</field>
+            <field name="code">SPERM</field>
+            <field name="description">Regional travel authorization permit</field>
+            <field name="sequence">70</field>
+            <field name="reminder_days">60</field>
+            <field name="mandatory">False</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">12</field>
+            <field name="color">6</field>
+        </record>
+        
+        <record id="certificate_type_commercial_license" model="fleet.certificate.type">
+            <field name="name">Commercial License</field>
+            <field name="code">CLIC</field>
+            <field name="description">Commercial vehicle operating license</field>
+            <field name="sequence">80</field>
+            <field name="reminder_days">60</field>
+            <field name="mandatory">False</field>
+            <field name="requires_renewal">True</field>
+            <field name="validity_period_months">12</field>
+            <field name="color">9</field>
+        </record>
+        
+    </data>
+</odoo>
+

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Root Menu -->
+    <menuitem id="menu_fleet_root"
+              name="Fleet"
+              web_icon="fleet_operations_pro,static/description/icon.png"
+              sequence="50"/>
+    
+    <!-- Operations Menu -->
+    <menuitem id="menu_fleet_operations"
+              name="Operations"
+              parent="menu_fleet_root"
+              sequence="10"/>
+    
+    <!-- Dashboard Menu Item -->
+    <menuitem id="menu_fleet_dashboard"
+              name="Dashboard"
+              parent="menu_fleet_root"
+              action="action_client_fleet_dashboard"
+              sequence="1"/>
+    
+    <!-- Fleet Requests Menu Item -->
+    <menuitem id="menu_fleet_request"
+              name="Fleet Requests"
+              parent="menu_fleet_root"
+              action="action_fleet_request"
+              sequence="2"/>
+    
+    <!-- Vehicles Menu Item -->
+    <menuitem id="menu_fleet_vehicle"
+              name="Vehicles"
+              parent="menu_fleet_operations"
+              action="action_fleet_vehicle"
+              sequence="10"/>
+    
+    <!-- Drivers Menu Item -->
+    <menuitem id="menu_fleet_driver"
+              name="Drivers"
+              parent="menu_fleet_operations"
+              action="action_fleet_driver"
+              sequence="20"/>
+    
+    <!-- Driver Assignments Menu Item -->
+    <menuitem id="menu_fleet_driver_assignment"
+              name="Driver Assignments"
+              parent="menu_fleet_operations"
+              action="action_fleet_driver_assignment"
+              sequence="30"/>
+    
+    <!-- Fuel Logs Menu Item -->
+    <menuitem id="menu_fleet_fuel_log"
+              name="Fuel Logs"
+              parent="menu_fleet_operations"
+              action="action_fleet_fuel_log"
+              sequence="40"/>
+    
+    <!-- Maintenance Menu Item -->
+    <menuitem id="menu_fleet_maintenance"
+              name="Maintenance"
+              parent="menu_fleet_operations"
+              action="action_fleet_maintenance"
+              sequence="50"/>
+    
+    <!-- Certificates Menu Item -->
+    <menuitem id="menu_fleet_certificate"
+              name="Certificates"
+              parent="menu_fleet_operations"
+              action="action_fleet_vehicle_certificate"
+              sequence="70"/>
+    
+    <!-- Toll Records Menu Item -->
+    <menuitem id="menu_fleet_toll_record"
+              name="Toll Records"
+              parent="menu_fleet_operations"
+              action="action_fleet_toll_record"
+              sequence="90"/>
+    
+    <!-- Trips Menu Item -->
+    <menuitem id="menu_fleet_trip"
+              name="Trips"
+              parent="menu_fleet_operations"
+              action="action_fleet_trip"
+              sequence="100"/>
+    
+    <!-- Maintenance Schedules Menu Item -->
+    <menuitem id="menu_fleet_maintenance_schedule"
+              name="Maintenance Schedules"
+              parent="menu_fleet_operations"
+              action="action_fleet_maintenance_schedule"
+              sequence="130"/>
+    
+    <!-- Configuration Menu -->
+    <menuitem id="menu_fleet_configuration"
+              name="Configuration"
+              parent="menu_fleet_root"
+              sequence="100"/>
+    
+    <!-- Configuration Sub-menus -->
+    <menuitem id="menu_fleet_config_settings"
+              name="Settings"
+              parent="menu_fleet_configuration"
+              sequence="10"/>
+    
+    <!-- Vehicle Categories -->
+    <record id="action_fleet_vehicle_category" model="ir.actions.act_window">
+        <field name="name">Vehicle Categories</field>
+        <field name="res_model">fleet.vehicle.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <menuitem id="menu_fleet_vehicle_category"
+              name="Vehicle Categories"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_vehicle_category"
+              sequence="10"/>
+    
+    <!-- Vehicle Statuses -->
+    <record id="action_fleet_vehicle_status" model="ir.actions.act_window">
+        <field name="name">Vehicle Statuses</field>
+        <field name="res_model">fleet.vehicle.status</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <menuitem id="menu_fleet_vehicle_status"
+              name="Vehicle Statuses"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_vehicle_status"
+              sequence="20"/>
+    
+    <!-- Fuel Types -->
+    <record id="action_fleet_fuel_type" model="ir.actions.act_window">
+        <field name="name">Fuel Types</field>
+        <field name="res_model">fleet.fuel.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <menuitem id="menu_fleet_fuel_type"
+              name="Fuel Types"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_fuel_type"
+              sequence="30"/>
+    
+    <!-- Maintenance Types -->
+    <menuitem id="menu_fleet_maintenance_type"
+              name="Maintenance Types"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_maintenance_type"
+              sequence="40"/>
+    
+    <!-- Certificate Types -->
+    <menuitem id="menu_fleet_certificate_type"
+              name="Certificate Types"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_certificate_type"
+              sequence="60"/>
+    
+    <!-- Toll Locations -->
+    <menuitem id="menu_fleet_toll_location"
+              name="Toll Locations"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_toll_location"
+              sequence="70"/>
+    
+</odoo>

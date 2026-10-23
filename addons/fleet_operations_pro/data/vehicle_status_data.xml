@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Vehicle Statuses -->
+        <record id="vehicle_status_active" model="fleet.vehicle.status">
+            <field name="name">Active</field>
+            <field name="code">active</field>
+            <field name="sequence">10</field>
+            <field name="color">10</field>
+            <field name="description">Vehicle is active and operational</field>
+        </record>
+        
+        <record id="vehicle_status_available" model="fleet.vehicle.status">
+            <field name="name">Available</field>
+            <field name="code">available</field>
+            <field name="sequence">20</field>
+            <field name="color">3</field>
+            <field name="description">Vehicle is available for use</field>
+        </record>
+        
+        <record id="vehicle_status_rented" model="fleet.vehicle.status">
+            <field name="name">Rented</field>
+            <field name="code">rented</field>
+            <field name="sequence">30</field>
+            <field name="color">5</field>
+            <field name="description">Vehicle is currently rented out</field>
+        </record>
+        
+        <record id="vehicle_status_maintenance" model="fleet.vehicle.status">
+            <field name="name">In Maintenance</field>
+            <field name="code">in_maintenance</field>
+            <field name="sequence">40</field>
+            <field name="color">2</field>
+            <field name="description">Vehicle is under maintenance</field>
+        </record>
+        
+        <record id="vehicle_status_out_of_service" model="fleet.vehicle.status">
+            <field name="name">Out of Service</field>
+            <field name="code">out_of_service</field>
+            <field name="sequence">50</field>
+            <field name="color">1</field>
+            <field name="description">Vehicle is out of service</field>
+        </record>
+        
+        <record id="vehicle_status_sold" model="fleet.vehicle.status">
+            <field name="name">Sold</field>
+            <field name="code">sold</field>
+            <field name="sequence">60</field>
+            <field name="color">7</field>
+            <field name="description">Vehicle has been sold</field>
+        </record>
+        
+        <record id="vehicle_status_disposed" model="fleet.vehicle.status">
+            <field name="name">Disposed</field>
+            <field name="code">disposed</field>
+            <field name="sequence">70</field>
+            <field name="color">8</field>
+            <field name="description">Vehicle has been disposed</field>
+        </record>
+        
+    </data>
+</odoo>
+

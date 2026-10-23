@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Driver Training Records -->
+        <record id="driver_training_demo_1" model="fleet.driver.training">
+            <field name="name">Defensive Driving Course</field>
+            <field name="driver_id" ref="driver_demo_1"/>
+            <field name="training_type">defensive_driving</field>
+            <field name="date" eval="(datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')"/>
+            <field name="completion_date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="duration_hours">8.0</field>
+            <field name="training_name">Defensive Driving Certification</field>
+            <field name="completion_status">completed</field>
+            <field name="trainer">ABC Driving School</field>
+            <field name="certificate_number">CERT-2023-001</field>
+            <field name="score">95.5</field>
+            <field name="notes">Completed with distinction</field>
+        </record>
+
+        <record id="driver_training_demo_2" model="fleet.driver.training">
+            <field name="name">Hazardous Materials</field>
+            <field name="driver_id" ref="driver_demo_2"/>
+            <field name="training_type">hazmat</field>
+            <field name="date" eval="(datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')"/>
+            <field name="completion_date" eval="(datetime.now() - timedelta(days=87)).strftime('%Y-%m-%d')"/>
+            <field name="duration_hours">24.0</field>
+            <field name="training_name">Hazardous Materials Handling</field>
+            <field name="completion_status">completed</field>
+            <field name="trainer">Safety First Training</field>
+            <field name="certificate_number">HAZ-2023-045</field>
+            <field name="score">88.0</field>
+            <field name="notes">Certified for Class 3 hazardous materials</field>
+        </record>
+
+        <record id="driver_training_demo_3" model="fleet.driver.training">
+            <field name="name">Winter Driving</field>
+            <field name="driver_id" ref="driver_demo_3"/>
+            <field name="training_type">winter_driving</field>
+            <field name="date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="completion_date" eval="(datetime.now() - timedelta(days=29)).strftime('%Y-%m-%d')"/>
+            <field name="duration_hours">8.0</field>
+            <field name="training_name">Winter Driving Skills</field>
+            <field name="completion_status">completed</field>
+            <field name="trainer">Safe Winter Driving Inc.</field>
+            <field name="certificate_number">WINT-2023-012</field>
+            <field name="score">92.5</field>
+            <field name="notes">Completed practical test on ice track</field>
+        </record>
+
+        <record id="driver_training_demo_4" model="fleet.driver.training">
+            <field name="name">Eco-Driving</field>
+            <field name="driver_id" ref="driver_demo_1"/>
+            <field name="training_type">eco_driving</field>
+            <field name="date" eval="(datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="completion_date" eval="(datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d')"/>
+            <field name="duration_hours">4.0</field>
+            <field name="training_name">Eco-Driving Techniques</field>
+            <field name="completion_status">completed</field>
+            <field name="trainer">Green Fleet Academy</field>
+            <field name="certificate_number">ECO-2023-078</field>
+            <field name="score">97.0</field>
+            <field name="notes">Achieved 15% fuel efficiency improvement in practical test</field>
+        </record>
+
+        <record id="driver_training_demo_5" model="fleet.driver.training">
+            <field name="name">Advanced First Aid</field>
+            <field name="driver_id" ref="driver_demo_4"/>
+            <field name="training_type">first_aid</field>
+            <field name="date" eval="(datetime.now() - timedelta(days=180)).strftime('%Y-%m-%d')"/>
+            <field name="completion_date" eval="(datetime.now() - timedelta(days=175)).strftime('%Y-%m-%d')"/>
+            <field name="duration_hours">40.0</field>
+            <field name="training_name">Advanced First Aid Certification</field>
+            <field name="completion_status">completed</field>
+            <field name="trainer">Red Cross Training Center</field>
+            <field name="certificate_number">FA-2023-033</field>
+            <field name="score">100.0</field>
+            <field name="notes">Certified in CPR and emergency first aid</field>
+        </record>
+    </data>
+</odoo>

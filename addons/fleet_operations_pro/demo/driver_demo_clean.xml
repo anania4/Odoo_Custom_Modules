@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Demo Drivers -->
+        <record id="driver_demo_1" model="fleet.driver">
+            <field name="name">John Smith</field>
+            <field name="code">DRV001</field>
+            <field name="email">john.smith@example.com</field>
+            <field name="phone">+1-555-0101</field>
+            <field name="mobile">+1-555-1001</field>
+            <field name="license_number">DL123456789</field>
+            <field name="license_type">light</field>
+            <field name="license_issue_date" eval="(datetime.now() - timedelta(days=730)).strftime('%Y-%m-%d')"/>
+            <field name="license_expiry_date" eval="(datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')"/>
+            <field name="date_hired" eval="(datetime.now() - timedelta(days=600)).strftime('%Y-%m-%d')"/>
+            <field name="employment_status">active</field>
+            <field name="safety_score">95.0</field>
+            <field name="address">123 Main Street, Cityville, ST 12345</field>
+            <field name="image" type="base64" file="fleet_operations_pro/static/src/img/drivers/driver_demo_1.jpg"/>
+        </record>
+        
+        <record id="driver_demo_2" model="fleet.driver">
+            <field name="name">Sarah Johnson</field>
+            <field name="code">DRV002</field>
+            <field name="email">sarah.johnson@example.com</field>
+            <field name="phone">+1-555-0102</field>
+            <field name="mobile">+1-555-1002</field>
+            <field name="license_number">DL987654321</field>
+            <field name="license_type">heavy</field>
+            <field name="license_issue_date" eval="(datetime.now() - timedelta(days=1095)).strftime('%Y-%m-%d')"/>
+            <field name="license_expiry_date" eval="(datetime.now() + timedelta(days=180)).strftime('%Y-%m-%d')"/>
+            <field name="date_hired" eval="(datetime.now() - timedelta(days=900)).strftime('%Y-%m-%d')"/>
+            <field name="employment_status">active</field>
+            <field name="safety_score">98.5</field>
+            <field name="address">456 Oak Avenue, Townsburg, ST 54321</field>
+            <field name="image" type="base64" file="fleet_operations_pro/static/src/img/drivers/driver_demo_2.jpg"/>
+        </record>
+        
+        <record id="driver_demo_3" model="fleet.driver">
+            <field name="name">Michael Brown</field>
+            <field name="code">DRV003</field>
+            <field name="email">michael.brown@example.com</field>
+            <field name="phone">+1-555-0103</field>
+            <field name="mobile">+1-555-1003</field>
+            <field name="license_number">DL456789123</field>
+            <field name="license_type">commercial</field>
+            <field name="license_issue_date" eval="(datetime.now() - timedelta(days=1460)).strftime('%Y-%m-%d')"/>
+            <field name="license_expiry_date" eval="(datetime.now() + timedelta(days=730)).strftime('%Y-%m-%d')"/>
+            <field name="date_hired" eval="(datetime.now() - timedelta(days=1200)).strftime('%Y-%m-%d')"/>
+            <field name="employment_status">active</field>
+            <field name="safety_score">92.0</field>
+            <field name="address">789 Elm Street, Village City, ST 67890</field>
+            <field name="image" type="base64" file="fleet_operations_pro/static/src/img/drivers/driver_demo_3.jpg"/>
+        </record>
+        
+        <record id="driver_demo_4" model="fleet.driver">
+            <field name="name">Emily Davis</field>
+            <field name="code">DRV004</field>
+            <field name="email">emily.davis@example.com</field>
+            <field name="phone">+1-555-0104</field>
+            <field name="mobile">+1-555-1004</field>
+            <field name="license_number">DL789123456</field>
+            <field name="license_type">light</field>
+            <field name="license_issue_date" eval="(datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')"/>
+            <field name="license_expiry_date" eval="(datetime.now() + timedelta(days=28)).strftime('%Y-%m-%d')"/>
+            <field name="date_hired" eval="(datetime.now() - timedelta(days=300)).strftime('%Y-%m-%d')"/>
+            <field name="employment_status">active</field>
+            <field name="safety_score">88.5</field>
+            <field name="address">321 Pine Road, Metropolis, ST 13579</field>
+            <field name="image" type="base64" file="fleet_operations_pro/static/src/img/drivers/driver_demo_4.jpg"/>
+        </record>
+        
+        <record id="driver_demo_5" model="fleet.driver">
+            <field name="name">Robert Wilson</field>
+            <field name="code">DRV005</field>
+            <field name="email">robert.wilson@example.com</field>
+            <field name="phone">+1-555-0105</field>
+            <field name="license_number">DL321654987</field>
+            <field name="license_type">motorcycle</field>
+            <field name="license_issue_date" eval="(datetime.now() - timedelta(days=1825)).strftime('%Y-%m-%d')"/>
+            <field name="license_expiry_date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="date_hired" eval="(datetime.now() - timedelta(days=1500)).strftime('%Y-%m-%d')"/>
+            <field name="employment_status">active</field>
+            <field name="safety_score">90.0</field>
+            <field name="address">654 Maple Lane, Hamlet Town, ST 24680</field>
+            <field name="image" type="base64" file="fleet_operations_pro/static/src/img/drivers/driver_demo_5.jpg"/>
+            <field name="notes">License expired - needs renewal</field>
+        </record>
+    </data>
+</odoo>

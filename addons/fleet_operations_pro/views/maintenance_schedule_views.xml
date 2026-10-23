@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Maintenance Schedule Actions -->
+    <record id="action_fleet_maintenance_schedule" model="ir.actions.act_window">
+        <field name="name">Maintenance Schedules</field>
+        <field name="res_model">fleet.maintenance.schedule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a maintenance schedule</p>
+            <p>Set up preventive maintenance schedules for your vehicles.</p>
+        </field>
+    </record>
+    
+    <!-- Maintenance Schedule List View -->
+    <record id="view_fleet_maintenance_schedule_list" model="ir.ui.view">
+        <field name="name">fleet.maintenance.schedule.list</field>
+        <field name="model">fleet.maintenance.schedule</field>
+        <field name="arch" type="xml">
+            <list string="Maintenance Schedules" decoration-danger="is_overdue">
+                <field name="sequence" widget="handle"/>
+                <field name="priority" widget="priority" options="{'no_open': True}"/>
+                <field name="name"/>
+                <field name="vehicle_id"/>
+                <field name="maintenance_type_id"/>
+                <field name="schedule_by_time" widget="boolean"/>
+                <field name="schedule_by_odometer" widget="boolean"/>
+                <field name="next_maintenance_date" optional="show"/>
+                <field name="next_maintenance_odometer" optional="show"/>
+                <field name="days_until_due" optional="show"/>
+                <field name="km_until_due" optional="show"/>
+                <field name="is_overdue" widget="boolean"/>
+                <field name="maintenance_count"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Maintenance Schedule Form View -->
+    <record id="view_fleet_maintenance_schedule_form" model="ir.ui.view">
+        <field name="name">fleet.maintenance.schedule.form</field>
+        <field name="model">fleet.maintenance.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Schedule">
+                <header>
+                    <button name="action_create_maintenance" string="Create Maintenance" type="object" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_fleet_maintenance)d" type="action" class="oe_stat_button" icon="fa-wrench">
+                            <field name="maintenance_count" widget="statinfo" string="Maintenance"/>
+                        </button>
+                    </div>
+                    
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active == True"/>
+                    <field name="active" invisible="1"/>
+                    
+                    <div class="alert alert-danger" role="alert" invisible="is_overdue == False">
+                        <i class="fa fa-exclamation-triangle"/> <strong>Maintenance Overdue!</strong>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g., Oil Change Every 5000km"/></h1>
+                    </div>
+                    
+                    <group>
+                        <group name="basic_info" string="Basic Information">
+                            <field name="vehicle_id"/>
+                            <field name="maintenance_type_id"/>
+                            <field name="priority" widget="priority" options="{'no_open': True}"/>
+                            <field name="current_vehicle_odometer"/>
+                        </group>
+                        <group name="settings" string="Settings">
+                            <field name="auto_create_activity"/>
+                            <field name="reminder_days_before" invisible="auto_create_activity == False"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page name="time_schedule" string="Time-Based Schedule">
+                            <group>
+                                <group name="time_settings">
+                                    <field name="schedule_by_time"/>
+                                    <field name="interval_number" invisible="schedule_by_time == False"/>
+                                    <field name="interval_value" invisible="schedule_by_time == False"/>
+                                    <field name="interval_type" invisible="schedule_by_time == False"/>
+                                </group>
+                                <group name="time_tracking" invisible="schedule_by_time == False">
+                                    <field name="last_maintenance_date"/>
+                                    <field name="next_maintenance_date"/>
+                                    <field name="days_until_due"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page name="odometer_schedule" string="Odometer-Based Schedule">
+                            <group>
+                                <group name="odometer_settings">
+                                    <field name="schedule_by_odometer"/>
+                                    <field name="odometer_interval" invisible="schedule_by_odometer == False"/>
+                                </group>
+                                <group name="odometer_tracking" invisible="schedule_by_odometer == False">
+                                    <field name="last_maintenance_odometer"/>
+                                    <field name="next_maintenance_odometer"/>
+                                    <field name="km_until_due"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page name="description" string="Description">
+                            <field name="description" placeholder="Description of maintenance tasks..."/>
+                        </page>
+                        
+                        <page name="notes" string="Notes">
+                            <field name="notes" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Maintenance Schedule Search View -->
+    <record id="view_fleet_maintenance_schedule_search" model="ir.ui.view">
+        <field name="name">fleet.maintenance.schedule.search</field>
+        <field name="model">fleet.maintenance.schedule</field>
+        <field name="arch" type="xml">
+            <search string="Search Maintenance Schedules">
+                <field name="name" string="Schedule Name"/>
+                <field name="vehicle_id" string="Vehicle"/>
+                <field name="maintenance_type_id" string="Maintenance Type"/>
+                
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="overdue" string="Overdue" domain="[('next_maintenance_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="time_based" string="Time-Based" domain="[('schedule_by_time', '=', True)]"/>
+                <filter name="odometer_based" string="Odometer-Based" domain="[('schedule_by_odometer', '=', True)]"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_vehicle" string="Vehicle" context="{'group_by': 'vehicle_id'}"/>
+                    <filter name="group_type" string="Maintenance Type" context="{'group_by': 'maintenance_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+</odoo>

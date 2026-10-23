@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Maintenance Types -->
+        <record id="maintenance_type_oil_change" model="fleet.maintenance.type">
+            <field name="name">Oil Change</field>
+            <field name="code">oil_change</field>
+            <field name="sequence">10</field>
+            <field name="description">Engine oil and filter change</field>
+        </record>
+        
+        <record id="maintenance_type_tire_rotation" model="fleet.maintenance.type">
+            <field name="name">Tire Rotation</field>
+            <field name="code">tire_rotation</field>
+            <field name="sequence">15</field>
+            <field name="description">Rotating tires to ensure even wear</field>
+        </record>
+        
+        <record id="maintenance_type_tire" model="fleet.maintenance.type">
+            <field name="name">Tire Service</field>
+            <field name="code">tire</field>
+            <field name="sequence">20</field>
+            <field name="description">Tire replacement or balancing service</field>
+        </record>
+        
+        <record id="maintenance_type_brake" model="fleet.maintenance.type">
+            <field name="name">Brake Service</field>
+            <field name="code">brake</field>
+            <field name="sequence">30</field>
+            <field name="description">Brake pad/shoe replacement and brake system service</field>
+        </record>
+        
+        <record id="maintenance_type_battery" model="fleet.maintenance.type">
+            <field name="name">Battery Service</field>
+            <field name="code">battery</field>
+            <field name="sequence">40</field>
+            <field name="description">Battery testing, charging, or replacement</field>
+        </record>
+        
+        <record id="maintenance_type_inspection" model="fleet.maintenance.type">
+            <field name="name">General Inspection</field>
+            <field name="code">inspection</field>
+            <field name="sequence">50</field>
+            <field name="description">Routine vehicle inspection and checkup</field>
+        </record>
+        
+        <record id="maintenance_type_air_filter" model="fleet.maintenance.type">
+            <field name="name">Air Filter Replacement</field>
+            <field name="code">air_filter</field>
+            <field name="sequence">25</field>
+            <field name="description">Engine air filter replacement service</field>
+        </record>
+        
+        <record id="maintenance_type_repair" model="fleet.maintenance.type">
+            <field name="name">Repair</field>
+            <field name="code">repair</field>
+            <field name="sequence">60</field>
+            <field name="description">General repairs and fixes</field>
+        </record>
+        
+        <record id="maintenance_type_transmission" model="fleet.maintenance.type">
+            <field name="name">Transmission Service</field>
+            <field name="code">transmission</field>
+            <field name="sequence">70</field>
+            <field name="description">Transmission fluid change and service</field>
+        </record>
+        
+        <record id="maintenance_type_coolant" model="fleet.maintenance.type">
+            <field name="name">Coolant Service</field>
+            <field name="code">coolant</field>
+            <field name="sequence">80</field>
+            <field name="description">Coolant flush and refill</field>
+        </record>
+        
+        <record id="maintenance_type_alignment" model="fleet.maintenance.type">
+            <field name="name">Wheel Alignment</field>
+            <field name="code">alignment</field>
+            <field name="sequence">90</field>
+            <field name="description">Wheel alignment and suspension check</field>
+        </record>
+        
+        <record id="maintenance_type_ac" model="fleet.maintenance.type">
+            <field name="name">A/C Service</field>
+            <field name="code">ac</field>
+            <field name="sequence">100</field>
+            <field name="description">Air conditioning system service and recharge</field>
+        </record>
+        
+        <record id="maintenance_type_other" model="fleet.maintenance.type">
+            <field name="name">Other</field>
+            <field name="code">other</field>
+            <field name="sequence">999</field>
+            <field name="description">Other maintenance activities</field>
+        </record>
+        
+    </data>
+</odoo>
+

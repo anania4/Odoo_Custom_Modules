@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Dashboard Action -->
+    <record id="action_fleet_dashboard" model="ir.actions.client">
+        <field name="name">Fleet Dashboard</field>
+        <field name="tag">fleet_dashboard</field>
+        <field name="target">current</field>
+    </record>
+    
+    <!-- Dashboard Menu (make it first in the menu) -->
+    <menuitem id="menu_fleet_dashboard"
+              name="Dashboard"
+              parent="menu_fleet_root"
+              action="action_fleet_dashboard"
+              sequence="1"/>
+    
+</odoo>

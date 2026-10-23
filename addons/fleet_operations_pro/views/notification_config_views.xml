@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ========================================= -->
+    <!-- Notification Config Actions              -->
+    <!-- ========================================= -->
+    
+    <!-- Main Notification Config Action -->
+    <record id="action_fleet_notification_config" model="ir.actions.act_window">
+        <field name="name">Notification Configurations</field>
+        <field name="res_model">fleet.notification.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new notification configuration
+            </p>
+            <p>
+                Configure automated reminders for certificate renewals, license expiry, and rental contracts.
+            </p>
+        </field>
+    </record>
+    
+    <!-- ========================================= -->
+    <!-- Notification Config Views                 -->
+    <!-- ========================================= -->
+    
+    <!-- Notification Config List View -->
+    <record id="view_fleet_notification_config_list" model="ir.ui.view">
+        <field name="name">fleet.notification.config.list</field>
+        <field name="model">fleet.notification.config</field>
+        <field name="arch" type="xml">
+            <list string="Notification Configurations" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="notification_type"/>
+                <field name="lead_days"/>
+                <field name="activity_type_id"/>
+                <field name="user_id"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Notification Config Form View -->
+    <record id="view_fleet_notification_config_form" model="ir.ui.view">
+        <field name="name">fleet.notification.config.form</field>
+        <field name="model">fleet.notification.config</field>
+        <field name="arch" type="xml">
+            <form string="Notification Configuration">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="active" widget="boolean_toggle"/>
+                    </div>
+                    
+                    <group>
+                        <group name="basic_info" string="Basic Information">
+                            <field name="notification_type"/>
+                            <field name="lead_days"/>
+                            <field name="sequence"/>
+                        </group>
+                        
+                        <group name="activity_config" string="Activity Configuration">
+                            <field name="activity_type_id"/>
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    
+                    <group name="templates" string="Message Templates">
+                        <field name="summary_template" placeholder="Use {field_name} for variable substitution"/>
+                        <field name="note_template" placeholder="Use {field_name} for variable substitution" nolabel="1"/>
+                    </group>
+                    
+                    <notebook>
+                        <page name="help" string="Available Variables">
+                            <group>
+                                <group string="Certificate Expiry" invisible="notification_type != 'certificate_expiry'">
+                                    <field name="notification_type" invisible="1"/>
+                                    <div>
+                                        <ul>
+                                            <li><strong>{certificate_type}</strong>: Type of certificate</li>
+                                            <li><strong>{vehicle}</strong>: Vehicle license plate</li>
+                                            <li><strong>{expiry_date}</strong>: Certificate expiry date</li>
+                                        </ul>
+                                    </div>
+                                </group>
+                                
+                                <group string="License Expiry" invisible="notification_type != 'license_expiry'">
+                                    <div>
+                                        <ul>
+                                            <li><strong>{driver_name}</strong>: Driver name</li>
+                                            <li><strong>{license_number}</strong>: License number</li>
+                                            <li><strong>{expiry_date}</strong>: License expiry date</li>
+                                        </ul>
+                                    </div>
+                                </group>
+                                
+                                <group string="Rental Start" invisible="notification_type != 'rental_start'">
+                                    <div>
+                                        <ul>
+                                            <li><strong>{contract_number}</strong>: Rental contract number</li>
+                                            <li><strong>{customer}</strong>: Customer name</li>
+                                            <li><strong>{start_date}</strong>: Rental start date</li>
+                                            <li><strong>{vehicles}</strong>: List of vehicle license plates</li>
+                                        </ul>
+                                    </div>
+                                </group>
+                                
+                                <group string="Rental End" invisible="notification_type != 'rental_end'">
+                                    <div>
+                                        <ul>
+                                            <li><strong>{contract_number}</strong>: Rental contract number</li>
+                                            <li><strong>{customer}</strong>: Customer name</li>
+                                            <li><strong>{end_date}</strong>: Rental end date</li>
+                                            <li><strong>{vehicles}</strong>: List of vehicle license plates</li>
+                                        </ul>
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Notification Config Search View -->
+    <record id="view_fleet_notification_config_search" model="ir.ui.view">
+        <field name="name">fleet.notification.config.search</field>
+        <field name="model">fleet.notification.config</field>
+        <field name="arch" type="xml">
+            <search string="Search Notification Configurations">
+                <field name="notification_type" string="Type"/>
+                <field name="lead_days" string="Lead Days"/>
+                
+                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="filter_inactive" string="Inactive" domain="[('active', '=', False)]"/>
+                
+                <separator/>
+                <filter name="filter_certificate" string="Certificate Expiry" domain="[('notification_type', '=', 'certificate_expiry')]"/>
+                <filter name="filter_license" string="License Expiry" domain="[('notification_type', '=', 'license_expiry')]"/>
+                <filter name="filter_rental_start" string="Rental Start" domain="[('notification_type', '=', 'rental_start')]"/>
+                <filter name="filter_rental_end" string="Rental End" domain="[('notification_type', '=', 'rental_end')]"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_type" string="Notification Type" context="{'group_by': 'notification_type'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+</odoo>
+

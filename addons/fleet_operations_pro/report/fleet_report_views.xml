@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vehicle Report Action -->
+    <record id="action_fleet_vehicle_report" model="ir.actions.act_window">
+        <field name="name">Vehicle Analysis Report</field>
+        <field name="res_model">fleet.vehicle.report</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No data yet</p>
+            <p>Analyze vehicle costs, efficiency, and utilization.</p>
+        </field>
+    </record>
+    
+    <!-- Vehicle Report List View -->
+    <record id="view_fleet_vehicle_report_list" model="ir.ui.view">
+        <field name="name">fleet.vehicle.report.list</field>
+        <field name="model">fleet.vehicle.report</field>
+        <field name="arch" type="xml">
+            <list string="Vehicle Report" create="false" edit="false">
+                <field name="vehicle_id"/>
+                <field name="category_id"/>
+                <field name="status_id"/>
+                <field name="total_cost" sum="Total"/>
+                <field name="fuel_cost" sum="Total"/>
+                <field name="maintenance_cost" sum="Total"/>
+                <field name="toll_cost" sum="Total"/>
+                <field name="total_distance" sum="Total"/>
+                <field name="cost_per_km" avg="Average"/>
+                <field name="fuel_efficiency" avg="Average"/>
+                <field name="trip_count" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Vehicle Report Pivot View -->
+    <record id="view_fleet_vehicle_report_pivot" model="ir.ui.view">
+        <field name="name">fleet.vehicle.report.pivot</field>
+        <field name="model">fleet.vehicle.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Vehicle Analysis">
+                <field name="category_id" type="row"/>
+                <field name="status_id" type="col"/>
+                <field name="total_cost" type="measure"/>
+                <field name="fuel_cost" type="measure"/>
+                <field name="maintenance_cost" type="measure"/>
+                <field name="total_distance" type="measure"/>
+                <field name="cost_per_km" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Vehicle Report Graph View -->
+    <record id="view_fleet_vehicle_report_graph" model="ir.ui.view">
+        <field name="name">fleet.vehicle.report.graph</field>
+        <field name="model">fleet.vehicle.report</field>
+        <field name="arch" type="xml">
+            <graph string="Vehicle Analysis" type="bar">
+                <field name="vehicle_id"/>
+                <field name="total_cost" type="measure"/>
+                <field name="fuel_cost" type="measure"/>
+                <field name="maintenance_cost" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Reporting Menu -->
+    <menuitem id="menu_fleet_reporting"
+              name="Reporting"
+              parent="menu_fleet_root"
+              sequence="90"/>
+    
+    <menuitem id="menu_fleet_vehicle_report"
+              name="Vehicle Analysis"
+              parent="menu_fleet_reporting"
+              action="action_fleet_vehicle_report"
+              sequence="10"/>
+    
+</odoo>

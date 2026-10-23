@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Fuel Types -->
+        <record id="fuel_type_diesel" model="fleet.fuel.type">
+            <field name="name">Diesel</field>
+            <field name="code">diesel</field>
+            <field name="sequence">10</field>
+            <field name="description">Diesel fuel</field>
+        </record>
+        
+        <record id="fuel_type_petrol" model="fleet.fuel.type">
+            <field name="name">Petrol/Gasoline</field>
+            <field name="code">petrol</field>
+            <field name="sequence">20</field>
+            <field name="description">Petrol or Gasoline fuel</field>
+        </record>
+        
+        <record id="fuel_type_electric" model="fleet.fuel.type">
+            <field name="name">Electric</field>
+            <field name="code">electric</field>
+            <field name="sequence">30</field>
+            <field name="description">Electric powered vehicle</field>
+        </record>
+        
+        <record id="fuel_type_hybrid" model="fleet.fuel.type">
+            <field name="name">Hybrid</field>
+            <field name="code">hybrid</field>
+            <field name="sequence">40</field>
+            <field name="description">Hybrid electric and fuel powered</field>
+        </record>
+        
+        <record id="fuel_type_cng" model="fleet.fuel.type">
+            <field name="name">CNG</field>
+            <field name="code">cng</field>
+            <field name="sequence">50</field>
+            <field name="description">Compressed Natural Gas</field>
+        </record>
+        
+        <record id="fuel_type_lpg" model="fleet.fuel.type">
+            <field name="name">LPG</field>
+            <field name="code">lpg</field>
+            <field name="sequence">60</field>
+            <field name="description">Liquefied Petroleum Gas</field>
+        </record>
+        
+        <record id="fuel_type_hydrogen" model="fleet.fuel.type">
+            <field name="name">Hydrogen</field>
+            <field name="code">hydrogen</field>
+            <field name="sequence">70</field>
+            <field name="description">Hydrogen fuel cell</field>
+        </record>
+        
+        <record id="fuel_type_biodiesel" model="fleet.fuel.type">
+            <field name="name">Biodiesel</field>
+            <field name="code">biodiesel</field>
+            <field name="sequence">80</field>
+            <field name="description">Biodiesel fuel</field>
+        </record>
+        
+    </data>
+</odoo>
+

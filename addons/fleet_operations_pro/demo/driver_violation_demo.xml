@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Driver Violation Records -->
+        <record id="driver_violation_demo_1" model="fleet.driver.violation">
+            <field name="name">Speeding Ticket</field>
+            <field name="driver_id" ref="driver_demo_1"/>
+            <field name="vehicle_id" ref="vehicle_demo_1"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="violation_type">speeding</field>
+            <field name="location">Main St &amp; 5th Ave, Anytown</field>
+            <field name="fine_amount">150.0</field>
+            <field name="points">2</field>
+            <field name="status">resolved</field>
+            <field name="description">Exceeded speed limit by 15 mph in a school zone</field>
+            <field name="issuing_authority">Officer Johnson</field>
+            <field name="ticket_number">CT-2023-45678</field>
+        </record>
+
+        <record id="driver_violation_demo_2" model="fleet.driver.violation">
+            <field name="name">Parking Violation</field>
+            <field name="driver_id" ref="driver_demo_2"/>
+            <field name="vehicle_id" ref="vehicle_demo_2"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="violation_type">parking</field>
+            <field name="location">123 Commerce St, Downtown</field>
+            <field name="fine_amount">75.0</field>
+            <field name="points">0</field>
+            <field name="status">resolved</field>
+            <field name="description">Parked in a no-parking zone during business hours</field>
+            <field name="issuing_authority">Parking Officer Smith</field>
+            <field name="ticket_number">PK-2023-12345</field>
+        </record>
+        
+        <record id="driver_violation_demo_3" model="fleet.driver.violation">
+            <field name="name">Running Red Light</field>
+            <field name="driver_id" ref="driver_demo_3"/>
+            <field name="vehicle_id" ref="vehicle_demo_3"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d')"/>
+            <field name="violation_type">traffic_light</field>
+            <field name="location">Elm St &amp; Oak Ave</field>
+            <field name="fine_amount">200.0</field>
+            <field name="points">3</field>
+            <field name="status">pending</field>
+            <field name="description">Failed to stop at red light, captured by traffic camera</field>
+            <field name="issuing_authority">Traffic Camera #T-45</field>
+        </record>
+
+        <record id="driver_violation_demo_4" model="fleet.driver.violation">
+            <field name="name">Cell Phone Use</field>
+            <field name="driver_id" ref="driver_demo_1"/>
+            <field name="vehicle_id" ref="vehicle_demo_1"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')"/>
+            <field name="violation_type">phone_use</field>
+            <field name="location">I-95 Northbound, Mile Marker 42</field>
+            <field name="fine_amount">125.0</field>
+            <field name="points">2</field>
+            <field name="status">appealed</field>
+            <field name="description">Reported using mobile phone while driving</field>
+            <field name="issuing_authority">Officer Williams</field>
+            <field name="ticket_number">CD-2023-33445</field>
+        </record>
+
+        <record id="driver_violation_demo_5" model="fleet.driver.violation">
+            <field name="name">Overweight Vehicle</field>
+            <field name="driver_id" ref="driver_demo_2"/>
+            <field name="vehicle_id" ref="vehicle_demo_2"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="violation_type">other</field>
+            <field name="location">State Route 8, Weigh Station #3</field>
+            <field name="fine_amount">350.0</field>
+            <field name="points">0</field>
+            <field name="status">pending</field>
+            <field name="description">Vehicle weight exceeded maximum by 1,200 lbs</field>
+            <field name="issuing_authority">Inspector Rodriguez</field>
+            <field name="ticket_number">WT-2023-55667</field>
+        </record>
+    </data>
+</odoo>

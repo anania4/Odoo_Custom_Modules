@@ -1,0 +1,609 @@
+// Color Variables
+$primary: #2c5282;
+$primary-light: #4299e1;
+$success: #2c7a7b;
+$success-light: #38b2ac;
+$warning: #d69e2e;
+$warning-light: #f6e05e;
+$danger: #c53030;
+$danger-light: #f56565;
+$info: #5a67d8;
+$info-light: #7f9cf5;
+$light: #f8f9fa;
+$dark: #2d3748;
+$gray-50: #f8fafc;  // Lightest gray for subtle backgrounds
+$gray-100: #f1f5f9;  // Slightly darker than gray-50
+$gray-200: #e2e8f0;  // Lighter gray for subtle borders/backgrounds
+$gray-300: #cbd5e1;  // Light gray for borders and dividers
+$gray-400: #94a3b8;  // Medium gray for secondary text
+$gray-500: #64748b;  // Standard gray for normal text
+$gray-600: #475569;  // Dark gray for headings
+$gray-700: #334155;  // Darker gray
+$gray-800: #1e293b;  // Very dark gray
+$gray-900: #0f172a;  // Almost black for high contrast text
+
+// Mixins
+@mixin card-hover-effect {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+@mixin gradient-bg($start, $end) {
+    background: linear-gradient(135deg, $start 0%, $end 100%);
+}
+
+.o_fleet_dashboard {
+    padding: 1.5rem;
+    background-color: $gray-100;
+    min-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    max-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    .o_dashboard_header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        gap: 1rem;
+        position: sticky;
+        top: 0;
+        background: $gray-100;
+        z-index: 10;
+        padding: 1rem 0;
+        border-bottom: 1px solid $gray-200;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+
+        h2 {
+            margin: 0;
+            color: $gray-800;
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: -0.5px;
+            
+            &::before {
+                content: '\f1b9';
+                font-family: 'FontAwesome';
+                color: $primary;
+                background: rgba($primary, 0.1);
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+            }
+        }
+    }
+
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: white;
+        border: 1px solid $gray-200;
+
+        &:hover {
+            @include card-hover-effect;
+            
+            .card-header {
+                .fa {
+                    transform: scale(1.1);
+                }
+            }
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid $gray-200;
+            font-weight: 600;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, $primary, $primary-light);
+                opacity: 0.5;
+            }
+            
+            h5 {
+                margin: 0;
+                font-size: 1.1rem;
+                color: $gray-800;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .fa {
+                font-size: 1.25rem;
+                color: $primary;
+                transition: transform 0.2s ease;
+            }
+            
+            .badge {
+                font-weight: 500;
+                padding: 0.35em 0.75em;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                margin-left: auto;
+            }
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+
+        // Card variants with new color scheme
+        &.bg-primary { 
+            @include gradient-bg($primary, $primary-light);
+            
+            .card-header {
+                background-color: transparent;
+                border-bottom-color: rgba(white, 0.1);
+                
+                h5, .fa {
+                    color: white;
+                }
+                
+                &::after {
+                    background: linear-gradient(90deg, rgba(white, 0.3), rgba(white, 0.1));
+                }
+            }
+        }
+        
+        &.bg-success { 
+            @include gradient-bg($success, $success-light);
+            
+            .card-header {
+                background-color: transparent;
+                border-bottom-color: rgba(white, 0.1);
+                
+                h5, .fa {
+                    color: white;
+                }
+                
+                &::after {
+                    background: linear-gradient(90deg, rgba(white, 0.3), rgba(white, 0.1));
+                }
+            }
+        }
+        
+        &.bg-warning { 
+            @include gradient-bg($warning, $warning-light);
+            
+            .card-header {
+                background-color: transparent;
+                border-bottom-color: rgba(white, 0.1);
+                
+                h5, .fa {
+                    color: $gray-900;
+                }
+                
+                &::after {
+                    background: linear-gradient(90deg, rgba(white, 0.3), rgba(white, 0.1));
+                }
+            }
+        }
+        
+        &.bg-info { 
+            @include gradient-bg($info, $info-light);
+            
+            .card-header {
+                background-color: transparent;
+                border-bottom-color: rgba(white, 0.1);
+                
+                h5, .fa {
+                    color: white;
+                }
+                
+                &::after {
+                    background: linear-gradient(90deg, rgba(white, 0.3), rgba(white, 0.1));
+                }
+            }
+        }
+        
+        &.bg-danger {
+            @include gradient-bg($danger, $danger-light);
+            
+            .card-header {
+                background-color: transparent;
+                border-bottom-color: rgba(white, 0.1);
+                
+                h5, .fa {
+                    color: white;
+                }
+                
+                &::after {
+                    background: linear-gradient(90deg, rgba(white, 0.3), rgba(white, 0.1));
+                }
+            }
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: $gray-600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            
+            .fa {
+                font-size: 0.9em;
+                color: $gray-500;
+            }
+        }
+
+        h2, h3, h4 {
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+            color: $gray-800;
+            letter-spacing: -0.5px;
+        }
+        
+        h2 { 
+            font-size: 2.25rem; 
+            margin-bottom: 0.5rem;
+        }
+        
+        h3 { 
+            font-size: 1.5rem; 
+            margin-bottom: 0.25rem;
+        }
+        
+        h4 { 
+            font-size: 1.25rem; 
+            margin-bottom: 0.25rem;
+        }
+        
+        .text-muted {
+            color: $gray-500 !important;
+        }
+    }
+
+    .table {
+        margin-bottom: 0;
+        font-size: 0.95rem;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+        thead th {
+            background-color: $gray-50;
+            border: none;
+            font-weight: 600;
+            color: $gray-700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            padding: 0.75rem 1.5rem;
+            white-space: nowrap;
+            border-bottom: 1px solid $gray-200;
+            
+            &:first-child {
+                border-top-left-radius: 12px;
+            }
+            
+            &:last-child {
+                border-top-right-radius: 12px;
+            }
+        }
+
+        tbody {
+            tr {
+                transition: background-color 0.2s ease;
+                
+                &:hover {
+                    background-color: $gray-50;
+                }
+                
+                &:last-child {
+                    td:first-child {
+                        border-bottom-left-radius: 12px;
+                    }
+                    
+                    td:last-child {
+                        border-bottom-right-radius: 12px;
+                    }
+                }
+            }
+            
+            td {
+                padding: 1rem 1.5rem;
+                vertical-align: middle;
+                border-bottom: 1px solid $gray-100;
+                color: $gray-700;
+                font-size: 0.9rem;
+                
+                .badge {
+                    font-weight: 500;
+                    padding: 0.35em 0.75em;
+                    border-radius: 9999px;
+                    font-size: 0.75rem;
+                }
+            }
+        }
+    }
+    
+    // Status indicators
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+        
+        &.bg-success { background-color: $success; }
+        &.bg-warning { background-color: $warning; }
+        &.bg-danger { background-color: $danger; }
+        &.bg-info { background-color: $info; }
+        &.bg-primary { background-color: $primary; }
+    }
+    
+    // Progress bars
+    .progress {
+        height: 6px;
+        border-radius: 3px;
+        background-color: $gray-200;
+        overflow: visible;
+        
+        .progress-bar {
+            border-radius: 3px;
+            position: relative;
+            overflow: visible;
+            
+            &::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                top: -2px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: inherit;
+                border: 2px solid white;
+                box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+            }
+        }
+    }
+    
+    // Badges
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.75em;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        
+        &.bg-primary { background-color: $primary; }
+        &.bg-success { background-color: $success; }
+        &.bg-warning { background-color: $warning; }
+        &.bg-danger { background-color: $danger; }
+        &.bg-info { background-color: $info; }
+    }
+    
+    // Buttons
+    .btn {
+        font-weight: 500;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        
+        .fa {
+            font-size: 0.9em;
+        }
+        
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
+        
+        &.btn-primary {
+            background-color: $primary;
+            border-color: $primary;
+            
+            &:hover {
+                background-color: darken($primary, 5%);
+                border-color: darken($primary, 5%);
+            }
+        }
+        
+        &.btn-outline-primary {
+            color: $primary;
+            border-color: $primary;
+            
+            &:hover {
+                background-color: rgba($primary, 0.1);
+                color: darken($primary, 10%);
+            }
+        }
+        
+        &.btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8125rem;
+            border-radius: 6px;
+        }
+    }
+    
+    // Alert cards
+    .alert {
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        
+        .fa {
+            font-size: 1.25rem;
+            margin-top: 0.2rem;
+        }
+        
+        &-warning {
+            background-color: rgba($warning, 0.1);
+            color: darken($warning, 20%);
+            
+            .fa {
+                color: $warning;
+            }
+        }
+        
+        &-success {
+            background-color: rgba($success, 0.1);
+            color: darken($success, 20%);
+            
+            .fa {
+                color: $success;
+            }
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1199.98px) {
+        .card {
+            h2 { font-size: 2rem; }
+            h3 { font-size: 1.4rem; }
+            h4 { font-size: 1.2rem; }
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        padding: 1.25rem;
+        
+        .o_dashboard_header {
+            padding: 0.75rem 0;
+            margin-bottom: 1.5rem;
+            
+            h2 {
+                font-size: 1.5rem;
+                
+                &::before {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 1.25rem;
+                }
+            }
+        }
+
+        .card {
+            margin-bottom: 1.25rem;
+            border-radius: 12px;
+            
+            .card-header {
+                padding: 1rem 1.25rem;
+                
+                h5 {
+                    font-size: 1rem;
+                }
+            }
+            
+            .card-body {
+                padding: 1.25rem;
+            }
+            
+            h2 { font-size: 1.75rem; }
+            h3 { font-size: 1.3rem; }
+            h4 { font-size: 1.15rem; }
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .card {
+            h2 { font-size: 1.5rem; }
+            h4 { font-size: 1.25rem; }
+        }
+        
+        .table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        padding: 1rem;
+        
+        .o_dashboard_header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+        }
+        
+        .card {
+            border-radius: 10px;
+            
+            .card-header {
+                padding: 0.9rem 1rem;
+                
+                h5 {
+                    font-size: 0.95rem;
+                }
+                
+                .fa {
+                    font-size: 1.1rem;
+                }
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            h2 { font-size: 1.5rem; }
+            h4 { font-size: 1.25rem; }
+            
+            .card-title {
+                font-size: 0.9rem;
+            }
+        }
+    }
+}

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Performance Metrics Records -->
+        <record id="performance_demo_1" model="fleet.performance">
+            <field name="vehicle_id" ref="vehicle_demo_1"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="odometer">14500</field>
+            <field name="fuel_efficiency">28.5</field>
+            <field name="idle_time">45</field>
+            <field name="max_speed">75</field>
+            <field name="avg_speed">42</field>
+            <field name="harsh_braking">2</field>
+            <field name="rapid_acceleration">1</field>
+            <field name="distance_traveled">320</field>
+            <field name="driver_id" ref="driver_demo_1"/>
+            <field name="trip_id" ref="trip_1"/>
+            <field name="fuel_consumed">11.23</field>
+            <field name="engine_hours">8.5</field>
+            <field name="rpm_avg">2200</field>
+            <field name="fuel_cost">35.50</field>
+            <field name="notes">Good fuel efficiency, two harsh braking incidents noted</field>
+        </record>
+
+        <record id="performance_demo_2" model="fleet.performance">
+            <field name="vehicle_id" ref="vehicle_demo_2"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="odometer">42350</field>
+            <field name="fuel_efficiency">18.2</field>
+            <field name="idle_time">68</field>
+            <field name="max_speed">82</field>
+            <field name="avg_speed">38</field>
+            <field name="harsh_braking">3</field>
+            <field name="rapid_acceleration">2</field>
+            <field name="distance_traveled">285</field>
+            <field name="driver_id" ref="driver_demo_2"/>
+            <field name="trip_id" ref="trip_7"/>
+            <field name="fuel_consumed">15.66</field>
+            <field name="engine_hours">10.2</field>
+            <field name="rpm_avg">2500</field>
+            <field name="fuel_cost">49.50</field>
+            <field name="notes">Higher than average fuel consumption, check tire pressure</field>
+        </record>
+
+        <record id="performance_demo_3" model="fleet.performance">
+            <field name="vehicle_id" ref="vehicle_demo_3"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="odometer">28750</field>
+            <field name="fuel_efficiency">32.1</field>
+            <field name="idle_time">25</field>
+            <field name="max_speed">70</field>
+            <field name="avg_speed">45</field>
+            <field name="harsh_braking">0</field>
+            <field name="rapid_acceleration">0</field>
+            <field name="distance_traveled">180</field>
+            <field name="driver_id" ref="driver_demo_3"/>
+            <field name="trip_id" ref="trip_4"/>
+            <field name="fuel_consumed">5.61</field>
+            <field name="engine_hours">4.0</field>
+            <field name="rpm_avg">2000</field>
+            <field name="fuel_cost">17.75</field>
+            <field name="notes">Excellent driving behavior, optimal performance</field>
+        </record>
+
+        <record id="performance_demo_4" model="fleet.performance">
+            <field name="vehicle_id" ref="vehicle_demo_2"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="odometer">52300</field>
+            <field name="fuel_efficiency">15.8</field>
+            <field name="idle_time">120</field>
+            <field name="max_speed">88</field>
+            <field name="avg_speed">35</field>
+            <field name="harsh_braking">5</field>
+            <field name="rapid_acceleration">4</field>
+            <field name="distance_traveled">420</field>
+            <field name="driver_id" ref="driver_demo_3"/>
+            <field name="trip_id" ref="trip_8"/>
+            <field name="fuel_consumed">26.58</field>
+            <field name="engine_hours">12.0</field>
+            <field name="rpm_avg">2800</field>
+            <field name="fuel_cost">84.15</field>
+            <field name="notes">Excessive idling and aggressive driving detected, schedule driver training</field>
+        </record>
+
+        <record id="performance_demo_5" model="fleet.performance">
+            <field name="vehicle_id" ref="vehicle_demo_1"/>
+            <field name="date" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="odometer">12500</field>
+            <field name="fuel_efficiency">0.0</field>
+            <field name="idle_time">15</field>
+            <field name="max_speed">65</field>
+            <field name="avg_speed">30</field>
+            <field name="harsh_braking">0</field>
+            <field name="rapid_acceleration">0</field>
+            <field name="distance_traveled">45</field>
+            <field name="driver_id" ref="driver_demo_1"/>
+            <field name="trip_id" ref="trip_6"/>
+            <field name="fuel_consumed">0.0</field>
+            <field name="electric_consumed">12.5</field>
+            <field name="engine_hours">1.5</field>
+            <field name="rpm_avg">0</field>
+            <field name="fuel_cost">0.0</field>
+            <field name="electric_cost">3.75</field>
+            <field name="notes">Electric vehicle - no fuel consumption, all-electric operation</field>
+        </record>
+    </data>
+</odoo>

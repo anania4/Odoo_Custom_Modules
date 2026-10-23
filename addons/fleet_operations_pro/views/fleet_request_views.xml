@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================================= -->
+    <!-- Fleet Request Action                      -->
+    <!-- ========================================= -->
+
+    <record id="action_fleet_request" model="ir.actions.act_window">
+        <field name="name">Fleet Requests</field>
+        <field name="res_model">fleet.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_my_requests': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new fleet request
+            </p>
+            <p>
+                Employees can request a vehicle and schedule a trip. The request goes through
+                the department manager and fleet manager before a driver is assigned.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================================= -->
+    <!-- Fleet Request Views                       -->
+    <!-- ========================================= -->
+
+    <!-- Fleet Request Form View -->
+    <record id="view_fleet_request_form" model="ir.ui.view">
+        <field name="name">fleet.request.form</field>
+        <field name="model">fleet.request</field>
+        <field name="arch" type="xml">
+            <form string="Fleet Request">
+                <header>
+                    <button name="action_submit" string="Submit Request" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_dept_approve" string="Approve" type="object"
+                            class="btn-primary" invisible="state != 'submitted'"/>
+                    <button name="action_dept_reject" string="Reject" type="object"
+                            class="btn-secondary" invisible="state != 'submitted'"/>
+                    <button name="action_fleet_approve" string="Approve" type="object"
+                            class="btn-primary" invisible="state != 'dept_approved'"
+                            groups="fleet_operations_pro.group_fleet_manager"/>
+                    <button name="action_fleet_reject" string="Reject" type="object"
+                            class="btn-secondary" invisible="state != 'dept_approved'"
+                            groups="fleet_operations_pro.group_fleet_manager"/>
+                    <button name="action_reset_draft" string="Send back to Draft" type="object"
+                            class="btn-secondary" invisible="state != 'dept_approved'"
+                            groups="fleet_operations_pro.group_fleet_manager"/>
+                    <button name="action_assign" string="Assign Driver" type="object"
+                            class="btn-primary" invisible="state != 'fleet_approved'"
+                            groups="fleet_operations_pro.group_fleet_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,dept_approved,fleet_approved,assigned"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" placeholder="Fleet Request Reference"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="request_info" string="Request Information">
+                            <field name="employee_id" options="{'no_create': True}"
+                                   readonly="state != 'draft'"/>
+                            <field name="department_id"/>
+                            <field name="manager_id"/>
+                            <field name="request_date"/>
+                        </group>
+
+                        <group name="status_info" string="Status">
+                            <field name="state"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group name="schedule_info" string="Scheduled Trip">
+                            <field name="scheduled_start" readonly="state != 'draft'"
+                                   placeholder="Scheduled date and time of the trip..."/>
+                            <field name="scheduled_end" readonly="state != 'draft'"/>
+                            <field name="duration" widget="float_time" readonly="1" string="Duration"/>
+                        </group>
+
+                        <group name="trip_info" string="Trip Details">
+                            <field name="purpose" readonly="state != 'draft'"
+                                   placeholder="Purpose of the trip..."/>
+                            <field name="pickup_location" readonly="state != 'draft'"
+                                   placeholder="Pickup location..."/>
+                            <field name="destination" readonly="state != 'draft'"
+                                   placeholder="Destination..."/>
+                        </group>
+                    </group>
+
+                    <group name="rejection_and_assignment" string="Rejection &amp; Assignment">
+                        <field name="rejection_reason"
+                               readonly="state == 'rejected' or state == 'draft'"
+                               invisible="state not in ('submitted', 'dept_approved', 'rejected')"
+                               placeholder="Reason of rejection (mandatory when rejecting)..."/>
+                        <field name="driver_id" options="{'no_create': True}"
+                               invisible="state not in ('fleet_approved', 'assigned')"
+                               readonly="state != 'fleet_approved'"/>
+                        <field name="vehicle_id"
+                               invisible="state != 'assigned'"
+                               readonly="1"
+                               options="{'no_create': True}"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Fleet Request List View -->
+    <record id="view_fleet_request_list" model="ir.ui.view">
+        <field name="name">fleet.request.list</field>
+        <field name="model">fleet.request</field>
+        <field name="arch" type="xml">
+            <list string="Fleet Requests"
+                  decoration-success="state == 'assigned'"
+                  decoration-info="state in ('dept_approved', 'fleet_approved')"
+                  decoration-warning="state == 'submitted'"
+                  decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="request_date"/>
+                <field name="scheduled_start"/>
+                <field name="scheduled_end"/>
+                <field name="duration" widget="float_time" sum="Total Hours"/>
+                <field name="pickup_location"/>
+                <field name="destination"/>
+                <field name="driver_id" optional="show"/>
+                <field name="vehicle_id" optional="show"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Fleet Request Search View -->
+    <record id="view_fleet_request_search" model="ir.ui.view">
+        <field name="name">fleet.request.search</field>
+        <field name="model">fleet.request</field>
+        <field name="arch" type="xml">
+            <search string="Search Fleet Requests">
+                <field name="name" string="Reference"/>
+                <field name="employee_id" string="Employee"/>
+                <field name="department_id" string="Department"/>
+                <field name="driver_id" string="Driver"/>
+                <field name="vehicle_id" string="Vehicle"/>
+                <field name="destination" string="Destination"/>
+                <field name="purpose" string="Purpose"/>
+
+                <filter name="filter_my_requests" string="My Requests"
+                        domain="[('employee_id.user_id', '=', uid)]"/>
+
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="dept_approved" string="Department Manager Approved" domain="[('state', '=', 'dept_approved')]"/>
+                <filter name="fleet_approved" string="Fleet Manager Approved" domain="[('state', '=', 'fleet_approved')]"/>
+                <filter name="assigned" string="Assigned" domain="[('state', '=', 'assigned')]"/>
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+
+                <separator/>
+                <filter name="this_month" string="This Month"
+                        domain="[('request_date', '&gt;=', context_today().strftime('%Y-%m-01')), ('request_date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
+
+                <group expand="0" string="Group By">
+                    <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_driver" string="Driver" context="{'group_by': 'driver_id'}"/>
+                    <filter name="group_vehicle" string="Vehicle" context="{'group_by': 'vehicle_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_request_date" string="Date of Request" context="{'group_by': 'request_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Maintenance Schedule Records -->
+        <record id="maintenance_schedule_demo_1" model="fleet.maintenance.schedule">
+            <field name="name">Oil Change - ABC-1234</field>
+            <field name="vehicle_id" ref="vehicle_demo_1"/>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_oil_change"/>
+            <field name="schedule_by_odometer" eval="True"/>
+            <field name="odometer_interval">5000</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="last_maintenance_odometer">10000.0</field>
+            <field name="next_maintenance_odometer">15000.0</field>
+            <field name="assigned_mechanic">Mike Johnson</field>
+            <field name="notes">Use synthetic oil for better engine performance</field>
+            <field name="active" eval="True"/>
+            <field name="priority">1</field>
+            <field name="interval_type">months</field>
+            <field name="interval_value">6</field>
+        </record>
+
+        <record id="maintenance_schedule_demo_2" model="fleet.maintenance.schedule">
+            <field name="name">Tire Rotation - XYZ-5678</field>
+            <field name="vehicle_id" ref="vehicle_demo_2"/>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_tire_rotation"/>
+            <field name="schedule_by_odometer" eval="True"/>
+            <field name="odometer_interval">8000</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="last_maintenance_odometer">12000.0</field>
+            <field name="next_maintenance_odometer">20000.0</field>
+            <field name="assigned_mechanic">Carlos Mendez</field>
+            <field name="notes">Check for uneven wear patterns</field>
+            <field name="active" eval="True"/>
+            <field name="priority">1</field>
+            <field name="interval_type">months</field>
+            <field name="interval_value">6</field>
+        </record>
+
+        <record id="maintenance_schedule_demo_3" model="fleet.maintenance.schedule">
+            <field name="name">Brake Inspection - JKL-7890</field>
+            <field name="vehicle_id" ref="vehicle_demo_5"/>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_brake"/>
+            <field name="schedule_by_time" eval="True"/>
+            <field name="interval_type">months</field>
+            <field name="interval_value">6</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')"/>
+            <field name="next_maintenance_date" eval="(datetime.now() + timedelta(days=90)).strftime('%Y-%m-%d')"/>
+            <field name="assigned_mechanic">Sarah Williams</field>
+            <field name="notes">Check both front and rear brakes, replace if less than 3mm</field>
+            <field name="active" eval="True"/>
+            <field name="priority">1</field>
+            <field name="last_maintenance_odometer">25000.0</field>
+            <field name="next_maintenance_odometer">30000.0</field>
+        </record>
+
+        <record id="maintenance_schedule_demo_4" model="fleet.maintenance.schedule">
+            <field name="name">Air Filter Replacement - DEF-3456</field>
+            <field name="vehicle_id" ref="vehicle_demo_3"/>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_air_filter"/>
+            <field name="schedule_by_odometer" eval="True"/>
+            <field name="odometer_interval">15000</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=180)).strftime('%Y-%m-%d')"/>
+            <field name="last_maintenance_odometer">30000.0</field>
+            <field name="next_maintenance_odometer">45000.0</field>
+            <field name="assigned_mechanic">James Wilson</field>
+            <field name="notes">Use OEM air filters only</field>
+            <field name="active" eval="True"/>
+            <field name="priority">1</field>
+            <field name="interval_type">years</field>
+            <field name="interval_value">1</field>
+        </record>
+
+        <record id="maintenance_schedule_demo_5" model="fleet.maintenance.schedule">
+            <field name="name">Annual Inspection - All Vehicles</field>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_inspection"/>
+            <field name="schedule_by_time" eval="True"/>
+            <field name="interval_type">years</field>
+            <field name="interval_value">1</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')"/>
+            <field name="next_maintenance_date" eval="(datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')"/>
+            <field name="assigned_mechanic">Service Team</field>
+            <field name="notes">Annual comprehensive vehicle inspection</field>
+            <field name="active" eval="True"/>
+            <field name="priority">2</field>
+            <field name="apply_to_all_vehicles" eval="True"/>
+        </record>
+
+        <record id="maintenance_schedule_demo_6" model="fleet.maintenance.schedule">
+            <field name="name">Battery Check - All Vehicles</field>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_battery"/>
+            <field name="schedule_by_time" eval="True"/>
+            <field name="interval_type">months</field>
+            <field name="interval_value">3</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="next_maintenance_date" eval="(datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d')"/>
+            <field name="assigned_mechanic">Electrical Team</field>
+            <field name="notes">Check battery health and connections</field>
+            <field name="active" eval="True"/>
+            <field name="priority">1</field>
+            <field name="apply_to_all_vehicles" eval="True"/>
+        </record>
+
+        <record id="maintenance_schedule_demo_7" model="fleet.maintenance.schedule">
+            <field name="name">Tire Pressure Check - All Vehicles</field>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_tire"/>
+            <field name="schedule_by_time" eval="True"/>
+            <field name="interval_type">weeks</field>
+            <field name="interval_value">2</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')"/>
+            <field name="next_maintenance_date" eval="(datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')"/>
+            <field name="assigned_mechanic">Tire Team</field>
+            <field name="notes">Check and adjust tire pressure as needed</field>
+            <field name="active" eval="True"/>
+            <field name="priority">1</field>
+            <field name="apply_to_all_vehicles" eval="True"/>
+        </record>
+        
+        <record id="maintenance_schedule_demo_annual" model="fleet.maintenance.schedule">
+            <field name="name">DOT Safety Inspection - All Vehicles</field>
+            <field name="maintenance_type_id" ref="fleet_operations_pro.maintenance_type_inspection"/>
+            <field name="schedule_by_time" eval="True"/>
+            <field name="interval_type">years</field>
+            <field name="interval_value">1</field>
+            <field name="last_maintenance_date" eval="(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="next_maintenance_date" eval="(datetime.now() + timedelta(days=335)).strftime('%Y-%m-%d')"/>
+            <field name="assigned_mechanic">Maintenance Team</field>
+            <field name="notes">Comprehensive annual safety inspection as per DOT requirements</field>
+            <field name="apply_to_all_vehicles" eval="True"/>
+            <field name="active" eval="True"/>
+            <field name="priority">1</field>
+        </record>
+    </data>
+</odoo>
