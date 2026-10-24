@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_equipment_timesheet" model="ir.module.category">
+        <field name="name">Equipment Timesheet</field>
+        <field name="description">Manage equipment field timesheets, tracking, and approvals</field>
+        <field name="sequence">25</field>
+    </record>
+
+    <!-- Regular User Group -->
+    <record id="group_equipment_timesheet_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="module_category_equipment_timesheet"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Project Manager Group -->
+    <record id="group_equipment_timesheet_manager" model="res.groups">
+        <field name="name">Project Manager</field>
+        <field name="category_id" ref="module_category_equipment_timesheet"/>
+        <field name="implied_ids" eval="[(4, ref('group_equipment_timesheet_user')), (4, ref('project.group_project_manager')), (4, ref('maintenance.group_equipment_manager'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- Record Rules for Equipment Timesheet Header -->
+    <record id="rule_equipment_timesheet_user" model="ir.rule">
+        <field name="name">Equipment Timesheet: User Own Timesheets Only</field>
+        <field name="model_id" ref="model_equipment_timesheet"/>
+        <field name="groups" eval="[(4, ref('group_equipment_timesheet_user'))]"/>
+        <field name="domain_force">['|', ('user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_equipment_timesheet_manager" model="ir.rule">
+        <field name="name">Equipment Timesheet: Manager All Timesheets</field>
+        <field name="model_id" ref="model_equipment_timesheet"/>
+        <field name="groups" eval="[(4, ref('group_equipment_timesheet_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Record Rules for Equipment Timesheet Line -->
+    <record id="rule_equipment_timesheet_line_user" model="ir.rule">
+        <field name="name">Equipment Timesheet Line: User Own Lines Only</field>
+        <field name="model_id" ref="model_equipment_timesheet_line"/>
+        <field name="groups" eval="[(4, ref('group_equipment_timesheet_user'))]"/>
+        <field name="domain_force">['|', ('user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_equipment_timesheet_line_manager" model="ir.rule">
+        <field name="name">Equipment Timesheet Line: Manager All Lines</field>
+        <field name="model_id" ref="model_equipment_timesheet_line"/>
+        <field name="groups" eval="[(4, ref('group_equipment_timesheet_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Multi-company Rule -->
+    <record id="rule_equipment_timesheet_multicompany" model="ir.rule">
+        <field name="name">Equipment Timesheet: Multi-Company</field>
+        <field name="model_id" ref="model_equipment_timesheet"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,123 @@
+/* Equipment Timesheet Shift Styling */
+.o_list_table td.text-success select,
+.o_list_table td.text-success .o_field_widget,
+select[name="shift_type"].text-success,
+.text-success select {
+    color: #198754 !important;
+    font-weight: 600 !important;
+}
+
+.o_list_table td.text-danger select,
+.o_list_table td.text-danger .o_field_widget,
+select[name="shift_type"].text-danger,
+.text-danger select {
+    color: #dc3545 !important;
+    font-weight: 600 !important;
+}
+
+/* Dropdown option colors */
+select[name="shift_type"] option[value*="day"],
+select option[value*="day"] {
+    color: #198754;
+    font-weight: 600;
+}
+
+select[name="shift_type"] option[value*="night"],
+select option[value*="night"] {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* Projects Equipment Dashboard Styling */
+.o_kanban_view.o_kanban_project_equipment,
+.o_kanban_renderer.o_kanban_project_equipment {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.o_kanban_project_equipment .o_kanban_record:not(.o_kanban_ghost),
+.o_kanban_project_equipment article.o_kanban_record:not(.o_kanban_ghost) {
+    background: #f0f6ff !important;
+    background: linear-gradient(165deg, #ffffff 0%, #edf5ff 100%) !important;
+    border: 1.5px solid #bfdbfe !important;
+    border-top: 4px solid #2563eb !important;
+    border-radius: 8px !important;
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.08) !important;
+    padding: 14px 16px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.o_kanban_project_equipment .o_kanban_record:not(.o_kanban_ghost):hover,
+.o_kanban_project_equipment article.o_kanban_record:not(.o_kanban_ghost):hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.16) !important;
+    border-color: #93c5fd !important;
+}
+
+/* Ensure Odoo layout ghost elements are completely invisible */
+.o_kanban_project_equipment .o_kanban_ghost {
+    display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+.o_kanban_project_equipment .o_kanban_record h4 {
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+}
+
+.o_kanban_project_equipment .o_kpi_box {
+    border-radius: 6px !important;
+    padding: 8px !important;
+}
+
+.o_kanban_project_equipment .o_kpi_hours {
+    background-color: #ffffff !important;
+    border: 1.5px solid #bfdbfe !important;
+}
+
+.o_kanban_project_equipment .o_kpi_fuel {
+    background-color: #fff5f5 !important;
+    border: 1.5px solid #fecaca !important;
+}
+
+.o_kanban_project_equipment .o_kpi_equipment {
+    background-color: #f5f3ff !important;
+    border: 1.5px solid #c4b5fd !important;
+}
+
+.o_kanban_project_equipment .o_kpi_equipment_label {
+    color: #6d28d9 !important;
+    font-weight: 700 !important;
+}
+
+.o_kanban_project_equipment .o_equipment_active_badge {
+    background-color: #7c3aed !important;
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.25) !important;
+    display: inline-block !important;
+    letter-spacing: 0.02em !important;
+}
+
+.o_kanban_project_equipment .o_kpi_pending {
+    background-color: #fffdf5 !important;
+    border: 1.5px solid #fde68a !important;
+}
+
+.o_kanban_project_equipment .btn {
+    border-radius: 6px !important;
+}
+
+

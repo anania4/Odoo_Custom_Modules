@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Export Wizard Form View -->
+    <record id="view_equipment_timesheet_export_wizard_form" model="ir.ui.view">
+        <field name="name">equipment.timesheet.export.wizard.form</field>
+        <field name="model">equipment.timesheet.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Export Equipment Timesheet Operations">
+                <sheet>
+                    <div class="mb-3">
+                        <h4 class="text-primary fw-bold mb-1">
+                            <i class="fa fa-cog me-2"/>Export Report
+                        </h4>
+                        <p class="text-muted small mb-0">
+                            Filter and export equipment operation fields (hours, idle time &amp; reason, fuel running balance, and remarks) to Excel or CSV.
+                        </p>
+                    </div>
+
+                    <!-- Hidden scope fields managed automatically by context -->
+                    <field name="export_scope" invisible="1"/>
+                    <field name="project_id" invisible="1"/>
+                    <field name="timesheet_id" invisible="1"/>
+
+                    <group string="Filters">
+                        <group>
+                            <field name="filter_shift" widget="selection"/>
+                            <field name="equipment_ids"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   placeholder="All Equipments"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+
+                    <group string="File Format">
+                        <field name="export_format" widget="radio"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_export"
+                            string="Download Report"
+                            type="object"
+                            class="btn btn-primary"
+                            icon="fa-download"/>
+                    <button string="Cancel"
+                            class="btn btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Window Action: Export Timesheets Wizard (All Projects / Dashboard) -->
+    <record id="action_equipment_timesheet_export_wizard" model="ir.actions.act_window">
+        <field name="name">Export Report</field>
+        <field name="res_model">equipment.timesheet.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_equipment_timesheet_export_wizard_form"/>
+        <field name="binding_model_id" ref="project.model_project_project"/>
+        <field name="binding_view_types">kanban,list</field>
+        <field name="context">{'default_export_scope': 'all'}</field>
+    </record>
+
+    <!-- Contextual Action on Equipment Timesheet -->
+    <record id="action_equipment_timesheet_export_wizard_from_ts" model="ir.actions.act_window">
+        <field name="name">Export Report</field>
+        <field name="res_model">equipment.timesheet.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_equipment_timesheet_export_wizard_form"/>
+        <field name="binding_model_id" ref="model_equipment_timesheet"/>
+        <field name="binding_view_types">form,list,kanban</field>
+        <field name="context">{'default_export_scope': 'timesheet'}</field>
+    </record>
+</odoo>

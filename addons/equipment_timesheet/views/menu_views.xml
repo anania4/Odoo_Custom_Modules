@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Delete old separate Projects Dashboard sub-menu so it does not appear as a redundant tab in the navbar -->
+    <delete model="ir.ui.menu" id="equipment_timesheet.menu_equipment_timesheet_projects"/>
+
+    <!-- Hide default Odoo 18 HR Timesheets root menu and all submenus -->
+    <record id="hr_timesheet.timesheet_menu_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+    </record>
+
+    <!-- Root Menu: Equipment Timesheet -->
+    <!-- Setting action here ensures opening Equipment Timesheet defaults to the Projects Dashboard -->
+    <menuitem id="menu_equipment_timesheet_root"
+              name="Equipment Timesheet"
+              action="action_project_equipment_dashboard"
+              web_icon="equipment_timesheet,static/description/icon.png"
+              sequence="45"/>
+
+    <!-- 1. My Timesheets: Visible to everyone to check their own reported timesheets -->
+    <menuitem id="menu_equipment_timesheet_my"
+              name="My Timesheets"
+              parent="menu_equipment_timesheet_root"
+              action="action_my_equipment_timesheets"
+              sequence="10"/>
+
+    <!-- 2. To Approve: Visible ONLY to Project Managers -->
+    <menuitem id="menu_equipment_timesheet_to_approve"
+              name="To Approve"
+              parent="menu_equipment_timesheet_root"
+              action="action_to_approve_equipment_timesheets"
+              groups="equipment_timesheet.group_equipment_timesheet_manager"
+              sequence="20"/>
+
+    <!-- 3. Equipments: Visible ONLY to Project Managers to easily register and manage equipments -->
+    <menuitem id="menu_equipment_timesheet_equipments"
+              name="Equipments"
+              parent="menu_equipment_timesheet_root"
+              action="maintenance.hr_equipment_action"
+              groups="equipment_timesheet.group_equipment_timesheet_manager"
+              sequence="30"/>
+
+    <!-- Remove Export submenu from navbar completely -->
+    <delete model="ir.ui.menu" id="equipment_timesheet.menu_equipment_timesheet_export"/>
+</odoo>

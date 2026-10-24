@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View for Equipment Timesheet -->
+    <record id="view_equipment_timesheet_list" model="ir.ui.view">
+        <field name="name">equipment.timesheet.list</field>
+        <field name="model">equipment.timesheet</field>
+        <field name="arch" type="xml">
+            <list string="Equipment Timesheets"
+                  export_xlsx="0"
+                  decoration-warning="state == 'submitted'"
+                  decoration-success="state == 'approved'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-muted="state == 'draft'"
+                  sample="0">
+                <field name="name" string="Reference"/>
+                <field name="date"/>
+                <field name="project_id"/>
+                <field name="user_id" string="Reported By" widget="many2one_avatar_user"/>
+                <field name="equipment_count" string="Equipments"/>
+                <field name="total_hours" widget="float_time" class="fw-bold" sum="Total Hours"/>
+                <field name="total_fuel_consumed" class="fw-bold text-danger" sum="Total Fuel Consumed"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Equipment Timesheet -->
+    <record id="view_equipment_timesheet_form" model="ir.ui.view">
+        <field name="name">equipment.timesheet.form</field>
+        <field name="model">equipment.timesheet</field>
+        <field name="arch" type="xml">
+            <form string="Equipment Timesheet" class="o_equipment_timesheet_form">
+                <header>
+                    <button name="action_submit"
+                            string="Submit for Approval"
+                            type="object"
+                            class="oe_highlight btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_save"
+                            string="Save"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-floppy-o"
+                            invisible="state in ('approved', 'rejected')"/>
+                    <button name="action_approve"
+                            string="Approve"
+                            type="object"
+                            class="oe_highlight btn-success"
+                            invisible="state != 'submitted'"
+                            groups="equipment_timesheet.group_equipment_timesheet_manager"/>
+                    <button name="action_reject"
+                            string="Reject"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state != 'submitted'"
+                            groups="equipment_timesheet.group_equipment_timesheet_manager"/>
+                    <button name="action_reset_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            invisible="state not in ('submitted', 'approved', 'rejected')"
+                            groups="equipment_timesheet.group_equipment_timesheet_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label text-muted">Daily Equipment Timesheet</span>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <!-- Top Information Header -->
+                    <group>
+                        <group name="top_left">
+                            <!-- Project Name: locked, taken from the project you clicked -->
+                            <field name="project_id"
+                                   string="Project"
+                                   options="{'no_create': True, 'no_open': True}"
+                                   readonly="state != 'draft' or context.get('default_project_id')"/>
+                        </group>
+                        <group name="top_right">
+                            <!-- Date: defaults to today, editable while in draft -->
+                            <field name="date" readonly="state != 'draft'"/>
+                            <!-- Username: locked, taken from logged-in user -->
+                            <field name="user_id" string="Reported By" widget="many2one_avatar_user" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Equipment Lines: Same as Product Lines on Order -->
+                    <notebook>
+                        <page string="Equipment Operations" name="equipment_lines">
+                            <div class="o_horizontal_separator d-md-none mt-2 mb-3 fw-bold text-primary">
+                                <i class="fa fa-truck me-2"/>Equipment Operations
+                            </div>
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <!-- Equipment selection from maintenance equipment registration -->
+                                    <field name="equipment_id"
+                                           string="Equipment"
+                                           options="{'no_create': True}"
+                                           width="220px"/>
+                                    <!-- Shift dropdown: Day (green) / Night (red) -->
+                                    <field name="shift_type"
+                                           string="Shift"
+                                           decoration-success="shift_type == 'day'"
+                                           decoration-danger="shift_type == 'night'"
+                                           class="fw-bold"
+                                           width="120px"/>
+                                    
+                                    <!-- Morning Hours -->
+                                    <field name="day_start_time" string="Morning Start" widget="float_time" width="120px"/>
+                                    <field name="day_end_time" string="Morning End" widget="float_time" width="120px"/>
+
+                                    <!-- Afternoon Hours -->
+                                    <field name="night_start_time" string="Afternoon Start" widget="float_time" width="120px"/>
+                                    <field name="night_end_time" string="Afternoon End" widget="float_time" width="120px"/>
+
+                                    <!-- Auto Calculated Total Hours -->
+                                    <field name="total_hours" string="Total" widget="float_time" readonly="1" class="fw-bold text-success" sum="Total Hours" width="120px"/>
+
+                                    <!-- Idle Tracking -->
+                                    <field name="idle_time" string="Idle Time" widget="float_time" sum="Total Idle Time" width="110px"/>
+                                    <field name="idle_reason" string="Idle Reason" width="180px"/>
+
+                                    <!-- Fuel Tracking -->
+                                    <field name="fuel_opening" string="Starting Fuel (L)" width="130px"/>
+                                    <field name="fuel_refueled" string="Fuel Refueled (L)" sum="Total Refueled" width="130px"/>
+                                    <field name="fuel_left" string="Fuel Left (Closing) (L)" width="140px"/>
+                                    <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fw-bold text-danger" sum="Total Fuel Consumed" width="150px"/>
+
+                                    <field name="description" string="Remarks" optional="show" width="220px"/>
+                                </list>
+                                
+                                <!-- Line Form View (Clean Vertical Website-Style Form) -->
+                                <form string="Equipment Line Details" class="o_mobile_vertical_form">
+                                    <sheet>
+                                        <group string="Equipment Registration">
+                                            <field name="equipment_id" string="Equipment" options="{'no_create': True}" required="1"/>
+                                            <field name="shift_type"
+                                                   string="Shift"
+                                                   decoration-success="shift_type == 'day'"
+                                                   decoration-danger="shift_type == 'night'"
+                                                   class="fw-bold"
+                                                   required="1"/>
+                                            <field name="equipment_model" string="Model" readonly="1"/>
+                                            <field name="equipment_serial" string="Serial / Plate No." readonly="1"/>
+                                        </group>
+                                        <group string="Shift Working Hours">
+                                            <field name="day_start_time" string="Morning Start" widget="float_time"/>
+                                            <field name="day_end_time" string="Morning End" widget="float_time"/>
+                                            <field name="night_start_time" string="Afternoon Start" widget="float_time"/>
+                                            <field name="night_end_time" string="Afternoon End" widget="float_time"/>
+                                            <field name="total_hours" string="Total Hours" widget="float_time" readonly="1" class="fs-4 fw-bolder text-success"/>
+                                            <field name="idle_time" string="Idle Time" widget="float_time"/>
+                                            <field name="idle_reason" string="Idle Reason" placeholder="e.g. Weather, Breakdown, Waiting for Material..."/>
+                                        </group>
+                                        <group string="Fuel Tracking (Liters)">
+                                            <field name="fuel_opening" string="Starting Fuel (L)"/>
+                                            <field name="fuel_refueled" string="Fuel Refueled (L)"/>
+                                            <field name="fuel_left" string="Fuel Left (Closing) (L)"/>
+                                            <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fs-4 fw-bolder text-danger"/>
+                                        </group>
+                                        <group string="Operation Notes">
+                                            <field name="description" string="Remarks / Notes" placeholder="Enter notes or remarks here..."/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+
+                            <!-- Grand Summary on Form Bottom -->
+                            <group col="12" class="oe_invoice_lines_tab mt-3">
+                                <group colspan="8">
+                                    <field name="description" placeholder="General operation notes or shift remarks..." readonly="state != 'draft'"/>
+                                </group>
+                                <group colspan="4" class="oe_subtotal_footer">
+                                    <field name="total_hours" widget="float_time" string="Total Working Hours" class="oe_subtotal_footer_separator fw-bold text-success fs-5"/>
+                                    <field name="total_idle_time" widget="float_time" string="Total Idle Time" class="fw-bold text-warning fs-5"/>
+                                    <field name="total_fuel_consumed" string="Grand Total Fuel Consumed (L)" class="oe_subtotal_footer_separator fw-bold text-danger fs-5"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Approval Details" name="approval" invisible="state == 'draft'">
+                            <div class="o_horizontal_separator d-md-none mt-4 mb-3 fw-bold text-primary">
+                                <i class="fa fa-check-circle-o me-2"/>Approval Details
+                            </div>
+                            <group>
+                                <group>
+                                    <field name="approved_by_id" widget="many2one_avatar_user" readonly="1"/>
+                                    <field name="approved_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="rejection_reason" readonly="1" invisible="not rejection_reason"/>
+                                    <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                    <!-- Bottom Action Buttons for Mobile View (like Daily Report) -->
+                    <div class="o_equipment_timesheet_mobile_bottom_bar d-md-none mt-4 pt-3 pb-4 border-top">
+                        <div class="d-flex flex-column gap-2">
+                            <button name="action_save"
+                                    string="Save"
+                                    type="object"
+                                    class="btn btn-success btn-lg w-100 fw-bold py-3 shadow-sm"
+                                    icon="fa-floppy-o"
+                                    invisible="state in ('approved', 'rejected')"/>
+                            <button name="action_submit"
+                                    string="Submit for Approval"
+                                    type="object"
+                                    class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow"
+                                    icon="fa-paper-plane"
+                                    invisible="state != 'draft'"/>
+                        </div>
+                    </div>
+                </sheet>
+                <!-- Odoo 18 Chatter -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View for Equipment Timesheet -->
+    <record id="view_equipment_timesheet_kanban" model="ir.ui.view">
+        <field name="name">equipment.timesheet.kanban</field>
+        <field name="model">equipment.timesheet</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" sample="0">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="user_id"/>
+                <field name="date"/>
+                <field name="total_hours"/>
+                <field name="total_fuel_consumed"/>
+                <field name="equipment_count"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-primary"><field name="name"/></strong>
+                            <field name="state" widget="badge"
+                                   decoration-info="state == 'draft'"
+                                   decoration-warning="state == 'submitted'"
+                                   decoration-success="state == 'approved'"
+                                   decoration-danger="state == 'rejected'"/>
+                        </div>
+                        <div class="mb-1">
+                            <i class="fa fa-folder-o text-muted me-1"/>
+                            <strong><field name="project_id"/></strong>
+                        </div>
+                        <div class="mb-1 text-muted small">
+                            <i class="fa fa-truck me-1"/>
+                            <field name="equipment_count"/> Equipments
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 pt-2 border-top small">
+                            <span>
+                                <i class="fa fa-clock-o text-success me-1"/>
+                                <strong><field name="total_hours" widget="float_time"/> hrs</strong>
+                            </span>
+                            <span>
+                                <i class="fa fa-tint text-danger me-1"/>
+                                <strong><field name="total_fuel_consumed"/> L</strong>
+                            </span>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View for Equipment Timesheet -->
+    <record id="view_equipment_timesheet_search" model="ir.ui.view">
+        <field name="name">equipment.timesheet.search</field>
+        <field name="model">equipment.timesheet</field>
+        <field name="arch" type="xml">
+            <search string="Search Equipment Timesheets">
+                <field name="name" string="Reference"/>
+                <field name="project_id"/>
+                <field name="user_id" string="Reported By"/>
+                <separator/>
+                <filter string="My Timesheets" name="my_timesheets" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Submitted / To Approve" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Rejected" name="rejected" domain="[('state', '=', 'rejected')]"/>
+                <separator/>
+                <filter string="Today" name="today" domain="[('date', '=', context_today())]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Reported By" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Pivot View for Equipment Timesheet -->
+    <record id="view_equipment_timesheet_pivot" model="ir.ui.view">
+        <field name="name">equipment.timesheet.pivot</field>
+        <field name="model">equipment.timesheet</field>
+        <field name="arch" type="xml">
+            <pivot string="Equipment Timesheet Analysis" sample="0">
+                <field name="project_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="total_hours" type="measure" widget="float_time"/>
+                <field name="total_fuel_consumed" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View for Equipment Timesheet -->
+    <record id="view_equipment_timesheet_graph" model="ir.ui.view">
+        <field name="name">equipment.timesheet.graph</field>
+        <field name="model">equipment.timesheet</field>
+        <field name="arch" type="xml">
+            <graph string="Equipment Hours by Project" sample="0" type="bar">
+                <field name="project_id"/>
+                <field name="total_hours" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action 1: My Timesheets (Default for Regular Users) -->
+    <record id="action_my_equipment_timesheets" model="ir.actions.act_window">
+        <field name="name">My Timesheets</field>
+        <field name="res_model">equipment.timesheet</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="context">{'search_default_my_timesheets': 1}</field>
+        <field name="search_view_id" ref="view_equipment_timesheet_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Equipment Timesheet!
+            </p>
+            <p>
+                Click "New" or select a project from the Projects Dashboard to add an equipment timesheet.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action 2: To Approve (For Project Managers) -->
+    <record id="action_to_approve_equipment_timesheets" model="ir.actions.act_window">
+        <field name="name">Timesheets To Approve</field>
+        <field name="res_model">equipment.timesheet</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', '=', 'submitted')]</field>
+        <field name="context">{'search_default_submitted': 1}</field>
+        <field name="search_view_id" ref="view_equipment_timesheet_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                All caught up! No pending timesheets waiting for approval.
+            </p>
+        </field>
+    </record>
+</odoo>

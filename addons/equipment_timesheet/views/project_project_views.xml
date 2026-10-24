@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Custom Kanban View for Projects Equipment Timesheet Dashboard -->
+    <record id="view_project_equipment_kanban" model="ir.ui.view">
+        <field name="name">project.project.equipment.kanban</field>
+        <field name="model">project.project</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <kanban create="0" action="action_view_equipment_timesheets" type="object" class="o_kanban_project_equipment" sample="0">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <field name="color"/>
+                <field name="equipment_timesheet_count"/>
+                <field name="equipment_timesheet_pending_count"/>
+                <field name="equipment_timesheet_approved_count"/>
+                <field name="equipment_total_hours"/>
+                <field name="equipment_total_fuel_consumed"/>
+                <field name="equipment_count_distinct"/>
+                <field name="equipment_types_display"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h4 class="mb-0 fw-bold" style="color: #1e3a8a;">
+                                    <field name="name"/>
+                                </h4>
+                                <div class="text-muted small mt-1" t-if="record.partner_id.raw_value">
+                                    <i class="fa fa-building-o me-1"/>
+                                    <field name="partner_id"/>
+                                </div>
+                            </div>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </div>
+
+                        <!-- KPI Dashboard Grid -->
+                        <div class="row g-2 my-2 text-center">
+                            <div class="col-6">
+                                <div class="p-2 border o_kpi_box o_kpi_hours" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px;">
+                                    <div class="small fw-semibold text-primary">
+                                        <i class="fa fa-clock-o me-1"/> Working Hours
+                                    </div>
+                                    <div class="fw-bold fs-5 mt-1" style="color: #1e40af;">
+                                        <field name="equipment_total_hours" widget="float_time"/> hrs
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border o_kpi_box o_kpi_fuel" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;">
+                                    <div class="small fw-semibold text-danger">
+                                        <i class="fa fa-tint me-1"/> Fuel Consumed
+                                    </div>
+                                    <div class="fw-bold fs-5 mt-1" style="color: #b91c1c;">
+                                        <field name="equipment_total_fuel_consumed"/> L
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border o_kpi_box o_kpi_equipment" style="background-color: #f5f3ff; border: 1.5px solid #c4b5fd; border-radius: 6px;">
+                                    <div class="small fw-bold o_kpi_equipment_label" style="color: #6d28d9;">
+                                        <i class="fa fa-truck me-1" style="color: #7c3aed;"/> Equipments
+                                    </div>
+                                    <div class="mt-1">
+                                        <span class="badge o_equipment_active_badge text-truncate" style="background-color: #7c3aed; color: #ffffff; font-size: 0.85rem; font-weight: 700; border-radius: 6px; padding: 4px 10px; display: inline-block; max-width: 100%;">
+                                            <i class="fa fa-cogs me-1"/><field name="equipment_types_display"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border o_kpi_box o_kpi_pending" style="background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;">
+                                    <div class="small fw-semibold" style="color: #b45309;">
+                                        <i class="fa fa-hourglass-half me-1"/> Pending
+                                    </div>
+                                    <div class="mt-1">
+                                        <span t-if="record.equipment_timesheet_pending_count.raw_value > 0" class="badge text-bg-warning fw-bold px-2 py-1" style="border-radius: 6px;">
+                                            <field name="equipment_timesheet_pending_count"/> To Approve
+                                        </span>
+                                        <span t-else="" class="badge text-bg-secondary fw-semibold px-2 py-1" style="border-radius: 6px; opacity: 0.85;">
+                                            0 Pending
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer: Quick Actions -->
+                        <footer class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-1">
+                                <button name="action_create_equipment_timesheet" type="object" class="btn btn-primary btn-sm" style="border-radius: 6px; font-weight: 600;">
+                                    <i class="fa fa-plus me-1"/> Add Timesheet
+                                </button>
+                                <button name="action_open_export_wizard" type="object" class="btn btn-outline-secondary btn-sm" style="border-radius: 6px;" title="Export Project Timesheet Lines">
+                                    <i class="fa fa-cog"/>
+                                </button>
+                            </div>
+                            <button name="action_view_equipment_timesheets" type="object" class="btn btn-outline-secondary btn-sm" style="border-radius: 6px; font-weight: 600;">
+                                <i class="fa fa-list me-1"/> <field name="equipment_timesheet_count"/> Timesheets
+                            </button>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Custom List View for Projects Dashboard -->
+    <record id="view_project_equipment_list" model="ir.ui.view">
+        <field name="name">project.project.equipment.list</field>
+        <field name="model">project.project</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <list string="Projects Dashboard" create="0" export_xlsx="0">
+                <field name="name" string="Project Name"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="user_id" string="Project Manager" widget="many2one_avatar_user"/>
+                <field name="equipment_count_distinct" string="Equipments Used" optional="hide"/>
+                <field name="equipment_types_display" string="Equipment Types"/>
+                <field name="equipment_total_hours" widget="float_time" string="Total Working Hours" sum="Total Hours"/>
+                <field name="equipment_total_fuel_consumed" string="Total Fuel Consumed (L)" sum="Total Fuel"/>
+                <field name="equipment_timesheet_count" string="Total Timesheets" sum="Total Timesheets"/>
+                <field name="equipment_timesheet_pending_count" string="Pending Approvals" decoration-warning="equipment_timesheet_pending_count > 0"/>
+                <field name="equipment_timesheet_approved_count" string="Approved Timesheets"/>
+                <button name="action_create_equipment_timesheet" type="object" string="Add Timesheet" class="btn btn-primary btn-sm" icon="fa-plus"/>
+                <button name="action_open_export_wizard" type="object" string="Export" class="btn btn-outline-secondary btn-sm" icon="fa-cog" title="Export Report"/>
+                <button name="action_view_equipment_timesheets" type="object" string="View Timesheets" class="btn btn-link" icon="fa-arrow-right"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View for Project Timesheets Dashboard -->
+    <record id="view_project_equipment_search" model="ir.ui.view">
+        <field name="name">project.project.equipment.search</field>
+        <field name="model">project.project</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <search string="Search Projects">
+                <field name="name" string="Project"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="user_id" string="Project Manager"/>
+                <separator/>
+                <filter string="With Timesheets" name="with_timesheets" domain="[('equipment_timesheet_ids', '!=', False)]"/>
+                <filter string="Needs Approval" name="needs_approval" domain="[('equipment_timesheet_ids.state', '=', 'submitted')]"/>
+                <filter string="My Projects" name="my_projects" domain="[('user_id', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project Manager" name="manager" context="{'group_by': 'user_id'}"/>
+                    <filter string="Customer" name="customer" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Project Form Inheritance: Stat Button & Equipment Timesheet Tab -->
+    <record id="view_project_project_form_equipment_inherit" model="ir.ui.view">
+        <field name="name">project.project.form.equipment.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object" name="action_view_equipment_timesheets" icon="fa-clock-o">
+                    <field string="Equipment TS" name="equipment_timesheet_count" widget="statinfo"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Equipment Timesheets" name="equipment_timesheets">
+                    <field name="equipment_timesheet_ids" readonly="1">
+                        <list export_xlsx="0" decoration-warning="state == 'submitted'" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="user_id"/>
+                            <field name="equipment_count"/>
+                            <field name="total_hours" widget="float_time"/>
+                            <field name="total_fuel_consumed"/>
+                            <field name="state" widget="badge" decoration-warning="state == 'submitted'" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action: Projects Dashboard for Everyone -->
+    <record id="action_project_equipment_dashboard" model="ir.actions.act_window">
+        <field name="name">Projects Dashboard</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_project_equipment_kanban')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_project_equipment_list')})]"/>
+        <field name="search_view_id" ref="view_project_equipment_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Welcome to the Equipment Timesheet Dashboard!
+            </p>
+            <p>
+                Click on any project to view its timesheets, or click "Add Timesheet" on a project card to log new equipment work.
+            </p>
+        </field>
+    </record>
+</odoo>
