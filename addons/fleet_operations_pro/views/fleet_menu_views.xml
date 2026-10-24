@@ -90,6 +90,20 @@
               action="action_fleet_maintenance_schedule"
               sequence="130"/>
     
+    <!-- Rental Contracts Menu Item -->
+    <menuitem id="menu_fleet_rental_contract"
+              name="Rental Contracts"
+              parent="menu_fleet_operations"
+              action="action_fleet_rental_contract"
+              sequence="60"/>
+    
+    <!-- Insurance Policies Menu Item -->
+    <menuitem id="menu_fleet_insurance"
+              name="Insurance Policies"
+              parent="menu_fleet_operations"
+              action="action_fleet_insurance"
+              sequence="65"/>
+    
     <!-- Configuration Menu -->
     <menuitem id="menu_fleet_configuration"
               name="Configuration"

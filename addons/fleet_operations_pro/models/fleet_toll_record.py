@@ -79,6 +79,13 @@ class FleetTollRecord(models.Model):
         help='Toll receipt attachment'
     )
     
+    rental_contract_id = fields.Many2one(
+        'fleet.rental.contract',
+        string='Rental Contract',
+        ondelete='cascade',
+        help='Rental contract this toll record belongs to (if any)'
+    )
+    
     receipt_name = fields.Char(
         string='Receipt Filename'
     )

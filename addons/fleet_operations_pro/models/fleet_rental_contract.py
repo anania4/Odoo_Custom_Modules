@@ -590,20 +590,6 @@ class FleetRentalContract(models.Model):
                 if record.deposit_return_amount > record.deposit_amount:
                     raise ValidationError(_('Deposit return amount cannot exceed deposit amount!'))
     
-    def validate_su(self):
-        """Prevent unauthorized state updates"""
-        for r in self:
-            if not r.env.su:
-                raise ValidationError(_('Not Permitted %s', 'SU'))
-    
-    @api.constrains('state')
-    def _constrains_state(self):
-        """Validate state changes"""
-        for r in self:
-            if r.state == 'draft':
-                return
-        self.validate_su()
-    
     def _validate_rental_start_requirements(self):
         """Validate all requirements before starting rental"""
         self.ensure_one()

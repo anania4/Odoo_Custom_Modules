@@ -82,20 +82,31 @@ export class FleetDashboard extends Component {
             }));
         }
         
-        // Process certificate alerts
-        if (data.alerts.expiring_cert_details) {
-            data.alerts.expiring_cert_details = data.alerts.expiring_cert_details.map(cert => {
-                const expiryDate = new Date(cert.expiry_date);
-                const today = new Date();
-                const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+        // Process insurance alerts
+        if (data.alerts.insurance_details) {
+            data.alerts.insurance_details = data.alerts.insurance_details.map(item => {
+                const daysLeft = Number(item.days_left) || 0;
                 
                 return {
-                    ...cert,
-                    days_left: daysLeft >= 0 ? daysLeft : 0,
+                    ...item,
                     status: daysLeft < 0 ? 'Expired' : 
-                            daysLeft <= 30 ? 'Expiring Soon' : 'Upcoming',
+                            daysLeft <= 7 ? 'Ending Soon' : 'Expiring Soon',
                     status_class: daysLeft < 0 ? 'danger' : 
-                                 daysLeft <= 30 ? 'warning' : 'info'
+                                  daysLeft <= 7 ? 'danger' : 'warning'
+                };
+            });
+        }
+        
+        // Process rental contract alerts
+        if (data.alerts.contract_details) {
+            data.alerts.contract_details = data.alerts.contract_details.map(item => {
+                const daysLeft = Number(item.days_left) || 0;
+                
+                return {
+                    ...item,
+                    status: daysLeft < 0 ? 'Overdue' : 
+                            daysLeft <= 7 ? 'Ending Soon' : 'Ending Soon',
+                    status_class: daysLeft < 0 ? 'danger' : 'warning'
                 };
             });
         }
@@ -115,6 +126,34 @@ export class FleetDashboard extends Component {
     async refresh() {
         this.notification.add("Refreshing dashboard data...", { type: "info" });
         await this.loadDashboardData();
+    }
+    
+    openAction(resModel, domain, name) {
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: name,
+            res_model: resModel,
+            view_mode: 'list,form',
+            domain: domain,
+            target: 'current',
+        });
+    }
+    
+    openFuelLogs() {
+        const date30 = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+        this.openAction('fleet.fuel.log', [['date', '>=', date30]], 'Fuel Logs (30 days)');
+    }
+    
+    openRequests() {
+        this.openAction('fleet.request', [], 'Fleet Requests');
+    }
+    
+    openInsurances() {
+        this.openAction('fleet.insurance', [['active', '=', true]], 'Insurance Policies');
+    }
+    
+    openContracts() {
+        this.openAction('fleet.rental.contract', [['active', '=', true]], 'Rental Contracts');
     }
     
     setActiveTab(tab) {

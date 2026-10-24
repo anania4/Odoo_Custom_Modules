@@ -58,34 +58,34 @@
                         </div>
                         
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card bg-warning text-dark">
+                            <div class="card bg-warning text-dark cursor-pointer" title="View Fuel Logs (30 days)" t-on-click="() =&gt; this.openFuelLogs()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title">Total Costs (30d)</h5>
-                                            <h2 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.total_costs)"/></h2>
+                                            <h5 class="card-title">Total Fuel (30d)</h5>
+                                            <h2 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.total_fuel_cost)"/></h2>
                                             <small class="text-muted">
-                                                Fuel: <t t-esc="formatCurrency(state.data.kpis.total_fuel_cost)"/>
+                                                <t t-esc="formatNumber(state.data.kpis.total_fuel_quantity, 1)"/> liters refueled
                                             </small>
                                         </div>
-                                        <i class="fa fa-money fa-2x opacity-50"/>
+                                        <i class="fa fa-tint fa-2x opacity-50"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card bg-info text-white">
+                            <div class="card bg-info text-white cursor-pointer" title="View Fleet Requests" t-on-click="() =&gt; this.openRequests()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title text-white-50">Rental Revenue</h5>
-                                            <h2 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.rental_revenue)"/></h2>
+                                            <h5 class="card-title text-white-50">Fleet Requests</h5>
+                                            <h2 class="mb-0"><t t-esc="formatNumber(state.data.kpis.total_requests, 0)"/></h2>
                                             <small class="text-white-50">
-                                                <t t-esc="state.data.kpis.active_rentals"/> Active Rentals
+                                                <t t-esc="state.data.kpis.open_requests"/> Open / <t t-esc="state.data.kpis.assigned_requests"/> Assigned
                                             </small>
                                         </div>
-                                        <i class="fa fa-line-chart fa-2x opacity-50"/>
+                                        <i class="fa fa-clipboard-list fa-2x opacity-50"/>
                                     </div>
                                 </div>
                             </div>
@@ -322,35 +322,36 @@
 
                     <!-- Alerts and Notifications -->
                     <div class="row mb-4">
-                        <!-- Certificate Alerts -->
+                        <!-- Insurance Alerts -->
                         <div class="col-lg-4 mb-3">
-                            <div class="card border-danger">
+                            <div class="card border-danger cursor-pointer" title="View Insurance Policies" t-on-click="() =&gt; this.openInsurances()">
                                 <div class="card-header bg-danger text-white">
-                                    <h5 class="mb-0"><i class="fa fa-certificate"/> Certificate Alerts</h5>
+                                    <h5 class="mb-0"><i class="fa fa-shield"/> Insurance Alerts</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between mb-3">
                                         <div>
-                                            <h3 class="mb-0 text-danger"><t t-esc="state.data.alerts.expired_certificates"/></h3>
+                                            <h3 class="mb-0 text-danger"><t t-esc="state.data.alerts.expired_insurances"/></h3>
                                             <small class="text-muted">Expired</small>
                                         </div>
                                         <div>
-                                            <h3 class="mb-0 text-warning"><t t-esc="state.data.alerts.expiring_certificates"/></h3>
+                                            <h3 class="mb-0 text-warning"><t t-esc="state.data.alerts.expiring_insurances"/></h3>
                                             <small class="text-muted">Expiring Soon</small>
                                         </div>
                                     </div>
-                                    <t t-if="state.data.alerts.expiring_cert_details.length">
-                                        <h6 class="text-muted mb-2">Upcoming Expiries:</h6>
+                                    <t t-if="state.data.alerts.insurance_details.length">
+                                        <h6 class="text-muted mb-2">Policies Expiring:</h6>
                                         <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.alerts.expiring_cert_details" t-as="cert" t-key="cert_index">
+                                            <t t-foreach="state.data.alerts.insurance_details" t-as="item" t-key="item_index">
                                                 <div class="list-group-item px-0 py-2">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
-                                                            <div class="fw-bold small"><t t-esc="cert.vehicle"/></div>
-                                                            <small class="text-muted"><t t-esc="cert.certificate"/></small>
+                                                            <div class="fw-bold small"><t t-esc="item.vehicle"/></div>
+                                                            <small class="text-muted"><t t-esc="item.policy_number"/> · <t t-esc="item.insurance_company"/></small>
                                                         </div>
-                                                        <small t-att-class="'badge bg-' + cert.status_class">
-                                                            <t t-esc="cert.days_left"/> days
+                                                        <small t-att-class="'badge bg-' + item.status_class">
+                                                            <t t-if="item.days_left &gt;= 0"><t t-esc="item.days_left"/> days</t>
+                                                            <t t-else="">Expired</t>
                                                         </small>
                                                     </div>
                                                 </div>
@@ -358,7 +359,7 @@
                                         </div>
                                     </t>
                                     <t t-else="">
-                                        <p class="text-muted text-center small mb-0">No upcoming certificate expiries</p>
+                                        <p class="text-muted text-center small mb-0">No insurance policies expiring soon</p>
                                     </t>
                                 </div>
                             </div>
@@ -399,32 +400,40 @@
                             </div>
                         </div>
                         
-                        <!-- License Expiry Alerts -->
+                        <!-- Rental Contract Expiries -->
                         <div class="col-lg-4 mb-3">
-                            <div class="card border-info">
+                            <div class="card border-info cursor-pointer" title="View Rental Contracts" t-on-click="() =&gt; this.openContracts()">
                                 <div class="card-header bg-info text-white">
-                                    <h5 class="mb-0"><i class="fa fa-id-card"/> License Expiries</h5>
+                                    <h5 class="mb-0"><i class="fa fa-file-text-o"/> Contract Expiries</h5>
                                 </div>
                                 <div class="card-body">
-                                    <t t-if="state.data.alerts.expiring_licenses.length">
+                                    <t t-if="state.data.alerts.contract_details.length">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <small class="text-warning"><t t-esc="state.data.alerts.expiring_contracts"/> ending in 30 days</small>
+                                            <small class="text-danger"><t t-esc="state.data.alerts.expired_contracts"/> overdue</small>
+                                        </div>
                                         <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.alerts.expiring_licenses" t-as="license" t-key="license_index">
+                                            <t t-foreach="state.data.alerts.contract_details" t-as="item" t-key="item_index">
                                                 <div class="list-group-item px-0 py-2">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
-                                                            <div class="fw-bold small"><t t-esc="license.driver"/></div>
-                                                            <small class="text-muted"><t t-esc="license.license_number"/></small>
+                                                            <div class="fw-bold small"><t t-esc="item.contract"/></div>
+                                                            <small class="text-muted"><t t-esc="item.customer"/></small>
                                                         </div>
-                                                        <small class="badge bg-info">
-                                                            <t t-esc="license.expiry_date"/>
-                                                        </small>
+                                                        <div class="text-end">
+                                                            <small class="badge bg-secondary"><t t-esc="item.end_date"/></small>
+                                                            <small t-att-class="'badge bg-' + item.status_class">
+                                                                <t t-if="item.days_left &gt;= 0"><t t-esc="item.days_left"/> days left</t>
+                                                                <t t-else="">Overdue</t>
+                                                            </small>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </t>
                                         </div>
                                     </t>
                                     <t t-else="">
-                                        <p class="text-muted text-center small mb-0">No expiring driver licenses</p>
+                                        <p class="text-muted text-center small mb-0">No rental contracts expiring soon</p>
                                     </t>
                                 </div>
                             </div>

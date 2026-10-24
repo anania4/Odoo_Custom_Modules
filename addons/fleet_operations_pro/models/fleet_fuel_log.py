@@ -104,6 +104,22 @@ class FleetFuelLog(models.Model):
         help='Invoice or receipt number'
     )
     
+    attachment = fields.Binary(
+        string='Receipt',
+        help='Fuel receipt attachment'
+    )
+    
+    attachment_name = fields.Char(
+        string='Attachment Name'
+    )
+    
+    rental_contract_id = fields.Many2one(
+        'fleet.rental.contract',
+        string='Rental Contract',
+        ondelete='set null',
+        help='Rental contract this fuel log belongs to (if any)'
+    )
+    
     # Vehicle Related Fields
     fuel_type_id = fields.Many2one(
         'fleet.fuel.type',

@@ -33,6 +33,10 @@ $gray-900: #0f172a;  // Almost black for high contrast text
 }
 
 .o_fleet_dashboard {
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
     padding: 1.5rem;
     background-color: $gray-100;
     min-height: calc(100vh - 2rem);

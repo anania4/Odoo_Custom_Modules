@@ -82,6 +82,13 @@ class FleetTrip(models.Model):
         help='Intermediate stops or route notes'
     )
     
+    rental_contract_id = fields.Many2one(
+        'fleet.rental.contract',
+        string='Rental Contract',
+        ondelete='cascade',
+        help='Rental contract this trip belongs to (if any)'
+    )
+    
     # Distance & Odometer
     start_odometer = fields.Float(
         string='Start Odometer (km)',

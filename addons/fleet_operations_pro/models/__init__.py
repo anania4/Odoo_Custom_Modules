@@ -17,5 +17,6 @@ from . import fleet_trip
 from . import fleet_request
 from . import fleet_maintenance_schedule
 from . import fleet_insurance
+from . import fleet_rental_contract
 from . import fleet_dashboard
 

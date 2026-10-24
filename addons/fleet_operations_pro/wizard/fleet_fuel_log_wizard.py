@@ -16,6 +16,12 @@ class FleetFuelLogWizard(models.TransientModel):
         help='Vehicle for which fuel is being added'
     )
     
+    rental_contract_id = fields.Many2one(
+        'fleet.rental.contract',
+        string='Rental Contract',
+        help='Rental contract this fuel log belongs to (filled automatically when opened from a contract)'
+    )
+    
     driver_id = fields.Many2one(
         'fleet.driver',
         string='Driver',
@@ -203,6 +209,7 @@ class FleetFuelLogWizard(models.TransientModel):
             'odometer': self.odometer,
             'fuel_station': self.fuel_station,
             'fuel_station_location': self.fuel_station_location,
+            'rental_contract_id': self.rental_contract_id.id if self.rental_contract_id else False,
             'notes': self.notes,
             'attachment': self.attachment,
             'attachment_name': self.attachment_name,
