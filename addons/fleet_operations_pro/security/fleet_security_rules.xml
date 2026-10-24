@@ -32,31 +32,9 @@
             <field name="perm_unlink" eval="False"/>
         </record>
         
-        <record id="fleet_driver_user_rule" model="ir.rule">
-            <field name="name">Fleet User: Company Drivers</field>
-            <field name="model_id" ref="model_fleet_driver"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_fleet_user'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
-        
         <!-- ========================================= -->
         <!-- FLEET DRIVER RULES - Own Records Only -->
         <!-- ========================================= -->
-        
-        <record id="fleet_driver_own_driver_rule" model="ir.rule">
-            <field name="name">Fleet Driver: Own Driver Record</field>
-            <field name="model_id" ref="model_fleet_driver"/>
-            <field name="domain_force">[('user_id', '=', user.id)]</field>
-            <field name="groups" eval="[(4, ref('group_fleet_driver'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
         
         <record id="fleet_driver_own_trips_rule" model="ir.rule">
             <field name="name">Fleet Driver: Own Trips</field>
@@ -83,7 +61,7 @@
         <record id="fleet_driver_assigned_vehicles_rule" model="ir.rule">
             <field name="name">Fleet Driver: Assigned Vehicles (Read Only)</field>
             <field name="model_id" ref="model_fleet_vehicle"/>
-            <field name="domain_force">[('driver_assignment_ids.driver_id.user_id', '=', user.id), ('driver_assignment_ids.date_end', '=', False)]</field>
+            <field name="domain_force">[('driver_assignment_ids.employee_id.user_id', '=', user.id), ('driver_assignment_ids.date_end', '=', False)]</field>
             <field name="groups" eval="[(4, ref('group_fleet_driver'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
@@ -117,17 +95,6 @@
             <field name="perm_unlink" eval="False"/>
         </record>
         
-        <record id="fleet_maintenance_schedule_rule" model="ir.rule">
-            <field name="name">Fleet Maintenance: All Schedules</field>
-            <field name="model_id" ref="model_fleet_maintenance_schedule"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_fleet_maintenance'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
-        
         <!-- ========================================= -->
         <!-- FLEET VIEWER RULES - Read Only -->
         <!-- ========================================= -->
@@ -143,16 +110,6 @@
             <field name="perm_unlink" eval="False"/>
         </record>
         
-        <record id="fleet_viewer_driver_rule" model="ir.rule">
-            <field name="name">Fleet Viewer: All Drivers (Read Only)</field>
-            <field name="model_id" ref="model_fleet_driver"/>
-            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_fleet_viewer'))]"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
         
     </data>
 </odoo>

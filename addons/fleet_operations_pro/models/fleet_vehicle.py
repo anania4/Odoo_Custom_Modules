@@ -208,11 +208,11 @@ class FleetVehicle(models.Model):
         help='History of driver assignments'
     )
     current_driver_id = fields.Many2one(
-        'fleet.driver',
+        'hr.employee',
         string='Current Driver',
         compute='_compute_current_driver',
         store=False,
-        help='Currently assigned driver'
+        help='Currently assigned driver (employee)'
     )
     
     # Fuel Logs (Phase 1C)
@@ -261,39 +261,7 @@ class FleetVehicle(models.Model):
         help='Total cost of all maintenance'
     )
     
-    # Compliance & Certificates (Phase 1F)
-    certificate_ids = fields.One2many(
-        'fleet.vehicle.certificate',
-        'vehicle_id',
-        string='Certificates',
-        help='All certificates for this vehicle'
-    )
-    certificate_count = fields.Integer(
-        string='Certificate Count',
-        compute='_compute_certificate_count',
-        store=False,
-        help='Number of certificates'
-    )
-    expired_certificate_count = fields.Integer(
-        string='Expired Certificates',
-        compute='_compute_expired_certificate_count',
-        store=False,
-        help='Number of expired certificates'
-    )
-    expiring_soon_certificate_count = fields.Integer(
-        string='Expiring Soon',
-        compute='_compute_expiring_soon_certificate_count',
-        store=False,
-        help='Number of certificates expiring soon'
-    )
-    has_certificate_issues = fields.Boolean(
-        string='Has Certificate Issues',
-        compute='_compute_has_certificate_issues',
-        store=False,
-        help='True if any certificates are expired or expiring soon'
-    )
-    
-    # Toll Management (Phase 2C)
+        # Toll Management (Phase 2C)
     toll_record_ids = fields.One2many(
         'fleet.toll.record',
         'vehicle_id',
@@ -334,25 +302,18 @@ class FleetVehicle(models.Model):
         help='Total distance from all trips'
     )
     
-    # Insurance (Phase 4D)
-    insurance_ids = fields.One2many(
-        'fleet.insurance',
+        # Fleet Requests (accepted by this vehicle)
+    request_ids = fields.One2many(
+        'fleet.request',
         'vehicle_id',
-        string='Insurance Policies',
-        help='All insurance policies for this vehicle'
+        string='Accepted Fleet Requests',
+        help='Fleet requests this vehicle accepted (driver assigned)'
     )
-    insurance_count = fields.Integer(
-        string='Insurance Count',
-        compute='_compute_insurance_count',
+    accepted_request_count = fields.Integer(
+        string='Accepted Requests',
+        compute='_compute_accepted_request_count',
         store=False,
-        help='Number of insurance policies'
-    )
-    current_insurance_id = fields.Many2one(
-        'fleet.insurance',
-        string='Current Insurance',
-        compute='_compute_current_insurance',
-        store=False,
-        help='Currently active insurance policy'
+        help='Number of fleet requests accepted by this vehicle'
     )
     
     _sql_constraints = [
@@ -415,7 +376,7 @@ class FleetVehicle(models.Model):
                 ('date_end', '>=', fields.Date.today()),
             ], limit=1, order='date_start desc')
             
-            vehicle.current_driver_id = current_assignment.driver_id.id if current_assignment else False
+            vehicle.current_driver_id = current_assignment.employee_id.id if current_assignment else False
     
     def _compute_fuel_log_count(self):
         """Count fuel log entries"""
@@ -480,31 +441,6 @@ class FleetVehicle(models.Model):
             completed_maintenance = vehicle.maintenance_ids.filtered(lambda m: m.state == 'completed')
             vehicle.total_maintenance_cost = sum(completed_maintenance.mapped('cost'))
     
-    # Certificate Compute Methods (Phase 1F)
-    @api.depends('certificate_ids')
-    def _compute_certificate_count(self):
-        """Count active certificates for this vehicle"""
-        for vehicle in self:
-            vehicle.certificate_count = len(vehicle.certificate_ids.filtered(lambda c: c.active))
-    
-    @api.depends('certificate_ids.state')
-    def _compute_expired_certificate_count(self):
-        """Count expired certificates"""
-        for vehicle in self:
-            vehicle.expired_certificate_count = len(vehicle.certificate_ids.filtered(lambda c: c.state == 'expired' and c.active))
-    
-    @api.depends('certificate_ids.state')
-    def _compute_expiring_soon_certificate_count(self):
-        """Count certificates expiring soon"""
-        for vehicle in self:
-            vehicle.expiring_soon_certificate_count = len(vehicle.certificate_ids.filtered(lambda c: c.state == 'expiring_soon' and c.active))
-    
-    @api.depends('expired_certificate_count', 'expiring_soon_certificate_count')
-    def _compute_has_certificate_issues(self):
-        """Check if there are any certificate issues"""
-        for vehicle in self:
-            vehicle.has_certificate_issues = (vehicle.expired_certificate_count > 0 or vehicle.expiring_soon_certificate_count > 0)
-    
     # Toll Compute Methods (Phase 2C)
     @api.depends('toll_record_ids')
     def _compute_toll_count(self):
@@ -531,22 +467,14 @@ class FleetVehicle(models.Model):
         for vehicle in self:
             vehicle.total_distance = sum(vehicle.trip_ids.mapped('distance'))
     
-    # Insurance Compute Methods (Phase 4D)
-    @api.depends('insurance_ids')
-    def _compute_insurance_count(self):
-        """Count insurance policies"""
+    # Fleet Requests Compute Methods
+    def _compute_accepted_request_count(self):
+        """Count fleet requests accepted (assigned) by this vehicle"""
         for vehicle in self:
-            vehicle.insurance_count = len(vehicle.insurance_ids)
-    
-    @api.depends('insurance_ids', 'insurance_ids.is_current')
-    def _compute_current_insurance(self):
-        """Find current active insurance policy"""
-        today = fields.Date.today()
-        for vehicle in self:
-            current = vehicle.insurance_ids.filtered(
-                lambda i: i.start_date <= today <= i.end_date
-            )
-            vehicle.current_insurance_id = current[0] if current else False
+            vehicle.accepted_request_count = self.env['fleet.request'].search_count([
+                ('vehicle_id', '=', vehicle.id),
+                ('state', '=', 'assigned'),
+            ])
     
     @api.constrains('model_year')
     def _check_model_year(self):

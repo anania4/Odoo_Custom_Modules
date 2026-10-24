@@ -76,10 +76,14 @@ class FleetDashboard(models.Model):
             assigned_requests = requests_model.search_count([('state', '=', 'assigned')])
             rejected_requests = requests_model.search_count([('state', '=', 'rejected')])
 
-            # Driver Statistics
-            drivers = self.env['fleet.driver'].search([('company_id', '=', company.id)])
-            total_drivers = len(drivers)
-            active_drivers = len(drivers.filtered(lambda d: d.employment_status == 'active'))
+            # Contract Statistics
+            contract_model_stats = self.env['fleet.contract']
+            running_contracts = contract_model_stats.search_count([
+                ('company_id', '=', company.id), ('active', '=', True), ('state', '=', 'running')
+            ])
+            total_contracts = contract_model_stats.search_count([
+                ('company_id', '=', company.id), ('active', '=', True)
+            ])
 
             # Driver Assignments
             assignment_model = self.env['fleet.driver.assignment']
@@ -137,71 +141,43 @@ class FleetDashboard(models.Model):
                     'cost': sum(month_fuel.mapped('total_cost'))
                 })
 
-            # Upcoming Maintenance
-            ninety_days_ahead = today + timedelta(days=90)
-            upcoming_maintenance = self.env['fleet.maintenance.schedule'].search([
-                ('company_id', '=', company.id),
-                ('next_maintenance_date', '<=', ninety_days_ahead),
-                ('next_maintenance_date', '>=', today),
-                ('active', '=', True)
-            ], order='next_maintenance_date asc', limit=5)
-
-            # Insurance Alerts
-            insurance_model = self.env['fleet.insurance']
-            expiring_insurances = insurance_model.search([
-                ('active', '=', True),
-                ('end_date', '<=', today + timedelta(days=30)),
-                ('end_date', '>=', today),
-            ], order='end_date asc')
-            expired_insurances = insurance_model.search([
-                ('active', '=', True),
-                ('end_date', '<', today),
-            ])
-            insurance_details = [{
-                'vehicle': policy.vehicle_id.name,
-                'vehicle_id': policy.vehicle_id.id,
-                'policy_number': policy.policy_number,
-                'insurance_company': policy.insurance_company,
-                'end_date': policy.end_date.strftime('%Y-%m-%d') if policy.end_date else '',
-                'days_left': (policy.end_date - today).days if policy.end_date else 0,
-            } for policy in expiring_insurances[:5]]
-
-            # Rental Contract Expiries (active/confirmed contracts ending within 30 days and overdue ones)
-            contract_model = self.env['fleet.rental.contract']
+            # Contract Renewal Alerts (active contracts ending within 30 days and overdue ones)
+            contract_model = self.env['fleet.contract']
             expiring_contracts = contract_model.search([
                 ('active', '=', True),
-                ('state', 'in', ('confirmed', 'active')),
+                ('state', '=', 'running'),
                 ('end_date', '<=', today + timedelta(days=30)),
                 ('end_date', '>=', today),
             ], order='end_date asc')
             expired_contracts = contract_model.search([
                 ('active', '=', True),
-                ('state', '=', 'active'),
+                ('state', '=', 'running'),
                 ('end_date', '<', today),
             ])
             contract_details = [{
                 'contract': contract.name,
                 'contract_id': contract.id,
-                'customer': contract.customer_id.name,
+                'vehicle': contract.vehicle_id.name,
+                'contract_type': dict(contract._fields['contract_type'].selection).get(contract.contract_type, ''),
+                'provider': contract.partner_id.name or '',
                 'end_date': contract.end_date.strftime('%Y-%m-%d') if contract.end_date else '',
                 'days_left': (contract.end_date - today).days if contract.end_date else 0,
             } for contract in (expiring_contracts + expired_contracts)[:5]]
 
-            # Top Performing Drivers (ranked by trip activity in the last 30 days)
-            driver_trips = {}
-            for trip in trips:
-                if trip.driver_id:
-                    driver_trips[trip.driver_id.id] = driver_trips.get(trip.driver_id.id, 0) + 1
-            top_driver_ids = sorted(driver_trips.items(), key=lambda x: x[1], reverse=True)[:5]
-            top_drivers = self.env['fleet.driver'].browse([d for d, _ in top_driver_ids])
+            # Fleet Requests by State
+            state_labels = dict(requests_model._fields['state'].selection)
+            requests_by_state = [{
+                'name': state_labels[k],
+                'value': requests_model.search_count([('state', '=', k)]),
+            } for k in ('draft', 'submitted', 'dept_approved', 'fleet_approved', 'assigned', 'rejected')]
 
             return {
                 'kpis': {
                     'total_vehicles': total_vehicles,
                     'available_vehicles': available_vehicles,
                     'in_service_vehicles': in_maintenance_vehicles,
-                    'total_drivers': total_drivers,
-                    'active_drivers': active_drivers,
+                    'running_contracts': running_contracts,
+                    'total_contracts': total_contracts,
                     'active_assignments': len(active_assignments),
                     'total_costs': total_costs,
                     'total_fuel_cost': total_fuel_cost,
@@ -224,26 +200,21 @@ class FleetDashboard(models.Model):
                     'cost_by_category': cost_by_category,
                     'top_cost_vehicles': [{'name': k, 'value': v} for k, v in top_cost_vehicles],
                     'fuel_trend': fuel_trend,
-                    'top_drivers': [{
-                        'name': driver.name,
-                        'safety_score': driver_trips.get(driver.id, 0),
-                        'license_number': driver.license_number,
-                        'image': driver.image if driver.image else False
-                    } for driver in top_drivers],
+                    'requests_by_state': requests_by_state,
                 },
                 'alerts': {
-                    'expired_insurances': len(expired_insurances),
-                    'expiring_insurances': len(expiring_insurances),
-                    'insurance_details': insurance_details,
                     'expired_contracts': len(expired_contracts),
                     'expiring_contracts': len(expiring_contracts),
                     'contract_details': contract_details,
-                    'upcoming_maintenance': [{
-                        'vehicle': maint.vehicle_id.name if maint.vehicle_id else 'All Vehicles',
-                        'maintenance_type': maint.maintenance_type_id.name,
-                        'due_date': maint.next_maintenance_date.strftime('%Y-%m-%d') if maint.next_maintenance_date else '',
-                        'odometer_due': maint.next_maintenance_odometer if maint.next_maintenance_odometer else 0
-                    } for maint in upcoming_maintenance],
+                    'recent_services': [{
+                        'vehicle': service.vehicle_id.name,
+                        'service': service.service_type_id.name,
+                        'date': service.date.strftime('%Y-%m-%d') if service.date else '',
+                        'cost': service.cost or 0,
+                    } for service in self.env['fleet.service'].search([
+                        ('company_id', '=', company.id),
+                        ('date', '>=', thirty_days_ago),
+                    ], order='date desc', limit=5)],
                 }
             }
         except Exception as e:
@@ -254,8 +225,8 @@ class FleetDashboard(models.Model):
                     'total_vehicles': 0,
                     'available_vehicles': 0,
                     'in_service_vehicles': 0,
-                    'total_drivers': 0,
-                    'active_drivers': 0,
+                    'running_contracts': 0,
+                    'total_contracts': 0,
                     'active_assignments': 0,
                     'total_costs': 0,
                     'total_fuel_cost': 0,
@@ -278,15 +249,12 @@ class FleetDashboard(models.Model):
                     'cost_by_category': [],
                     'top_cost_vehicles': [],
                     'fuel_trend': [],
-                    'top_drivers': [],
+                    'requests_by_state': [],
                 },
                 'alerts': {
-                    'expired_insurances': 0,
-                    'expiring_insurances': 0,
-                    'insurance_details': [],
                     'expired_contracts': 0,
                     'expiring_contracts': 0,
                     'contract_details': [],
-                    'upcoming_maintenance': [],
+                    'recent_services': [],
                 }
             }

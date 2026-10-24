@@ -28,10 +28,10 @@ class FleetTollRecord(models.Model):
     )
     
     driver_id = fields.Many2one(
-        'fleet.driver',
+        'hr.employee',
         string='Driver',
         tracking=True,
-        help='Driver who paid the toll'
+        help='Driver (employee) who paid the toll'
     )
     
     # Date & Location
@@ -79,13 +79,7 @@ class FleetTollRecord(models.Model):
         help='Toll receipt attachment'
     )
     
-    rental_contract_id = fields.Many2one(
-        'fleet.rental.contract',
-        string='Rental Contract',
-        ondelete='cascade',
-        help='Rental contract this toll record belongs to (if any)'
-    )
-    
+
     receipt_name = fields.Char(
         string='Receipt Filename'
     )

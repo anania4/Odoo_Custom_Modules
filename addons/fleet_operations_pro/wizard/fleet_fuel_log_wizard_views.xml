@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     
-    <!-- Action to open wizard from Rental Contract -->
-    <record id="action_fleet_fuel_log_wizard_from_rental" model="ir.actions.act_window">
-        <field name="name">Add Fuel</field>
-        <field name="res_model">fleet.fuel.log.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_rental_contract_id': active_id}</field>
-    </record>
-    
     <!-- Fuel Log Wizard Form View -->
     <record id="view_fleet_fuel_log_wizard_form" model="ir.ui.view">
         <field name="name">fleet.fuel.log.wizard.form</field>
@@ -18,7 +9,6 @@
             <form string="Add Fuel">
                 <group>
                     <group name="vehicle_info" string="Vehicle Information">
-                        <field name="rental_contract_id" invisible="not rental_contract_id"/>
                         <field name="vehicle_id" readonly="1"/>
                         <field name="driver_id"/>
                         <field name="date"/>

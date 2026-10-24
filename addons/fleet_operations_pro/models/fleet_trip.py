@@ -28,11 +28,11 @@ class FleetTrip(models.Model):
     )
     
     driver_id = fields.Many2one(
-        'fleet.driver',
+        'hr.employee',
         string='Driver',
         required=True,
         tracking=True,
-        help='Driver who made this trip'
+        help='Driver (employee) who made this trip'
     )
     
     # Date & Time
@@ -80,13 +80,6 @@ class FleetTrip(models.Model):
     waypoints = fields.Text(
         string='Waypoints',
         help='Intermediate stops or route notes'
-    )
-    
-    rental_contract_id = fields.Many2one(
-        'fleet.rental.contract',
-        string='Rental Contract',
-        ondelete='cascade',
-        help='Rental contract this trip belongs to (if any)'
     )
     
     # Distance & Odometer

@@ -26,10 +26,10 @@ class FleetFuelLog(models.Model):
     )
     
     driver_id = fields.Many2one(
-        'fleet.driver',
+        'hr.employee',
         string='Driver',
         tracking=True,
-        help='Driver who filled the fuel'
+        help='Driver (employee) who filled the fuel'
     )
     
     date = fields.Date(
@@ -111,13 +111,6 @@ class FleetFuelLog(models.Model):
     
     attachment_name = fields.Char(
         string='Attachment Name'
-    )
-    
-    rental_contract_id = fields.Many2one(
-        'fleet.rental.contract',
-        string='Rental Contract',
-        ondelete='set null',
-        help='Rental contract this fuel log belongs to (if any)'
     )
     
     # Vehicle Related Fields

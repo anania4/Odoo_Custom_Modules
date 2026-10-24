@@ -33,13 +33,6 @@ class FleetMaintenance(models.Model):
         help='Type of maintenance performed'
     )
     
-    schedule_id = fields.Many2one(
-        'fleet.maintenance.schedule',
-        string='Maintenance Schedule',
-        ondelete='set null',
-        help='Link to maintenance schedule if this was a scheduled maintenance'
-    )
-    
     date = fields.Date(
         string='Date',
         required=True,

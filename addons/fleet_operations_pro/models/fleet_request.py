@@ -136,11 +136,21 @@ class FleetRequest(models.Model):
     # =========================================
 
     driver_id = fields.Many2one(
-        'fleet.driver',
+        'hr.employee',
         string='Driver',
+        domain="[('company_id', '=', company_id)]",
         tracking=True,
         copy=False,
-        help='Driver assigned by the Fleet Manager'
+        help='Driver assigned by the Fleet Manager, fetched from the Employees app'
+    )
+
+    delegated_employee_id = fields.Many2one(
+        'hr.employee',
+        string='Driver Delegation',
+        tracking=True,
+        copy=False,
+        help='Employee delegated to drive, fetched from the Employees app '
+             '(chosen by the Fleet Manager when assigning a driver)'
     )
 
     vehicle_id = fields.Many2one(
@@ -281,8 +291,8 @@ class FleetRequest(models.Model):
 
     @api.onchange('driver_id')
     def _onchange_driver_id(self):
-        """When a driver is assigned, target the vehicle the driver is currently driving"""
-        self.vehicle_id = self.driver_id.current_vehicle_id if self.driver_id else False
+        """When a driver is assigned, target the vehicle of the driver's current active assignment"""
+        self.vehicle_id = self.driver_id and self._get_current_vehicle(self.driver_id.id) or False
         if self.driver_id and not self.vehicle_id:
             return {
                 'warning': {
@@ -292,6 +302,17 @@ class FleetRequest(models.Model):
                 }
             }
 
+    def _get_current_vehicle(self, employee_id):
+        """Return the vehicle of the employee's current active assignment, if any"""
+        assignment = self.env['fleet.driver.assignment'].search([
+            ('employee_id', '=', employee_id),
+            ('date_start', '<=', fields.Date.today()),
+            '|',
+            ('date_end', '=', False),
+            ('date_end', '>=', fields.Date.today()),
+        ], limit=1, order='date_start desc')
+        return assignment.vehicle_id if assignment else self.env['fleet.vehicle']
+
     def action_assign(self):
         """Fleet Manager assigns a driver; the vehicle comes from the driver's current assignment"""
         for request in self:
@@ -300,7 +321,7 @@ class FleetRequest(models.Model):
             request._check_fleet_manager()
             if not request.driver_id:
                 raise UserError(_('Please select a driver before assigning.'))
-            vehicle = request.driver_id.current_vehicle_id
+            vehicle = request._get_current_vehicle(request.driver_id.id)
             if not vehicle:
                 raise UserError(_(
                     'The driver %s has no current active vehicle assignment. '

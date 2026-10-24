@@ -82,22 +82,7 @@ export class FleetDashboard extends Component {
             }));
         }
         
-        // Process insurance alerts
-        if (data.alerts.insurance_details) {
-            data.alerts.insurance_details = data.alerts.insurance_details.map(item => {
-                const daysLeft = Number(item.days_left) || 0;
-                
-                return {
-                    ...item,
-                    status: daysLeft < 0 ? 'Expired' : 
-                            daysLeft <= 7 ? 'Ending Soon' : 'Expiring Soon',
-                    status_class: daysLeft < 0 ? 'danger' : 
-                                  daysLeft <= 7 ? 'danger' : 'warning'
-                };
-            });
-        }
-        
-        // Process rental contract alerts
+        // Process contract renewal alerts
         if (data.alerts.contract_details) {
             data.alerts.contract_details = data.alerts.contract_details.map(item => {
                 const daysLeft = Number(item.days_left) || 0;
@@ -148,12 +133,12 @@ export class FleetDashboard extends Component {
         this.openAction('fleet.request', [], 'Fleet Requests');
     }
     
-    openInsurances() {
-        this.openAction('fleet.insurance', [['active', '=', true]], 'Insurance Policies');
+    openContracts() {
+        this.openAction('fleet.contract', [['active', '=', true]], 'Contracts');
     }
     
-    openContracts() {
-        this.openAction('fleet.rental.contract', [['active', '=', true]], 'Rental Contracts');
+    openServices() {
+        this.openAction('fleet.service', [], 'Services');
     }
     
     setActiveTab(tab) {

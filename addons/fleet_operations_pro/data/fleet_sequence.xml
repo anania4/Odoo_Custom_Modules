@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        
-        <!-- Sequence for Insurance Policies -->
-        <record id="seq_fleet_insurance" model="ir.sequence">
-            <field name="name">Fleet Insurance Policy</field>
-            <field name="code">fleet.insurance</field>
-            <field name="prefix">INS</field>
+
+        <!-- Sequence for Fleet Contracts -->
+        <record id="seq_fleet_contract" model="ir.sequence">
+            <field name="name">Fleet Contract</field>
+            <field name="code">fleet.contract</field>
+            <field name="prefix">FCL/%(year)s/</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>
 
-        <!-- Sequence for Rental Contracts -->
-        <record id="seq_fleet_rental_contract" model="ir.sequence">
-            <field name="name">Fleet Rental Contract</field>
-            <field name="code">fleet.rental.contract</field>
-            <field name="prefix">RC</field>
+        <!-- Sequence for Fleet Services -->
+        <record id="seq_fleet_service" model="ir.sequence">
+            <field name="name">Fleet Service</field>
+            <field name="code">fleet.service</field>
+            <field name="prefix">SVN</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>
 
     </data>
 </odoo>
-

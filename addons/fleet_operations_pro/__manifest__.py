@@ -11,15 +11,14 @@ A comprehensive fleet management system for Odoo 18 that includes:
 
 Features:
 - Vehicle Master Data Management with categories and status tracking
-- Driver Management with license tracking and expiry alerts
+- Driver Management via HR Employees with vehicle assignments
 - Fuel Management with consumption tracking
 - Maintenance Management with service history
-- Compliance & Certificate Management with expiry reminders
+- Contract Management (insurance policies, leases, rental agreements) with expiry tracking
+- Service Management
 - Toll Management
 - Trip Management
-- Automated Insurance Expiry Reminders
 - Driver Assignments
-- Preventive Maintenance Scheduling
 - Vehicle Analysis Reporting
 
 This module is standalone and does not depend on Odoo's base fleet module.
@@ -41,24 +40,17 @@ This module is standalone and does not depend on Odoo's base fleet module.
         'data/vehicle_status_data.xml',
         'data/fuel_type_data.xml',
         'data/maintenance_type_data.xml',
-        'data/certificate_type_data.xml',
-        'data/maintenance_schedule_cron.xml',
-        'data/insurance_cron.xml',
-        'data/email_templates/email_template_data.xml',
 
         'views/driver_views.xml',
         'views/fuel_log_views.xml',
         'views/maintenance_views.xml',
-        'views/certificate_views.xml',
+        'views/fleet_contract_views.xml',
 
         'wizard/fleet_fuel_log_wizard_views.xml',
 
         'views/toll_views.xml',
         'views/trip_views.xml',
-        'views/rental_views.xml',
-        'views/insurance_views.xml',
         'views/fleet_request_views.xml',
-        'views/maintenance_schedule_views.xml',
         'views/vehicle_views.xml',
         'views/fleet_dashboard_views.xml',
         'views/fleet_menu_views.xml',

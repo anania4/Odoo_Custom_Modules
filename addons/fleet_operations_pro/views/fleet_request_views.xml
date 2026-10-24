@@ -21,6 +21,15 @@
         </field>
     </record>
 
+    <!-- Action for Fleet Requests accepted by a given Vehicle -->
+    <record id="action_fleet_request_accepted_vehicle" model="ir.actions.act_window">
+        <field name="name">Accepted Requests</field>
+        <field name="res_model">fleet.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('vehicle_id', '=', active_id), ('state', '=', 'assigned')]</field>
+        <field name="context">{'default_vehicle_id': active_id}</field>
+    </record>
+
     <!-- ========================================= -->
     <!-- Fleet Request Views                       -->
     <!-- ========================================= -->
@@ -68,10 +77,6 @@
                             <field name="manager_id"/>
                             <field name="request_date"/>
                         </group>
-
-                        <group name="status_info" string="Status">
-                            <field name="state"/>
-                        </group>
                     </group>
 
                     <group>
@@ -100,6 +105,10 @@
                         <field name="driver_id" options="{'no_create': True}"
                                invisible="state not in ('fleet_approved', 'assigned')"
                                readonly="state != 'fleet_approved'"/>
+                        <field name="delegated_employee_id"
+                               invisible="state not in ('fleet_approved', 'assigned')"
+                               readonly="state != 'fleet_approved'"
+                               placeholder="Employee delegated to drive..."/>
                         <field name="vehicle_id"
                                invisible="state != 'assigned'"
                                readonly="1"
@@ -123,16 +132,17 @@
                   decoration-danger="state == 'rejected'">
                 <field name="name"/>
                 <field name="employee_id"/>
-                <field name="department_id"/>
                 <field name="request_date"/>
-                <field name="scheduled_start"/>
-                <field name="scheduled_end"/>
                 <field name="duration" widget="float_time" sum="Total Hours"/>
-                <field name="pickup_location"/>
-                <field name="destination"/>
                 <field name="driver_id" optional="show"/>
-                <field name="vehicle_id" optional="show"/>
                 <field name="state" widget="badge"/>
+                <field name="department_id" optional="show"/>
+                <field name="scheduled_start" optional="hide"/>
+                <field name="scheduled_end" optional="hide"/>
+                <field name="pickup_location" optional="hide"/>
+                <field name="destination" optional="hide"/>
+                <field name="vehicle_id" optional="show"/>
+                <field name="delegated_employee_id" optional="hide"/>
             </list>
         </field>
     </record>

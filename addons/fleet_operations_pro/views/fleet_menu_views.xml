@@ -34,13 +34,6 @@
               action="action_fleet_vehicle"
               sequence="10"/>
     
-    <!-- Drivers Menu Item -->
-    <menuitem id="menu_fleet_driver"
-              name="Drivers"
-              parent="menu_fleet_operations"
-              action="action_fleet_driver"
-              sequence="20"/>
-    
     <!-- Driver Assignments Menu Item -->
     <menuitem id="menu_fleet_driver_assignment"
               name="Driver Assignments"
@@ -62,12 +55,19 @@
               action="action_fleet_maintenance"
               sequence="50"/>
     
-    <!-- Certificates Menu Item -->
-    <menuitem id="menu_fleet_certificate"
-              name="Certificates"
+    <!-- Contracts Menu Item -->
+    <menuitem id="menu_fleet_contract"
+              name="Contracts"
               parent="menu_fleet_operations"
-              action="action_fleet_vehicle_certificate"
-              sequence="70"/>
+              action="action_fleet_contract"
+              sequence="60"/>
+    
+    <!-- Services Menu Item -->
+    <menuitem id="menu_fleet_service"
+              name="Services"
+              parent="menu_fleet_operations"
+              action="action_fleet_service"
+              sequence="65"/>
     
     <!-- Toll Records Menu Item -->
     <menuitem id="menu_fleet_toll_record"
@@ -75,34 +75,6 @@
               parent="menu_fleet_operations"
               action="action_fleet_toll_record"
               sequence="90"/>
-    
-    <!-- Trips Menu Item -->
-    <menuitem id="menu_fleet_trip"
-              name="Trips"
-              parent="menu_fleet_operations"
-              action="action_fleet_trip"
-              sequence="100"/>
-    
-    <!-- Maintenance Schedules Menu Item -->
-    <menuitem id="menu_fleet_maintenance_schedule"
-              name="Maintenance Schedules"
-              parent="menu_fleet_operations"
-              action="action_fleet_maintenance_schedule"
-              sequence="130"/>
-    
-    <!-- Rental Contracts Menu Item -->
-    <menuitem id="menu_fleet_rental_contract"
-              name="Rental Contracts"
-              parent="menu_fleet_operations"
-              action="action_fleet_rental_contract"
-              sequence="60"/>
-    
-    <!-- Insurance Policies Menu Item -->
-    <menuitem id="menu_fleet_insurance"
-              name="Insurance Policies"
-              parent="menu_fleet_operations"
-              action="action_fleet_insurance"
-              sequence="65"/>
     
     <!-- Configuration Menu -->
     <menuitem id="menu_fleet_configuration"
@@ -161,13 +133,6 @@
               parent="menu_fleet_config_settings"
               action="action_fleet_maintenance_type"
               sequence="40"/>
-    
-    <!-- Certificate Types -->
-    <menuitem id="menu_fleet_certificate_type"
-              name="Certificate Types"
-              parent="menu_fleet_config_settings"
-              action="action_fleet_certificate_type"
-              sequence="60"/>
     
     <!-- Toll Locations -->
     <menuitem id="menu_fleet_toll_location"

@@ -75,37 +75,19 @@
                                 icon="fa-wrench">
                             <field name="maintenance_count" widget="statinfo" string="Maintenance"/>
                         </button>
-                        <button name="%(action_fleet_vehicle_certificate_vehicle)d" 
-                                type="action" 
-                                class="oe_stat_button" 
-                                icon="fa-certificate">
-                            <field name="certificate_count" widget="statinfo" string="Certificates"/>
-                        </button>
                         <button name="%(action_fleet_toll_record_vehicle)d" 
                                 type="action" 
                                 class="oe_stat_button" 
                                 icon="fa-road">
                             <field name="toll_count" widget="statinfo" string="Tolls"/>
                         </button>
-                        <button name="%(action_fleet_trip_vehicle)d" 
+                        <button name="%(action_fleet_request_accepted_vehicle)d" 
                                 type="action" 
                                 class="oe_stat_button" 
-                                icon="fa-map-marker">
-                            <field name="trip_count" widget="statinfo" string="Trips"/>
+                                icon="fa-clipboard-list">
+                            <field name="accepted_request_count" widget="statinfo" string="Accepted Requests"/>
                         </button>
                     </div>
-                    
-                    <div class="alert alert-danger" role="alert" invisible="not has_certificate_issues">
-                        <i class="fa fa-exclamation-triangle"/> 
-                        <strong>Certificate Issues:</strong> 
-                        <span invisible="expired_certificate_count == 0">
-                            <field name="expired_certificate_count"/> expired
-                        </span>
-                        <span invisible="expiring_soon_certificate_count == 0">
-                            <field name="expiring_soon_certificate_count"/> expiring soon
-                        </span>
-                    </div>
-                    <field name="has_certificate_issues" invisible="1"/>
                     
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" 
                             invisible="active"/>
@@ -183,7 +165,7 @@
                         <page name="driver_assignments" string="Driver Assignments">
                             <field name="driver_assignment_ids">
                                 <list editable="bottom">
-                                    <field name="driver_id"/>
+                                    <field name="employee_id"/>
                                     <field name="date_start"/>
                                     <field name="date_end"/>
                                     <field name="is_active" widget="boolean_toggle"/>
