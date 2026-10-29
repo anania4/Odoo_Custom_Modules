@@ -99,6 +99,7 @@ class FleetVehicle(models.Model):
         string='Status',
         required=True,
         tracking=True,
+        group_expand='_read_group_status_ids',
         help='Current vehicle status'
     )
     state = fields.Selection(
@@ -266,6 +267,11 @@ class FleetVehicle(models.Model):
         ('odometer_positive', 'CHECK(odometer >= 0)', 'Odometer reading must be positive!'),
     ]
     
+    @api.model
+    def _read_group_status_ids(self, statuses, domain):
+        """Show all active vehicle statuses as kanban columns, including empty ones."""
+        return self.env['fleet.vehicle.status'].search([])
+
     @api.depends('fuel_log_ids', 'fuel_log_ids.quantity', 'fuel_tank_capacity')
     def _compute_current_fuel_level(self):
         """Compute current fuel level from fuel logs"""

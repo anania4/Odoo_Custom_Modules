@@ -205,7 +205,10 @@
         <field name="name">fleet.vehicle.kanban</field>
         <field name="model">fleet.vehicle</field>
         <field name="arch" type="xml">
-            <kanban string="Fleet Vehicles" sample="1" class="o_kanban_mobile">
+            <kanban string="Fleet Vehicles" sample="1" class="o_kanban_mobile"
+                    default_group_by="status_id" on_create="quick_create"
+                    records_draggable="true" group_create="true"
+                    group_edit="true" group_delete="true">
                 <field name="id"/>
                 <field name="name"/>
                 <field name="license_plate"/>
