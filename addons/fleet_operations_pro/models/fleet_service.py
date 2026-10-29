@@ -54,13 +54,6 @@ class FleetService(models.Model):
         help='Garage, vendor or workshop that performed the service'
     )
 
-    cost = fields.Monetary(
-        string='Cost',
-        currency_field='currency_id',
-        tracking=True,
-        help='Cost of this service'
-    )
-
     odometer = fields.Float(
         string='Odometer (km)',
         tracking=True,
@@ -90,14 +83,6 @@ class FleetService(models.Model):
         help='Company this service belongs to'
     )
 
-    currency_id = fields.Many2one(
-        'res.currency',
-        string='Currency',
-        related='company_id.currency_id',
-        store=True,
-        readonly=True
-    )
-
     active = fields.Boolean(
         string='Active',
         default=True,
@@ -105,7 +90,6 @@ class FleetService(models.Model):
     )
 
     _sql_constraints = [
-        ('service_cost_positive', 'CHECK(cost >= 0)', 'Service cost must be positive!'),
         ('service_odometer_positive', 'CHECK(odometer >= 0)', 'Odometer reading must be positive!'),
     ]
 
@@ -116,12 +100,6 @@ class FleetService(models.Model):
             if not vals.get('name') or vals['name'] == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('fleet.service') or 'New'
         return super().create(vals_list)
-
-    @api.constrains('cost')
-    def _check_cost(self):
-        for service in self:
-            if service.cost < 0:
-                raise ValidationError(_('Service cost cannot be negative!'))
 
     @api.constrains('contract_id', 'vehicle_id')
     def _check_contract_vehicle(self):

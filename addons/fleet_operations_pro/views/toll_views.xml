@@ -16,7 +16,7 @@
                 Create a new toll record
             </p>
             <p>
-                Track toll expenses for your fleet vehicles.
+                Track toll passages for your fleet vehicles.
             </p>
         </field>
     </record>
@@ -59,9 +59,7 @@
                 <field name="vehicle_id"/>
                 <field name="driver_id"/>
                 <field name="toll_location_id"/>
-                <field name="amount" widget="monetary" sum="Total Amount"/>
                 <field name="odometer"/>
-                <field name="currency_id" column_invisible="1"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </list>
         </field>
@@ -90,8 +88,6 @@
                         
                         <group name="toll_info" string="Toll Details">
                             <field name="location_description" placeholder="Additional location details..."/>
-                            <field name="amount" widget="monetary" required="1"/>
-                            <field name="currency_id" invisible="1"/>
                             <field name="odometer" widget="integer"/>
                         </group>
                     </group>
@@ -167,9 +163,7 @@
                 <field name="city"/>
                 <field name="state"/>
                 <field name="country_id"/>
-                <field name="typical_cost" widget="monetary"/>
                 <field name="toll_count"/>
-                <field name="currency_id" column_invisible="1"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </list>
         </field>
@@ -202,8 +196,6 @@
                     <group>
                         <group name="basic_info" string="Basic Information">
                             <field name="code" placeholder="e.g. HW101"/>
-                            <field name="typical_cost" widget="monetary"/>
-                            <field name="currency_id" invisible="1"/>
                             <field name="sequence"/>
                         </group>
                         

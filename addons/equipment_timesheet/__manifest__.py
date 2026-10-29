@@ -31,7 +31,6 @@ This module provides a specialized Timesheet system to track equipment working t
         'mail',
         'project',
         'maintenance',
-        'generic_bell_notification',
         'hr_timesheet',
     ],
     'data': [

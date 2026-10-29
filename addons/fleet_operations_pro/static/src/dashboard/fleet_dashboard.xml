@@ -58,17 +58,17 @@
                         </div>
                         
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card bg-warning text-dark cursor-pointer" title="View Fuel Logs (30 days)" t-on-click="() =&gt; this.openFuelLogs()">
+                            <div class="card bg-warning text-dark cursor-pointer" title="View Upcoming Services" t-on-click="() =&gt; this.openUpcomingServices()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title">Total Fuel (30d)</h5>
-                                            <h2 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.total_fuel_cost)"/></h2>
+                                            <h5 class="card-title">Upcoming Services</h5>
+                                            <h2 class="mb-0"><t t-esc="state.data.kpis.upcoming_services"/></h2>
                                             <small class="text-muted">
-                                                <t t-esc="formatNumber(state.data.kpis.total_fuel_quantity, 1)"/> liters refueled
+                                                of <t t-esc="state.data.kpis.total_services"/> Total
                                             </small>
                                         </div>
-                                        <i class="fa fa-tint fa-2x opacity-50"/>
+                                        <i class="fa fa-wrench fa-2x opacity-50"/>
                                     </div>
                                 </div>
                             </div>
@@ -92,61 +92,6 @@
                         </div>
                     </div>
 
-                    <!-- Secondary KPI Cards -->
-                    <div class="row mb-4">
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fa fa-road text-primary me-2"/>
-                                        <h6 class="card-title mb-0">Total Distance</h6>
-                                    </div>
-                                    <h4 class="mb-0"><t t-esc="formatNumber(state.data.kpis.total_distance, 0)"/> km</h4>
-                                    <small class="text-muted"><t t-esc="state.data.kpis.total_trips"/> trips</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fa fa-tint text-primary me-2"/>
-                                        <h6 class="card-title mb-0">Fuel Efficiency</h6>
-                                    </div>
-                                    <h4 class="mb-0"><t t-esc="formatNumber(state.data.kpis.avg_fuel_efficiency, 2)"/> km/L</h4>
-                                    <small class="text-muted">Average</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fa fa-wrench text-primary me-2"/>
-                                        <h6 class="card-title mb-0">Maintenance Cost</h6>
-                                    </div>
-                                    <h4 class="mb-0"><t t-esc="formatCurrency(state.data.kpis.total_maintenance_cost)"/></h4>
-                                    <small class="text-muted">Last 30 days</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="fa fa-percent text-primary me-2"/>
-                                        <h6 class="card-title mb-0">Utilization Rate</h6>
-                                    </div>
-                                    <h4 class="mb-0"><t t-esc="formatNumber(state.data.kpis.vehicle_utilization, 1)"/>%</h4>
-                                    <small class="text-muted">Fleet usage</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Charts and Analytics Row -->
                     <div class="row mb-4">
                         <!-- Vehicle Status Chart -->
@@ -159,9 +104,16 @@
                                     <t t-if="state.data.charts.vehicle_by_status.length">
                                         <div class="list-group list-group-flush">
                                             <t t-foreach="state.data.charts.vehicle_by_status" t-as="item" t-key="item.name">
-                                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                    <span><t t-esc="item.name"/></span>
-                                                    <span class="badge bg-primary rounded-pill"><t t-esc="item.value"/></span>
+                                                <div class="list-group-item px-0">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="fw-bold"><t t-esc="item.name"/></span>
+                                                        <span class="badge bg-primary rounded-pill"><t t-esc="item.value"/></span>
+                                                    </div>
+                                                    <div class="d-flex flex-wrap gap-1 mt-2">
+                                                        <t t-foreach="item.plates" t-as="plate" t-key="plate_index">
+                                                            <span class="badge text-bg-light border"><t t-esc="plate"/></span>
+                                                        </t>
+                                                    </div>
                                                 </div>
                                             </t>
                                         </div>
@@ -183,9 +135,16 @@
                                     <t t-if="state.data.charts.vehicle_by_category.length">
                                         <div class="list-group list-group-flush">
                                             <t t-foreach="state.data.charts.vehicle_by_category" t-as="item" t-key="item.name">
-                                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                                    <span><t t-esc="item.name"/></span>
-                                                    <span class="badge bg-success rounded-pill"><t t-esc="item.value"/></span>
+                                                <div class="list-group-item px-0">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="fw-bold"><t t-esc="item.name"/></span>
+                                                        <span class="badge bg-success rounded-pill"><t t-esc="item.value"/></span>
+                                                    </div>
+                                                    <div class="d-flex flex-wrap gap-1 mt-2">
+                                                        <t t-foreach="item.plates" t-as="plate" t-key="plate_index">
+                                                            <span class="badge text-bg-light border"><t t-esc="plate"/></span>
+                                                        </t>
+                                                    </div>
                                                 </div>
                                             </t>
                                         </div>
@@ -197,20 +156,23 @@
                             </div>
                         </div>
                         
-                        <!-- Cost by Category -->
+                        <!-- Fuel Cost by Vehicle -->
                         <div class="col-lg-4 col-md-12 mb-3">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5><i class="fa fa-pie-chart"/> Cost by Category</h5>
+                                    <h5><i class="fa fa-tint"/> Fuel Cost by Vehicle</h5>
                                     <span class="badge bg-secondary">30 days</span>
                                 </div>
                                 <div class="card-body">
-                                    <t t-if="state.data.charts.cost_by_category.length">
+                                    <t t-if="state.data.charts.fuel_cost_by_vehicle.length">
                                         <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.charts.cost_by_category" t-as="item" t-key="item.name">
+                                            <t t-foreach="state.data.charts.fuel_cost_by_vehicle" t-as="item" t-key="item.name">
                                                 <div class="list-group-item px-0">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                                        <span><t t-esc="item.name"/></span>
+                                                        <div>
+                                                            <div class="fw-bold"><t t-esc="item.name"/></div>
+                                                            <small class="text-muted"><t t-esc="item.vehicle"/></small>
+                                                        </div>
                                                         <strong><t t-esc="formatCurrency(item.value)"/></strong>
                                                     </div>
                                                     <div class="progress" style="height: 6px;">
@@ -222,78 +184,7 @@
                                         </div>
                                     </t>
                                     <t t-else="">
-                                        <p class="text-muted text-center mb-0">No cost data available</p>
-                                    </t>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Top Performers Row -->
-                    <div class="row mb-4">
-                        <!-- Top Cost Vehicles -->
-                        <div class="col-lg-6 mb-3">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fa fa-exclamation-circle"/> Top Cost Vehicles</h5>
-                                    <span class="badge bg-warning">Last 30 days</span>
-                                </div>
-                                <div class="card-body">
-                                    <t t-if="state.data.charts.top_cost_vehicles.length">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Vehicle</th>
-                                                        <th class="text-end">Total Cost</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <t t-foreach="state.data.charts.top_cost_vehicles" t-as="vehicle" t-key="vehicle.name">
-                                                        <tr>
-                                                            <td>
-                                                                <div class="d-flex align-items-center">
-                                                                    <i class="fa fa-car text-muted me-2"/>
-                                                                    <t t-esc="vehicle.name"/>
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-end">
-                                                                <strong><t t-esc="formatCurrency(vehicle.value)"/></strong>
-                                                            </td>
-                                                        </tr>
-                                                    </t>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </t>
-                                    <t t-else="">
-                                        <p class="text-muted text-center mb-0">No vehicle cost data available</p>
-                                    </t>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Fleet Requests by Status -->
-                        <div class="col-lg-6 mb-3">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fa fa-clipboard-list"/> Fleet Requests by Status</h5>
-                                </div>
-                                <div class="card-body p-0">
-                                    <t t-if="state.data.charts.requests_by_state.length">
-                                        <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.charts.requests_by_state" t-as="reqst" t-key="reqst.name">
-                                                <div class="list-group-item px-3 d-flex justify-content-between align-items-center py-2">
-                                                    <div class="fw-bold"><t t-esc="reqst.name"/></div>
-                                                    <div class="text-end">
-                                                        <div class="badge bg-primary"><t t-esc="formatNumber(reqst.value, 0)"/></div>
-                                                    </div>
-                                                </div>
-                                            </t>
-                                        </div>
-                                    </t>
-                                    <t t-else="">
-                                        <p class="text-muted text-center mb-0">No request data available</p>
+                                        <p class="text-muted text-center mb-0">No fuel cost data available</p>
                                     </t>
                                 </div>
                             </div>
@@ -306,7 +197,7 @@
                         <div class="col-lg-6 mb-3">
                             <div class="card border-danger cursor-pointer" title="View Contracts" t-on-click="() =&gt; this.openContracts()">
                                 <div class="card-header bg-danger text-white">
-                                    <h5 class="mb-0"><i class="fa fa-file-text-o"/> Contract Expiries</h5>
+                                    <h5 class="mb-0"><i class="fa fa-file-text-o"/> Recent Contract Expiries</h5>
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="d-flex justify-content-between mb-3">
@@ -320,13 +211,13 @@
                                         </div>
                                     </div>
                                     <t t-if="state.data.alerts.contract_details.length">
-                                        <h6 class="text-muted mb-2">Contracts Expiring:</h6>
+                                        <h6 class="text-muted mb-2">Contracts:</h6>
                                         <div class="list-group list-group-flush">
                                             <t t-foreach="state.data.alerts.contract_details" t-as="item" t-key="item_index">
                                                 <div class="list-group-item px-0 py-2">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
-                                                            <div class="fw-bold small"><t t-esc="item.vehicle"/></div>
+                                                            <div class="fw-bold small"><t t-esc="item.plate"/> · <t t-esc="item.vehicle"/></div>
                                                             <small class="text-muted"><t t-esc="item.contract"/> · <t t-esc="item.contract_type"/> · <t t-esc="item.provider"/></small>
                                                         </div>
                                                         <div class="text-end">
@@ -348,30 +239,34 @@
                             </div>
                         </div>
                         
-                        <!-- Recent Services -->
+                        <!-- Upcoming Services -->
                         <div class="col-lg-6 mb-3">
-                            <div class="card border-warning cursor-pointer" title="View Services" t-on-click="() =&gt; this.openServices()">
+                            <div class="card border-warning cursor-pointer" title="View Upcoming Services" t-on-click="() =&gt; this.openUpcomingServices()">
                                 <div class="card-header bg-warning">
-                                    <h5 class="mb-0"><i class="fa fa-wrench"/> Recent Services</h5>
+                                    <h5 class="mb-0"><i class="fa fa-wrench"/> Upcoming Services</h5>
                                 </div>
                                 <div class="card-body">
-                                    <t t-if="state.data.alerts.recent_services.length">
+                                    <t t-if="state.data.alerts.upcoming_services.length">
                                         <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.alerts.recent_services" t-as="service" t-key="service_index">
+                                            <t t-foreach="state.data.alerts.upcoming_services" t-as="service" t-key="service_index">
                                                 <div class="list-group-item px-0 py-2">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
-                                                            <div class="fw-bold small"><t t-esc="service.vehicle"/></div>
+                                                            <div class="fw-bold small"><t t-esc="service.plate"/> · <t t-esc="service.vehicle"/></div>
                                                             <small class="text-muted"><t t-esc="service.service"/> · <t t-esc="service.date"/></small>
                                                         </div>
-                                                        <small class="badge bg-secondary"><t t-esc="formatCurrency(service.cost)"/></small>
+                                                        <small class="badge bg-secondary">
+                                                            <t t-if="service.days_until == 0">Today</t>
+                                                            <t t-elif="service.days_until == 1">Tomorrow</t>
+                                                            <t t-else="">in <t t-esc="service.days_until"/> days</t>
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </t>
                                         </div>
                                     </t>
                                     <t t-else="">
-                                        <p class="text-muted text-center small mb-0">No services in the last 30 days</p>
+                                        <p class="text-muted text-center small mb-0">No upcoming services</p>
                                     </t>
                                 </div>
                             </div>

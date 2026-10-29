@@ -13,16 +13,11 @@ class FleetDashboard(models.Model):
 
     @api.model
     def get_dashboard_data(self):
-        """
-        Get comprehensive dashboard data for fleet operations
-        Returns a dictionary with all KPIs and chart data
-        """
         try:
             company = self.env.company
             today = fields.Date.today()
             thirty_days_ago = today - timedelta(days=30)
 
-            # Vehicle Statistics
             vehicles = self.env['fleet.vehicle'].search([('company_id', '=', company.id)])
             total_vehicles = len(vehicles)
             available_vehicles = len(vehicles.filtered(lambda v: v.state == 'available'))
@@ -31,145 +26,121 @@ class FleetDashboard(models.Model):
             vehicle_by_status = {}
             vehicle_by_category = {}
             for vehicle in vehicles:
+                plate = vehicle.license_plate or vehicle.name
                 status = vehicle.status_id.name if vehicle.status_id else 'Unknown'
-                vehicle_by_status[status] = vehicle_by_status.get(status, 0) + 1
-
                 category = vehicle.category_id.name if vehicle.category_id else 'Uncategorized'
-                vehicle_by_category[category] = vehicle_by_category.get(category, 0) + 1
 
-            # Fuel Statistics (KPI card + trend)
+                status_entry = vehicle_by_status.setdefault(
+                    status, {'name': status, 'value': 0, 'plates': []}
+                )
+                status_entry['value'] += 1
+                status_entry['plates'].append(plate)
+
+                category_entry = vehicle_by_category.setdefault(
+                    category, {'name': category, 'value': 0, 'plates': []}
+                )
+                category_entry['value'] += 1
+                category_entry['plates'].append(plate)
+
             fuel_logs = self.env['fleet.fuel.log'].search([
                 ('company_id', '=', company.id),
-                ('date', '>=', thirty_days_ago)
+                ('date', '>=', thirty_days_ago),
             ])
             total_fuel_cost = sum(fuel_logs.mapped('total_cost'))
             total_fuel_quantity = sum(fuel_logs.mapped('quantity'))
 
-            # Cost Statistics (fuel + maintenance + tolls in the last 30 days)
-            maintenances = self.env['fleet.maintenance'].search([
+            fuel_cost_by_vehicle = {}
+            for log in fuel_logs:
+                vehicle = log.vehicle_id
+                if not vehicle:
+                    continue
+                entry = fuel_cost_by_vehicle.setdefault(vehicle.id, {
+                    'name': vehicle.license_plate or vehicle.name,
+                    'vehicle': vehicle.name,
+                    'value': 0.0,
+                })
+                entry['value'] += log.total_cost
+
+            # Services
+            service_model = self.env['fleet.service']
+            service_domain = [
                 ('company_id', '=', company.id),
-                ('date', '>=', thirty_days_ago)
-            ])
-            total_maintenance_cost = sum(maintenances.mapped('cost'))
+                ('active', '=', True),
+            ]
+            total_services = service_model.search_count(service_domain)
+            upcoming_services_count = service_model.search_count(
+                service_domain + [('date', '>=', today)]
+            )
+            upcoming_service_records = service_model.search(
+                service_domain + [('date', '>=', today)],
+                order='date asc, id asc',
+                limit=5,
+            )
+            upcoming_service_details = [{
+                'vehicle': service.vehicle_id.name,
+                'plate': service.vehicle_id.license_plate or '',
+                'service': service.service_type_id.name,
+                'date': service.date.strftime('%Y-%m-%d') if service.date else '',
+                'days_until': (service.date - today).days if service.date else 0,
+            } for service in upcoming_service_records]
 
-            tolls = self.env['fleet.toll.record'].search([
-                ('company_id', '=', company.id),
-                ('date', '>=', thirty_days_ago)
-            ])
-            total_toll_cost = sum(tolls.mapped('amount'))
+            # Fleet Requests Statistics (provided by the optional Fleet Requests module)
+            try:
+                requests_model = self.env['fleet.request']
+            except KeyError:
+                requests_model = None
 
-            cost_map = {
-                'Fuel': total_fuel_cost,
-                'Maintenance': total_maintenance_cost,
-                'Tolls': total_toll_cost,
-            }
-            total_costs = sum(cost_map.values())
-            cost_by_category = [{'name': k, 'value': v} for k, v in cost_map.items() if v > 0]
-
-            # Fleet Requests Statistics
-            requests_model = self.env['fleet.request']
-            total_requests = requests_model.search_count([])
-            draft_requests = requests_model.search_count([('state', '=', 'draft')])
-            open_requests = requests_model.search_count([
-                ('state', 'in', ('submitted', 'dept_approved', 'fleet_approved'))
-            ])
-            assigned_requests = requests_model.search_count([('state', '=', 'assigned')])
-            rejected_requests = requests_model.search_count([('state', '=', 'rejected')])
+            if requests_model:
+                total_requests = requests_model.search_count([])
+                draft_requests = requests_model.search_count([('state', '=', 'draft')])
+                open_requests = requests_model.search_count([
+                    ('state', 'in', ('submitted', 'dept_approved', 'fleet_approved'))
+                ])
+                assigned_requests = requests_model.search_count([('state', '=', 'assigned')])
+                rejected_requests = requests_model.search_count([('state', '=', 'rejected')])
+            else:
+                total_requests = draft_requests = open_requests = 0
+                assigned_requests = rejected_requests = 0
 
             # Contract Statistics
-            contract_model_stats = self.env['fleet.contract']
-            running_contracts = contract_model_stats.search_count([
-                ('company_id', '=', company.id), ('active', '=', True), ('state', '=', 'running')
-            ])
-            total_contracts = contract_model_stats.search_count([
-                ('company_id', '=', company.id), ('active', '=', True)
-            ])
-
-            # Driver Assignments
-            assignment_model = self.env['fleet.driver.assignment']
-            if 'company_id' in assignment_model._fields:
-                assignments = assignment_model.search([('company_id', '=', company.id)])
-            else:
-                assignments = assignment_model.search([])
-            active_assignments = assignments.filtered(lambda a: a.is_active)
-
-            # Trip Statistics
-            trips = self.env['fleet.trip'].search([
-                ('company_id', '=', company.id),
-                ('date', '>=', thirty_days_ago)
-            ])
-            total_distance = sum(trips.mapped('distance'))
-            total_trips = len(trips)
-
-            # Top Cost Vehicles (last 30 days: maintenance + fuel + tolls)
-            vehicle_costs = {}
-            for maint in maintenances:
-                if maint.vehicle_id:
-                    vehicle_costs[maint.vehicle_id.name] = \
-                        vehicle_costs.get(maint.vehicle_id.name, 0) + maint.cost
-            for log in fuel_logs:
-                if log.vehicle_id:
-                    vehicle_costs[log.vehicle_id.name] = \
-                        vehicle_costs.get(log.vehicle_id.name, 0) + log.total_cost
-            for toll_rec in tolls:
-                if toll_rec.vehicle_id:
-                    vehicle_costs[toll_rec.vehicle_id.name] = \
-                        vehicle_costs.get(toll_rec.vehicle_id.name, 0) + toll_rec.amount
-
-            top_cost_vehicles = sorted(vehicle_costs.items(), key=lambda x: x[1], reverse=True)[:5]
-
-            # Calculate KPIs
-            avg_cost_per_km = (total_costs / total_distance) if total_distance > 0 else 0
-            avg_fuel_efficiency = (total_distance / total_fuel_quantity) if total_fuel_quantity > 0 else 0
-            vehicle_utilization = (len(active_assignments) / total_vehicles * 100) if total_vehicles > 0 else 0
-
-            # Fuel consumption trend (last 6 months)
-            fuel_trend = []
-            for i in range(6, 0, -1):
-                month_start = (today.replace(day=1) - timedelta(days=i * 30)).replace(day=1)
-                month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-
-                month_fuel = self.env['fleet.fuel.log'].search([
-                    ('company_id', '=', company.id),
-                    ('date', '>=', month_start),
-                    ('date', '<=', month_end)
-                ])
-
-                fuel_trend.append({
-                    'month': month_start.strftime('%B %Y'),
-                    'quantity': sum(month_fuel.mapped('quantity')),
-                    'cost': sum(month_fuel.mapped('total_cost'))
-                })
-
-            # Contract Renewal Alerts (active contracts ending within 30 days and overdue ones)
             contract_model = self.env['fleet.contract']
-            expiring_contracts = contract_model.search([
+            running_contracts = contract_model.search_count([
+                ('company_id', '=', company.id),
                 ('active', '=', True),
                 ('state', '=', 'running'),
-                ('end_date', '<=', today + timedelta(days=30)),
+            ])
+            total_contracts = contract_model.search_count([
+                ('company_id', '=', company.id),
+                ('active', '=', True),
+            ])
+
+            expiring_contracts = contract_model.search([
+                ('company_id', '=', company.id),
+                ('active', '=', True),
+                ('state', '=', 'running'),
                 ('end_date', '>=', today),
+                ('end_date', '<=', today + timedelta(days=30)),
             ], order='end_date asc')
             expired_contracts = contract_model.search([
+                ('company_id', '=', company.id),
                 ('active', '=', True),
                 ('state', '=', 'running'),
                 ('end_date', '<', today),
-            ])
+                ('end_date', '>=', today - timedelta(days=90)),
+            ], order='end_date desc')
+
             contract_details = [{
                 'contract': contract.name,
                 'contract_id': contract.id,
                 'vehicle': contract.vehicle_id.name,
-                'contract_type': dict(contract._fields['contract_type'].selection).get(contract.contract_type, ''),
+                'plate': contract.vehicle_id.license_plate or '',
+                'contract_type': dict(contract._fields['contract_type'].selection).get(
+                    contract.contract_type, ''
+                ),
                 'provider': contract.partner_id.name or '',
                 'end_date': contract.end_date.strftime('%Y-%m-%d') if contract.end_date else '',
                 'days_left': (contract.end_date - today).days if contract.end_date else 0,
-            } for contract in (expiring_contracts + expired_contracts)[:5]]
-
-            # Fleet Requests by State
-            state_labels = dict(requests_model._fields['state'].selection)
-            requests_by_state = [{
-                'name': state_labels[k],
-                'value': requests_model.search_count([('state', '=', k)]),
-            } for k in ('draft', 'submitted', 'dept_approved', 'fleet_approved', 'assigned', 'rejected')]
+            } for contract in (expired_contracts + expiring_contracts)[:5]]
 
             return {
                 'kpis': {
@@ -178,48 +149,39 @@ class FleetDashboard(models.Model):
                     'in_service_vehicles': in_maintenance_vehicles,
                     'running_contracts': running_contracts,
                     'total_contracts': total_contracts,
-                    'active_assignments': len(active_assignments),
-                    'total_costs': total_costs,
                     'total_fuel_cost': total_fuel_cost,
                     'total_fuel_quantity': total_fuel_quantity,
-                    'avg_cost_per_km': avg_cost_per_km,
-                    'avg_fuel_efficiency': avg_fuel_efficiency,
-                    'vehicle_utilization': vehicle_utilization,
-                    'total_distance': total_distance,
-                    'total_trips': total_trips,
-                    'total_maintenance_cost': total_maintenance_cost,
+                    'total_services': total_services,
+                    'upcoming_services': upcoming_services_count,
                     'total_requests': total_requests,
                     'draft_requests': draft_requests,
                     'open_requests': open_requests,
                     'assigned_requests': assigned_requests,
                     'rejected_requests': rejected_requests,
                 },
+                'currency': {
+                    'symbol': company.currency_id.symbol or '$',
+                    'position': company.currency_id.position or 'before',
+                    'decimal_places': company.currency_id.decimal_places or 2,
+                },
                 'charts': {
-                    'vehicle_by_status': [{'name': k, 'value': v} for k, v in vehicle_by_status.items()],
-                    'vehicle_by_category': [{'name': k, 'value': v} for k, v in vehicle_by_category.items()],
-                    'cost_by_category': cost_by_category,
-                    'top_cost_vehicles': [{'name': k, 'value': v} for k, v in top_cost_vehicles],
-                    'fuel_trend': fuel_trend,
-                    'requests_by_state': requests_by_state,
+                    'vehicle_by_status': list(vehicle_by_status.values()),
+                    'vehicle_by_category': list(vehicle_by_category.values()),
+                    'fuel_cost_by_vehicle': sorted(
+                        fuel_cost_by_vehicle.values(),
+                        key=lambda item: item['value'],
+                        reverse=True,
+                    ),
                 },
                 'alerts': {
                     'expired_contracts': len(expired_contracts),
                     'expiring_contracts': len(expiring_contracts),
                     'contract_details': contract_details,
-                    'recent_services': [{
-                        'vehicle': service.vehicle_id.name,
-                        'service': service.service_type_id.name,
-                        'date': service.date.strftime('%Y-%m-%d') if service.date else '',
-                        'cost': service.cost or 0,
-                    } for service in self.env['fleet.service'].search([
-                        ('company_id', '=', company.id),
-                        ('date', '>=', thirty_days_ago),
-                    ], order='date desc', limit=5)],
-                }
+                    'upcoming_services': upcoming_service_details,
+                },
             }
         except Exception as e:
             _logger.error(f"Error in get_dashboard_data: {str(e)}", exc_info=True)
-            # Return empty/default data structure on error
             return {
                 'kpis': {
                     'total_vehicles': 0,
@@ -227,34 +189,30 @@ class FleetDashboard(models.Model):
                     'in_service_vehicles': 0,
                     'running_contracts': 0,
                     'total_contracts': 0,
-                    'active_assignments': 0,
-                    'total_costs': 0,
                     'total_fuel_cost': 0,
                     'total_fuel_quantity': 0,
-                    'avg_cost_per_km': 0,
-                    'avg_fuel_efficiency': 0,
-                    'vehicle_utilization': 0,
-                    'total_distance': 0,
-                    'total_trips': 0,
-                    'total_maintenance_cost': 0,
+                    'total_services': 0,
+                    'upcoming_services': 0,
                     'total_requests': 0,
                     'draft_requests': 0,
                     'open_requests': 0,
                     'assigned_requests': 0,
                     'rejected_requests': 0,
                 },
+                'currency': {
+                    'symbol': '$',
+                    'position': 'before',
+                    'decimal_places': 2,
+                },
                 'charts': {
                     'vehicle_by_status': [],
                     'vehicle_by_category': [],
-                    'cost_by_category': [],
-                    'top_cost_vehicles': [],
-                    'fuel_trend': [],
-                    'requests_by_state': [],
+                    'fuel_cost_by_vehicle': [],
                 },
                 'alerts': {
                     'expired_contracts': 0,
                     'expiring_contracts': 0,
                     'contract_details': [],
-                    'recent_services': [],
-                }
+                    'upcoming_services': [],
+                },
             }

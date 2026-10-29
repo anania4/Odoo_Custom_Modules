@@ -40,12 +40,6 @@ class FleetTollLocation(models.Model):
         help='Country where the toll is located'
     )
     
-    typical_cost = fields.Monetary(
-        string='Typical Cost',
-        currency_field='currency_id',
-        help='Typical toll cost at this location'
-    )
-    
     description = fields.Text(
         string='Description',
         help='Additional information about this toll location'
@@ -66,14 +60,6 @@ class FleetTollLocation(models.Model):
         default=lambda self: self.env.company,
         help='Company this toll location belongs to'
     )
-    currency_id = fields.Many2one(
-        'res.currency',
-        string='Currency',
-        related='company_id.currency_id',
-        readonly=True,
-        help='Company currency'
-    )
-    
     active = fields.Boolean(
         string='Active',
         default=True,

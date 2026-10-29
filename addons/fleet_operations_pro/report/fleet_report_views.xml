@@ -8,7 +8,7 @@
         <field name="view_mode">graph,pivot,list</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No data yet</p>
-            <p>Analyze vehicle costs, efficiency, and utilization.</p>
+            <p>Analyze vehicle fuel costs, efficiency, and utilization.</p>
         </field>
     </record>
     
@@ -21,12 +21,8 @@
                 <field name="vehicle_id"/>
                 <field name="category_id"/>
                 <field name="status_id"/>
-                <field name="total_cost" sum="Total"/>
                 <field name="fuel_cost" sum="Total"/>
-                <field name="maintenance_cost" sum="Total"/>
-                <field name="toll_cost" sum="Total"/>
                 <field name="total_distance" sum="Total"/>
-                <field name="cost_per_km" avg="Average"/>
                 <field name="fuel_efficiency" avg="Average"/>
                 <field name="trip_count" sum="Total"/>
                 <field name="currency_id" column_invisible="1"/>
@@ -43,11 +39,8 @@
             <pivot string="Vehicle Analysis">
                 <field name="category_id" type="row"/>
                 <field name="status_id" type="col"/>
-                <field name="total_cost" type="measure"/>
                 <field name="fuel_cost" type="measure"/>
-                <field name="maintenance_cost" type="measure"/>
                 <field name="total_distance" type="measure"/>
-                <field name="cost_per_km" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -59,9 +52,7 @@
         <field name="arch" type="xml">
             <graph string="Vehicle Analysis" type="bar">
                 <field name="vehicle_id"/>
-                <field name="total_cost" type="measure"/>
                 <field name="fuel_cost" type="measure"/>
-                <field name="maintenance_cost" type="measure"/>
             </graph>
         </field>
     </record>

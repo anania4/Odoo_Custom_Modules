@@ -56,15 +56,6 @@ class FleetTollRecord(models.Model):
         help='Additional location details if needed'
     )
     
-    # Cost
-    amount = fields.Monetary(
-        string='Amount',
-        required=True,
-        currency_field='currency_id',
-        tracking=True,
-        help='Toll amount paid'
-    )
-    
     # Odometer
     odometer = fields.Float(
         string='Odometer (km)',
@@ -97,14 +88,6 @@ class FleetTollRecord(models.Model):
         default=lambda self: self.env.company,
         help='Company this toll belongs to'
     )
-    currency_id = fields.Many2one(
-        'res.currency',
-        string='Currency',
-        related='company_id.currency_id',
-        readonly=True,
-        help='Company currency'
-    )
-    
     active = fields.Boolean(
         string='Active',
         default=True,
@@ -113,7 +96,6 @@ class FleetTollRecord(models.Model):
     
     # SQL Constraints
     _sql_constraints = [
-        ('amount_positive', 'CHECK(amount >= 0)', 'Toll amount must be positive!'),
         ('odometer_positive', 'CHECK(odometer >= 0)', 'Odometer reading must be positive!'),
     ]
     
@@ -128,13 +110,6 @@ class FleetTollRecord(models.Model):
                 record.name = f"Toll Record {record.id or 'New'}"
     
     # Constraints
-    @api.constrains('amount')
-    def _check_amount(self):
-        """Validate amount"""
-        for record in self:
-            if record.amount < 0:
-                raise ValidationError(_('Toll amount cannot be negative!'))
-    
     @api.constrains('odometer')
     def _check_odometer(self):
         """Validate odometer"""
@@ -148,10 +123,4 @@ class FleetTollRecord(models.Model):
         """Set odometer from vehicle"""
         if self.vehicle_id:
             self.odometer = self.vehicle_id.odometer
-    
-    @api.onchange('toll_location_id')
-    def _onchange_toll_location_id(self):
-        """Set typical cost from toll location"""
-        if self.toll_location_id and self.toll_location_id.typical_cost and not self.amount:
-            self.amount = self.toll_location_id.typical_cost
 

@@ -11,7 +11,6 @@ from . import fleet_maintenance_type
 from . import fleet_toll_location
 from . import fleet_toll_record
 from . import fleet_trip
-from . import fleet_request
 from . import fleet_contract
 from . import fleet_service
 from . import fleet_dashboard

@@ -48,63 +48,45 @@ export class FleetDashboard extends Component {
     }
     
     processDashboardData(data) {
-        // Calculate additional metrics
-        const totalVehicles = data.kpis.total_vehicles || 1; // Avoid division by zero
-        
-        // Add percentage calculations for vehicle status
+        const totalVehicles = data.kpis.total_vehicles || 1;
+
         if (data.charts.vehicle_by_status) {
             data.charts.vehicle_by_status = data.charts.vehicle_by_status.map(status => ({
                 ...status,
                 percentage: Math.round((status.value / totalVehicles) * 100)
             }));
         }
-        
-        // Calculate total costs for percentage calculations
-        const totalCosts = data.kpis.total_costs || 1;
-        
-        // Add percentage for cost categories
-        if (data.charts.cost_by_category) {
-            data.charts.cost_by_category = data.charts.cost_by_category.map(category => ({
+
+        if (data.charts.vehicle_by_category) {
+            data.charts.vehicle_by_category = data.charts.vehicle_by_category.map(category => ({
                 ...category,
-                percentage: Math.round((category.value / totalCosts) * 100)
+                percentage: Math.round((category.value / totalVehicles) * 100)
             }));
         }
-        
-        // Process top cost vehicles with trend indicators
-        if (data.charts.top_cost_vehicles) {
-            const maxCost = Math.max(...data.charts.top_cost_vehicles.map(v => v.value), 1);
-            data.charts.top_cost_vehicles = data.charts.top_cost_vehicles.map(vehicle => ({
-                ...vehicle,
-                percentage: Math.round((vehicle.value / maxCost) * 100),
-                // Add mock trend data (in a real app, this would come from the backend)
-                cost_change: Math.floor(Math.random() * 30) - 15, // Random number between -15 and 15
-                mileage: Math.floor(Math.random() * 50000) + 5000 // Random mileage between 5k and 55k
+
+        if (data.charts.fuel_cost_by_vehicle) {
+            const maxFuelCost = Math.max(
+                ...data.charts.fuel_cost_by_vehicle.map(item => item.value),
+                1
+            );
+            data.charts.fuel_cost_by_vehicle = data.charts.fuel_cost_by_vehicle.map(item => ({
+                ...item,
+                percentage: Math.round((item.value / maxFuelCost) * 100)
             }));
         }
-        
-        // Process contract renewal alerts
+
         if (data.alerts.contract_details) {
             data.alerts.contract_details = data.alerts.contract_details.map(item => {
                 const daysLeft = Number(item.days_left) || 0;
-                
+
                 return {
                     ...item,
-                    status: daysLeft < 0 ? 'Overdue' : 
-                            daysLeft <= 7 ? 'Ending Soon' : 'Ending Soon',
+                    status: daysLeft < 0 ? 'Overdue' : 'Ending Soon',
                     status_class: daysLeft < 0 ? 'danger' : 'warning'
                 };
             });
         }
-        
-        // Add some mock trend data for demonstration
-        data.kpis.vehicles_change_percent = (Math.random() * 10) - 2; // Random between -2% and 8%
-        data.kpis.revenue_change = Math.floor(Math.random() * 5000) - 1000; // Random between -1000 and 4000
-        data.kpis.revenue_change_percent = (Math.random() * 15) - 5; // Random between -5% and 10%
-        data.kpis.avg_cost_per_km_change = (Math.random() * 5) - 2.5; // Random between -2.5% and 2.5%
-        data.kpis.fuel_efficiency_change = (Math.random() * 8) - 4; // Random between -4% and 4%
-        data.kpis.utilization_change = (Math.random() * 10) - 2; // Random between -2% and 8%
-        data.kpis.monthly_budget = 50000; // Example monthly budget
-        
+
         this.state.data = data;
     }
 
@@ -114,31 +96,50 @@ export class FleetDashboard extends Component {
     }
     
     openAction(resModel, domain, name) {
-        this.action.doAction({
+        const action = {
             type: 'ir.actions.act_window',
             name: name,
             res_model: resModel,
             view_mode: 'list,form',
-            domain: domain,
+            target: 'current',
+        };
+        if (domain) {
+            action.domain = domain;
+        }
+        this.action.doAction(action);
+    }
+    
+    openRequests() {
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: 'Fleet Requests',
+            res_model: 'fleet.request',
+            view_mode: 'list,form',
             target: 'current',
         });
     }
     
-    openFuelLogs() {
-        const date30 = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
-        this.openAction('fleet.fuel.log', [['date', '>=', date30]], 'Fuel Logs (30 days)');
-    }
-    
-    openRequests() {
-        this.openAction('fleet.request', [], 'Fleet Requests');
-    }
-    
     openContracts() {
-        this.openAction('fleet.contract', [['active', '=', true]], 'Contracts');
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: 'Contracts',
+            res_model: 'fleet.contract',
+            view_mode: 'list,form',
+            domain: [['active', '=', true]],
+            target: 'current',
+        });
     }
     
-    openServices() {
-        this.openAction('fleet.service', [], 'Services');
+    openUpcomingServices() {
+        const today = new Date().toISOString().slice(0, 10);
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: 'Upcoming Services',
+            res_model: 'fleet.service',
+            view_mode: 'list,form',
+            domain: [['date', '>=', today]],
+            target: 'current',
+        });
     }
     
     setActiveTab(tab) {
@@ -146,25 +147,32 @@ export class FleetDashboard extends Component {
     }
 
     formatCurrency(value) {
-        if (value === undefined || value === null) return '$0.00';
-        const numValue = Number(value);
-        if (isNaN(numValue)) return '$0.00';
-        
+        const currency = this.state.data?.currency || {
+            symbol: '$',
+            position: 'before',
+            decimal_places: 2
+        };
+        const numValue = Number(value) || 0;
+        const absValue = Math.abs(numValue);
+        const sign = numValue < 0 ? '-' : '';
+        const withCurrency = (amount) => currency.position === 'after'
+            ? `${sign}${amount} ${currency.symbol}`
+            : `${sign}${currency.symbol}${amount}`;
+
         // Format large numbers with K, M, B suffix
-        if (Math.abs(numValue) >= 1000000000) {
-            return '$' + (numValue / 1000000000).toFixed(1) + 'B';
-        } else if (Math.abs(numValue) >= 1000000) {
-            return '$' + (numValue / 1000000).toFixed(1) + 'M';
-        } else if (Math.abs(numValue) >= 10000) {
-            return '$' + (numValue / 1000).toFixed(1) + 'K';
+        if (absValue >= 1000000000) {
+            return withCurrency((absValue / 1000000000).toFixed(1) + 'B');
+        } else if (absValue >= 1000000) {
+            return withCurrency((absValue / 1000000).toFixed(1) + 'M');
+        } else if (absValue >= 10000) {
+            return withCurrency((absValue / 1000).toFixed(1) + 'K');
         }
-        
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(numValue);
+
+        const amount = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: currency.decimal_places,
+            maximumFractionDigits: currency.decimal_places
+        }).format(absValue);
+        return withCurrency(amount);
     }
     
     formatCompactNumber(value) {

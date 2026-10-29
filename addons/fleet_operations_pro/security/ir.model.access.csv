@@ -11,8 +11,6 @@ access_fleet_toll_location_all,fleet.toll.location.all,model_fleet_toll_location
 access_fleet_toll_record_all,fleet.toll.record.all,model_fleet_toll_record,base.group_user,1,1,1,1
 access_fleet_trip_all,fleet.trip.all,model_fleet_trip,base.group_user,1,1,1,1
 access_fleet_dashboard_all,fleet.dashboard.all,model_fleet_dashboard,base.group_user,1,1,1,0
-access_fleet_request_all,fleet.request.all,model_fleet_request,base.group_user,1,1,1,1
-access_fleet_request_manager,fleet.request.manager,model_fleet_request,fleet_operations_pro.group_fleet_manager,1,1,1,1
 access_fleet_vehicle_report_all,fleet.vehicle.report.all,model_fleet_vehicle_report,base.group_user,1,0,0,0
 access_fleet_vehicle_manager,fleet.vehicle.manager,model_fleet_vehicle,fleet_operations_pro.group_fleet_manager,1,1,1,1
 access_fleet_maintenance_manager,fleet.maintenance.manager,model_fleet_maintenance,fleet_operations_pro.group_fleet_manager,1,1,1,1

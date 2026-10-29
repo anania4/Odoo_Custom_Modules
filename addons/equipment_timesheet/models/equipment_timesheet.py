@@ -219,24 +219,6 @@ class EquipmentTimesheet(models.Model):
         other_managers = managers.filtered(lambda u: u.id != self.env.uid)
         return other_managers if other_managers else managers
 
-    def _send_generic_bell_notification(self, users, title, message, notif_type='info', icon='fa-clock-o'):
-        """Send notification to the Generic Bell Systray (generic_bell_notification)"""
-        if not users or 'generic.notification' not in self.env:
-            return
-        notif_model = self.env['generic.notification'].sudo()
-        for user in users:
-            if not user or not user.id:
-                continue
-            notif_model.send_notification(
-                user_id=user.id,
-                title=title,
-                message=message,
-                res_model=self._name,
-                res_id=self.id,
-                notif_type=notif_type,
-                icon_class=icon,
-            )
-
     def _send_odoo_notification(self, users, title, message, notif_type='info'):
         """Send standard Odoo chatter notification and real-time web client toast via bus"""
         partners = users.mapped('partner_id').filtered(lambda p: bool(p.id))
@@ -316,26 +298,6 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, record.user_id.name
             )
             
-            # 1. Generic Notification Bell integration
-            record._send_generic_bell_notification(
-                users=managers,
-                title=title,
-                message=msg,
-                notif_type='info',
-                icon='fa-clock-o',
-            )
-            
-            # 2. Native Odoo Activity (Clock systray icon)
-            record._schedule_approval_activity(managers)
-            
-            # 3. Native Odoo Chatter & Real-time Web Toast
-            record._send_odoo_notification(
-                users=managers,
-                title=title,
-                message=msg,
-                notif_type='info',
-            )
-
     def action_approve(self):
         if not self.env.user.has_group('equipment_timesheet.group_equipment_timesheet_manager'):
             raise UserError(_("Only Project Managers can approve equipment timesheets."))
@@ -357,23 +319,6 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, self.env.user.name
             )
             
-            # 1. Generic Notification Bell integration
-            record._send_generic_bell_notification(
-                users=reporter,
-                title=title,
-                message=msg,
-                notif_type='success',
-                icon='fa-check-circle',
-            )
-            
-            # 2. Native Odoo Chatter & Real-time Web Toast
-            record._send_odoo_notification(
-                users=reporter,
-                title=title,
-                message=msg,
-                notif_type='success',
-            )
-
     def action_reject(self):
         if not self.env.user.has_group('equipment_timesheet.group_equipment_timesheet_manager'):
             raise UserError(_("Only Project Managers can reject equipment timesheets."))
@@ -391,23 +336,6 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, self.env.user.name
             )
             
-            # 1. Generic Notification Bell integration
-            record._send_generic_bell_notification(
-                users=reporter,
-                title=title,
-                message=msg,
-                notif_type='danger',
-                icon='fa-times-circle',
-            )
-            
-            # 2. Native Odoo Chatter & Real-time Web Toast
-            record._send_odoo_notification(
-                users=reporter,
-                title=title,
-                message=msg,
-                notif_type='danger',
-            )
-
     def action_reset_draft(self):
         if not self.env.user.has_group('equipment_timesheet.group_equipment_timesheet_manager'):
             raise UserError(_("Only Project Managers can reset timesheets to draft."))
@@ -427,23 +355,6 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, self.env.user.name
             )
             
-            # 1. Generic Notification Bell integration
-            record._send_generic_bell_notification(
-                users=reporter,
-                title=title,
-                message=msg,
-                notif_type='warning',
-                icon='fa-undo',
-            )
-            
-            # 2. Native Odoo Chatter & Real-time Web Toast
-            record._send_odoo_notification(
-                users=reporter,
-                title=title,
-                message=msg,
-                notif_type='warning',
-            )
-
     def action_open_export_wizard(self):
         self.ensure_one()
         return {

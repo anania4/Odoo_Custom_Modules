@@ -1,36 +1,15 @@
 /* ========================================================
    EQUIPMENT TIMESHEET STYLESHEET (DESKTOP & MOBILE RESPONSIVE)
-   Website-style vertical form layout matching Daily Report
+   Website-style vertical form layout matching Daily Report.
+
+   Only layout is customised here: colours, borders, focus
+   states and controls are left to Odoo/Bootstrap so the
+   backend keeps its native look.
    ======================================================== */
 
 /* Active tab pane safety */
 .tab-pane.active {
     opacity: 1 !important;
-}
-
-/* Shift dropdown menu styling */
-select[name="shift_type"].text-success,
-.text-success select[name="shift_type"] {
-    color: #198754 !important;
-    font-weight: 700 !important;
-}
-
-select[name="shift_type"].text-danger,
-.text-danger select[name="shift_type"] {
-    color: #dc3545 !important;
-    font-weight: 700 !important;
-}
-
-select[name="shift_type"] option[value*="day"],
-select option[value*="day"] {
-    color: #198754 !important;
-    font-weight: 600 !important;
-}
-
-select[name="shift_type"] option[value*="night"],
-select option[value*="night"] {
-    color: #dc3545 !important;
-    font-weight: 600 !important;
 }
 
 /* ========================================================
@@ -48,7 +27,7 @@ select option[value*="night"] {
    2. MOBILE VIEW (max-width: 767.98px)
    - Vertical website-style layout (Label on top, input box below)
    - Unrolled notebook sections (single continuous page)
-   - Equipment lines formatted as modern stacked cards
+   - Equipment lines formatted as stacked cards
    - Big touch-friendly "+ Add Equipment Line"
    - Prominent Save and Submit buttons at the bottom of the form
    ======================================================== */
@@ -64,21 +43,19 @@ select option[value*="night"] {
         /* Top Title & Reference */
         .oe_title {
             margin-bottom: 1.25rem !important;
+
             h1 {
                 font-size: 1.5rem !important;
                 font-weight: 700 !important;
-                color: #1e3a8a !important;
             }
         }
 
-        /* Section Separator on Mobile */
+        /* Section Separator on Mobile (native Odoo separator styling) */
         .o_horizontal_separator {
             font-size: 1.05rem !important;
             font-weight: 700 !important;
-            color: #1e3a8a !important;
             letter-spacing: 0.02em !important;
             padding-bottom: 0.4rem !important;
-            border-bottom: 2px solid #3b82f6 !important;
             margin-top: 1.5rem !important;
             margin-bottom: 1rem !important;
             display: block !important;
@@ -113,7 +90,6 @@ select option[value*="night"] {
                     margin-bottom: 0.35rem !important;
                     font-weight: 600 !important;
                     font-size: 0.925rem !important;
-                    color: #1e293b !important;
                     width: 100% !important;
                     text-align: left !important;
                 }
@@ -122,23 +98,13 @@ select option[value*="night"] {
                     width: 100% !important;
                     display: block !important;
 
+                    /* Sizing only: borders/background/focus come from Odoo */
                     input.o_input, select.o_input, textarea.o_input, .o_input {
                         width: 100% !important;
                         min-height: 46px !important;
                         font-size: 1rem !important;
-                        border-radius: 8px !important;
-                        border: 1.5px solid #cbd5e1 !important;
                         padding: 10px 14px !important;
-                        background-color: #ffffff !important;
                         box-sizing: border-box !important;
-                        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-
-                        &:focus {
-                            border-color: #2563eb !important;
-                            background-color: #ffffff !important;
-                            outline: none !important;
-                            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-                        }
                     }
                 }
             }
@@ -192,22 +158,19 @@ select option[value*="night"] {
                         opacity: 1 !important;
                     }
 
-                    /* Each equipment line formatted as a modern website card */
+                    /* Each equipment line formatted as a card */
                     > tr.o_data_row {
                         display: flex !important;
                         flex-direction: column !important;
                         width: 100% !important;
-                        background: #ffffff !important;
-                        border: 1.5px solid #e2e8f0 !important;
-                        border-radius: 12px !important;
+                        border: 1px solid #dee2e6 !important;
+                        border-radius: 6px !important;
                         padding: 16px 14px !important;
                         margin-bottom: 16px !important;
-                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
                         box-sizing: border-box !important;
 
                         &:hover, &:focus-within {
-                            border-color: #93c5fd !important;
-                            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12) !important;
+                            border-color: #adb5bd !important;
                         }
 
                         /* Each cell is a vertical field (Label on top, input box below) */
@@ -229,7 +192,6 @@ select option[value*="night"] {
                                 display: block !important;
                                 font-size: 0.875rem !important;
                                 font-weight: 600 !important;
-                                color: #475569 !important;
                                 margin-bottom: 4px !important;
                             }
 
@@ -245,34 +207,24 @@ select option[value*="night"] {
                                 width: 100% !important;
                                 min-height: 44px !important;
                                 font-size: 1rem !important;
-                                border: 1.5px solid #cbd5e1 !important;
-                                border-radius: 8px !important;
                                 padding: 8px 12px !important;
-                                background-color: #f8fafc !important;
                                 box-sizing: border-box !important;
-
-                                &:focus {
-                                    border-color: #2563eb !important;
-                                    background-color: #ffffff !important;
-                                    outline: none !important;
-                                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-                                }
                             }
 
                             /* Field Labels for Equipment Timesheet Lines */
-                            &[name="equipment_id"]::before { content: "🚜 Equipment"; color: #1e3a8a !important; font-size: 0.95rem !important; font-weight: 700 !important; }
+                            &[name="equipment_id"]::before { content: "🚜 Equipment"; }
                             &[name="shift_type"]::before { content: "Shift (Day / Night)"; }
                             &[name="day_start_time"]::before { content: "Morning Start"; }
                             &[name="day_end_time"]::before { content: "Morning End"; }
                             &[name="night_start_time"]::before { content: "Afternoon Start"; }
                             &[name="night_end_time"]::before { content: "Afternoon End"; }
-                            &[name="total_hours"]::before { content: "⏱ Total Hours"; color: #198754 !important; font-weight: 700 !important; }
-                            &[name="idle_time"]::before { content: "⏸ Idle Time"; color: #d97706 !important; font-weight: 700 !important; }
+                            &[name="total_hours"]::before { content: "⏱ Total Hours"; }
+                            &[name="idle_time"]::before { content: "⏸ Idle Time"; }
                             &[name="idle_reason"]::before { content: "Idle Reason"; }
-                            &[name="fuel_opening"]::before { content: "Starting Fuel (L)"; color: #2563eb !important; font-weight: 700 !important; }
+                            &[name="fuel_opening"]::before { content: "Starting Fuel (L)"; }
                             &[name="fuel_refueled"]::before { content: "Fuel Refueled (L)"; }
                             &[name="fuel_left"]::before { content: "Fuel Left (Closing) (L)"; }
-                            &[name="fuel_consumed"]::before { content: "⛽ Fuel Consumed (L)"; color: #dc3545 !important; font-weight: 700 !important; }
+                            &[name="fuel_consumed"]::before { content: "⛽ Fuel Consumed (L)"; }
                             &[name="description"]::before { content: "Remarks / Notes"; }
                         }
 
@@ -285,10 +237,6 @@ select option[value*="night"] {
                             border: none !important;
 
                             button {
-                                background: #fef2f2 !important;
-                                border: 1px solid #fecaca !important;
-                                border-radius: 6px !important;
-                                color: #dc2626 !important;
                                 padding: 8px 16px !important;
                                 font-size: 0.875rem !important;
                                 font-weight: 600 !important;
@@ -296,7 +244,6 @@ select option[value*="night"] {
 
                                 &::after {
                                     content: " Remove Equipment";
-                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                                 }
                             }
                         }
@@ -316,19 +263,9 @@ select option[value*="night"] {
                         justify-content: center !important;
                         width: 100% !important;
                         min-height: 48px !important;
-                        background-color: #f1f5f9 !important;
-                        color: #1e3a8a !important;
-                        border: 2px dashed #93c5fd !important;
-                        border-radius: 8px !important;
                         font-weight: 600 !important;
                         font-size: 1rem !important;
                         text-decoration: none !important;
-                        transition: all 0.2s ease !important;
-
-                        &:active, &:hover {
-                            background-color: #dbeafe !important;
-                            border-color: #2563eb !important;
-                        }
 
                         &::before {
                             content: "+ " !important;
@@ -343,14 +280,15 @@ select option[value*="night"] {
                 tfoot.o_list_footer {
                     display: block !important;
                     width: 100% !important;
+
                     tr {
                         display: flex !important;
                         justify-content: flex-end !important;
                         padding: 6px 0 !important;
+
                         td {
                             border: none !important;
                             font-weight: 700 !important;
-                            color: #1e3a8a !important;
                         }
                     }
                 }
@@ -368,10 +306,6 @@ select option[value*="night"] {
                 flex-direction: column !important;
                 width: 100% !important;
                 margin-top: 1rem !important;
-                padding: 1rem !important;
-                background: #f8fafc !important;
-                border-radius: 8px !important;
-                border: 1px solid #e2e8f0 !important;
             }
         }
 
@@ -381,45 +315,18 @@ select option[value*="night"] {
             margin-top: 2rem !important;
             padding-top: 1.5rem !important;
             padding-bottom: 2.5rem !important;
-            border-top: 2px solid #e2e8f0 !important;
+            border-top: 1px solid #dee2e6 !important;
 
+            /* Sizing only: button colours come from btn-secondary / btn-primary */
             .btn {
                 min-height: 50px !important;
                 font-size: 1.05rem !important;
                 font-weight: 700 !important;
-                border-radius: 8px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
                 gap: 10px !important;
                 width: 100% !important;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
-            }
-
-            /* Save Button: Green Background */
-            .btn-success, button[name="action_save"], .btn-secondary {
-                background-color: #16a34a !important;
-                border-color: #15803d !important;
-                color: #ffffff !important;
-
-                &:hover, &:active {
-                    background-color: #15803d !important;
-                    border-color: #166534 !important;
-                    color: #ffffff !important;
-                }
-            }
-
-            /* Submit Button: Softer / Lighter Blue (not harsh navy) */
-            .btn-primary, button[name="action_submit"] {
-                background-color: #3b82f6 !important;
-                border-color: #2563eb !important;
-                color: #ffffff !important;
-
-                &:hover, &:active {
-                    background-color: #2563eb !important;
-                    border-color: #1d4ed8 !important;
-                    color: #ffffff !important;
-                }
             }
         }
     }
@@ -427,7 +334,7 @@ select option[value*="night"] {
 
 /* ========================================================
    3. WEBSITE-STYLE VERTICAL MODAL FORMS (.o_mobile_vertical_form)
-   Stacked inputs: Label above input, 100% width, modern input styling
+   Stacked inputs: Label above input, 100% width
    ======================================================== */
 .o_mobile_vertical_form {
     .o_form_sheet {
@@ -441,10 +348,8 @@ select option[value*="night"] {
     .o_horizontal_separator {
         font-size: 1.05rem !important;
         font-weight: 700 !important;
-        color: #1e3a8a !important;
         letter-spacing: 0.02em !important;
         padding-bottom: 0.4rem !important;
-        border-bottom: 2px solid #3b82f6 !important;
         margin-top: 1.25rem !important;
         margin-bottom: 1rem !important;
         display: block !important;
@@ -478,7 +383,6 @@ select option[value*="night"] {
                 margin-bottom: 0.35rem !important;
                 font-weight: 600 !important;
                 font-size: 0.925rem !important;
-                color: #2c3e50 !important;
                 width: 100% !important;
                 text-align: left !important;
             }
@@ -487,22 +391,13 @@ select option[value*="night"] {
                 width: 100% !important;
                 display: block !important;
 
+                /* Sizing only: borders/background/focus come from Odoo */
                 input.o_input, select.o_input, textarea.o_input, .o_input {
                     width: 100% !important;
                     min-height: 44px !important;
                     font-size: 0.975rem !important;
-                    border-radius: 6px !important;
                     padding: 8px 12px !important;
-                    border: 1px solid #ced4da !important;
-                    background-color: #ffffff !important;
-                    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
                     box-sizing: border-box !important;
-
-                    &:focus {
-                        border-color: #86b7fe !important;
-                        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
-                        outline: none !important;
-                    }
                 }
             }
         }
@@ -511,142 +406,12 @@ select option[value*="night"] {
 
 /* ========================================================
    4. PROJECTS EQUIPMENT DASHBOARD (.o_kanban_project_equipment)
-   - Background color on EACH INDIVIDUAL project kanban card (not overall dashboard)
-   - Small border-radius (8px on cards, 6px on KPI boxes/badges/buttons)
-   - High-contrast, highly visible Equipment section ("1 Active")
+   Cards, KPI boxes and badges use Odoo's native kanban
+   styling (see equipment_timesheet.css for layout helpers).
    ======================================================== */
-.o_kanban_view.o_kanban_project_equipment,
-.o_kanban_renderer.o_kanban_project_equipment {
-    background: transparent !important;
-    background-color: transparent !important;
-}
-
 .o_kanban_project_equipment {
-    /* Ensure Odoo layout ghost elements are completely invisible */
-    .o_kanban_ghost {
-        display: none !important;
-        height: 0 !important;
-        max-height: 0 !important;
-        min-height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-    }
-
-    .o_kanban_record:not(.o_kanban_ghost),
-    article.o_kanban_record:not(.o_kanban_ghost) {
-        /* Background color for each individual project card */
-        background: #f0f6ff !important;
-        background: linear-gradient(165deg, #ffffff 0%, #edf5ff 100%) !important;
-        border: 1.5px solid #bfdbfe !important;
-        border-top: 4px solid #2563eb !important;
-        border-radius: 8px !important;
-        box-shadow: 0 3px 10px rgba(37, 99, 235, 0.08) !important;
-        padding: 14px 16px !important;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
-
-        &:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 22px rgba(37, 99, 235, 0.16) !important;
-            border-color: #93c5fd !important;
-        }
-
-        h4 {
-            color: #1e3a8a !important;
-            font-weight: 700 !important;
-        }
-
-        /* KPI Boxes: Small border-radius (6px) and high-contrast styling */
-        .o_kpi_box {
-            border-radius: 6px !important;
-            padding: 8px !important;
-            transition: transform 0.15s ease !important;
-
-            &:hover {
-                transform: scale(1.02) !important;
-            }
-        }
-
-        /* Working Hours Box */
-        .o_kpi_hours {
-            background-color: #ffffff !important;
-            border: 1.5px solid #bfdbfe !important;
-        }
-
-        /* Fuel Consumed Box */
-        .o_kpi_fuel {
-            background-color: #fff5f5 !important;
-            border: 1.5px solid #fecaca !important;
-        }
-
-        /* Equipments Box: Highly visible, rich violet/purple with bold badge */
-        .o_kpi_equipment {
-            background-color: #f5f3ff !important;
-            border: 1.5px solid #c4b5fd !important;
-
-            .o_kpi_equipment_label {
-                color: #6d28d9 !important;
-                font-weight: 700 !important;
-            }
-
-            .o_equipment_active_badge {
-                background-color: #7c3aed !important;
-                color: #ffffff !important;
-                font-size: 0.85rem !important;
-                font-weight: 700 !important;
-                padding: 4px 10px !important;
-                border-radius: 6px !important;
-                box-shadow: 0 2px 4px rgba(124, 58, 237, 0.25) !important;
-                display: inline-block !important;
-                letter-spacing: 0.02em !important;
-            }
-        }
-
-        /* Pending Approvals Box */
-        .o_kpi_pending {
-            background-color: #fffdf5 !important;
-            border: 1.5px solid #fde68a !important;
-
-            .badge {
-                border-radius: 6px !important;
-            }
-        }
-
-        /* Card Footer Buttons with small border radius */
-        footer {
-            border-top: 1px solid #dbeafe !important;
-
-            .btn {
-                border-radius: 6px !important;
-                font-weight: 600 !important;
-            }
-
-            .btn-primary {
-                background-color: #2563eb !important;
-                border-color: #1d4ed8 !important;
-                color: #ffffff !important;
-
-                &:hover, &:active {
-                    background-color: #1d4ed8 !important;
-                    border-color: #1e40af !important;
-                }
-            }
-
-            .btn-outline-secondary {
-                border-color: #cbd5e1 !important;
-                color: #475569 !important;
-
-                &:hover, &:active {
-                    background-color: #ffffff !important;
-                    border-color: #94a3b8 !important;
-                    color: #1e293b !important;
-                }
-            }
-        }
+    .o_kpi_box {
+        border-radius: 6px !important;
+        padding: 8px !important;
     }
 }
-

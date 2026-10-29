@@ -85,32 +85,6 @@ class FleetContract(models.Model):
         help='True if the contract expires within 30 days'
     )
 
-    # Cost
-    cost = fields.Monetary(
-        string='Contract Cost',
-        currency_field='currency_id',
-        tracking=True,
-        help='Total cost of the contract'
-    )
-
-    recurring_cost = fields.Monetary(
-        string='Recurring Cost',
-        currency_field='currency_id',
-        help='Cost to renew/be paid at each recurring interval'
-    )
-
-    cost_frequency = fields.Selection(
-        [
-            ('none', 'One-time'),
-            ('monthly', 'Monthly'),
-            ('quarterly', 'Quarterly'),
-            ('yearly', 'Yearly'),
-        ],
-        string='Billing Frequency',
-        default='none',
-        help='How often the recurring cost is billed or renewed'
-    )
-
     # State
     state = fields.Selection(
         [
@@ -156,13 +130,6 @@ class FleetContract(models.Model):
         help='Company this contract belongs to'
     )
 
-    currency_id = fields.Many2one(
-        'res.currency',
-        string='Currency',
-        required=True,
-        default=lambda self: self.env.company.currency_id
-    )
-
     active = fields.Boolean(
         string='Active',
         default=True,
@@ -179,7 +146,6 @@ class FleetContract(models.Model):
 
     _sql_constraints = [
         ('contract_dates', 'CHECK(end_date >= start_date)', 'End date cannot be before the start date!'),
-        ('cost_positive', 'CHECK(cost >= 0)', 'Contract cost must be positive!'),
     ]
 
     @api.model_create_multi
@@ -209,13 +175,6 @@ class FleetContract(models.Model):
         """Count services under this contract"""
         for contract in self:
             contract.service_count = len(contract.service_ids)
-
-    # Constraints
-    @api.constrains('cost')
-    def _check_cost(self):
-        for contract in self:
-            if contract.cost < 0 or contract.recurring_cost < 0:
-                raise ValidationError(_('Contract costs cannot be negative!'))
 
     # Actions
     def action_run(self):

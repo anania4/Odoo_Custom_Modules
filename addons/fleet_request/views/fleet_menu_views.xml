@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Fleet Requests Root Menu -->
+    <menuitem id="menu_fleet_request_root"
+              name="Fleet Requests"
+              web_icon="fleet_request,static/description/icon.png"
+              sequence="51"/>
+
+    <!-- Fleet Requests Menu Item -->
+    <menuitem id="menu_fleet_request"
+              name="Requests"
+              parent="menu_fleet_request_root"
+              action="action_fleet_request"
+              sequence="10"/>
+
+    <!-- Fuel Requests Menu Item -->
+    <menuitem id="menu_fleet_fuel_request"
+              name="Fuel Requests"
+              parent="menu_fleet_request_root"
+              action="action_fleet_fuel_request"
+              sequence="20"/>
+
+</odoo>

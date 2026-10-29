@@ -23,7 +23,7 @@
                     <t t-name="card">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
-                                <h4 class="mb-0 fw-bold" style="color: #1e3a8a;">
+                                <h4 class="mb-0">
                                     <field name="name"/>
                                 </h4>
                                 <div class="text-muted small mt-1" t-if="record.partner_id.raw_value">
@@ -37,47 +37,47 @@
                         <!-- KPI Dashboard Grid -->
                         <div class="row g-2 my-2 text-center">
                             <div class="col-6">
-                                <div class="p-2 border o_kpi_box o_kpi_hours" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px;">
-                                    <div class="small fw-semibold text-primary">
+                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_hours">
+                                    <div class="small text-muted">
                                         <i class="fa fa-clock-o me-1"/> Working Hours
                                     </div>
-                                    <div class="fw-bold fs-5 mt-1" style="color: #1e40af;">
+                                    <div class="fw-bold fs-5 mt-1">
                                         <field name="equipment_total_hours" widget="float_time"/> hrs
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-2 border o_kpi_box o_kpi_fuel" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;">
-                                    <div class="small fw-semibold text-danger">
+                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_fuel">
+                                    <div class="small text-muted">
                                         <i class="fa fa-tint me-1"/> Fuel Consumed
                                     </div>
-                                    <div class="fw-bold fs-5 mt-1" style="color: #b91c1c;">
+                                    <div class="fw-bold fs-5 mt-1">
                                         <field name="equipment_total_fuel_consumed"/> L
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-2 border o_kpi_box o_kpi_equipment" style="background-color: #f5f3ff; border: 1.5px solid #c4b5fd; border-radius: 6px;">
-                                    <div class="small fw-bold o_kpi_equipment_label" style="color: #6d28d9;">
-                                        <i class="fa fa-truck me-1" style="color: #7c3aed;"/> Equipments
+                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_equipment">
+                                    <div class="small text-muted">
+                                        <i class="fa fa-truck me-1"/> Equipments
                                     </div>
                                     <div class="mt-1">
-                                        <span class="badge o_equipment_active_badge text-truncate" style="background-color: #7c3aed; color: #ffffff; font-size: 0.85rem; font-weight: 700; border-radius: 6px; padding: 4px 10px; display: inline-block; max-width: 100%;">
+                                        <span class="badge text-bg-secondary text-truncate" style="display: inline-block; max-width: 100%;">
                                             <i class="fa fa-cogs me-1"/><field name="equipment_types_display"/>
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-2 border o_kpi_box o_kpi_pending" style="background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 6px;">
-                                    <div class="small fw-semibold" style="color: #b45309;">
+                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_pending">
+                                    <div class="small text-muted">
                                         <i class="fa fa-hourglass-half me-1"/> Pending
                                     </div>
                                     <div class="mt-1">
-                                        <span t-if="record.equipment_timesheet_pending_count.raw_value > 0" class="badge text-bg-warning fw-bold px-2 py-1" style="border-radius: 6px;">
+                                        <span t-if="record.equipment_timesheet_pending_count.raw_value > 0" class="badge text-bg-warning px-2 py-1">
                                             <field name="equipment_timesheet_pending_count"/> To Approve
                                         </span>
-                                        <span t-else="" class="badge text-bg-secondary fw-semibold px-2 py-1" style="border-radius: 6px; opacity: 0.85;">
+                                        <span t-else="" class="badge text-bg-secondary px-2 py-1">
                                             0 Pending
                                         </span>
                                     </div>
@@ -88,14 +88,14 @@
                         <!-- Card Footer: Quick Actions -->
                         <footer class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
                             <div class="d-flex gap-1">
-                                <button name="action_create_equipment_timesheet" type="object" class="btn btn-primary btn-sm" style="border-radius: 6px; font-weight: 600;">
+                                <button name="action_create_equipment_timesheet" type="object" class="btn btn-primary btn-sm">
                                     <i class="fa fa-plus me-1"/> Add Timesheet
                                 </button>
-                                <button name="action_open_export_wizard" type="object" class="btn btn-outline-secondary btn-sm" style="border-radius: 6px;" title="Export Project Timesheet Lines">
+                                <button name="action_open_export_wizard" type="object" class="btn btn-outline-secondary btn-sm" title="Export Project Timesheet Lines">
                                     <i class="fa fa-cog"/>
                                 </button>
                             </div>
-                            <button name="action_view_equipment_timesheets" type="object" class="btn btn-outline-secondary btn-sm" style="border-radius: 6px; font-weight: 600;">
+                            <button name="action_view_equipment_timesheets" type="object" class="btn btn-outline-secondary btn-sm">
                                 <i class="fa fa-list me-1"/> <field name="equipment_timesheet_count"/> Timesheets
                             </button>
                         </footer>

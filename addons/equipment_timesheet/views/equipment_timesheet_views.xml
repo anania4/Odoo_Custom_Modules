@@ -18,7 +18,7 @@
                 <field name="user_id" string="Reported By" widget="many2one_avatar_user"/>
                 <field name="equipment_count" string="Equipments"/>
                 <field name="total_hours" widget="float_time" class="fw-bold" sum="Total Hours"/>
-                <field name="total_fuel_consumed" class="fw-bold text-danger" sum="Total Fuel Consumed"/>
+                <field name="total_fuel_consumed" class="fw-bold" sum="Total Fuel Consumed"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
                        decoration-warning="state == 'submitted'"
@@ -38,24 +38,22 @@
                     <button name="action_submit"
                             string="Submit for Approval"
                             type="object"
-                            class="oe_highlight btn-primary"
+                            class="oe_highlight"
                             invisible="state != 'draft'"/>
                     <button name="action_save"
                             string="Save"
                             type="object"
-                            class="btn-secondary"
                             icon="fa-floppy-o"
                             invisible="state in ('approved', 'rejected')"/>
                     <button name="action_approve"
                             string="Approve"
                             type="object"
-                            class="oe_highlight btn-success"
+                            class="oe_highlight"
                             invisible="state != 'submitted'"
                             groups="equipment_timesheet.group_equipment_timesheet_manager"/>
                     <button name="action_reject"
                             string="Reject"
                             type="object"
-                            class="btn-danger"
                             invisible="state != 'submitted'"
                             groups="equipment_timesheet.group_equipment_timesheet_manager"/>
                     <button name="action_reset_draft"
@@ -93,7 +91,7 @@
                     <!-- Equipment Lines: Same as Product Lines on Order -->
                     <notebook>
                         <page string="Equipment Operations" name="equipment_lines">
-                            <div class="o_horizontal_separator d-md-none mt-2 mb-3 fw-bold text-primary">
+                            <div class="o_horizontal_separator d-md-none mt-2 mb-3 fw-bold">
                                 <i class="fa fa-truck me-2"/>Equipment Operations
                             </div>
                             <field name="line_ids" readonly="state != 'draft'">
@@ -103,12 +101,9 @@
                                            string="Equipment"
                                            options="{'no_create': True}"
                                            width="220px"/>
-                                    <!-- Shift dropdown: Day (green) / Night (red) -->
+                                    <!-- Shift dropdown: Day / Night -->
                                     <field name="shift_type"
                                            string="Shift"
-                                           decoration-success="shift_type == 'day'"
-                                           decoration-danger="shift_type == 'night'"
-                                           class="fw-bold"
                                            width="120px"/>
                                     
                                     <!-- Morning Hours -->
@@ -120,7 +115,7 @@
                                     <field name="night_end_time" string="Afternoon End" widget="float_time" width="120px"/>
 
                                     <!-- Auto Calculated Total Hours -->
-                                    <field name="total_hours" string="Total" widget="float_time" readonly="1" class="fw-bold text-success" sum="Total Hours" width="120px"/>
+                                    <field name="total_hours" string="Total" widget="float_time" readonly="1" class="fw-bold" sum="Total Hours" width="120px"/>
 
                                     <!-- Idle Tracking -->
                                     <field name="idle_time" string="Idle Time" widget="float_time" sum="Total Idle Time" width="110px"/>
@@ -130,7 +125,7 @@
                                     <field name="fuel_opening" string="Starting Fuel (L)" width="130px"/>
                                     <field name="fuel_refueled" string="Fuel Refueled (L)" sum="Total Refueled" width="130px"/>
                                     <field name="fuel_left" string="Fuel Left (Closing) (L)" width="140px"/>
-                                    <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fw-bold text-danger" sum="Total Fuel Consumed" width="150px"/>
+                                    <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fw-bold" sum="Total Fuel Consumed" width="150px"/>
 
                                     <field name="description" string="Remarks" optional="show" width="220px"/>
                                 </list>
@@ -142,9 +137,6 @@
                                             <field name="equipment_id" string="Equipment" options="{'no_create': True}" required="1"/>
                                             <field name="shift_type"
                                                    string="Shift"
-                                                   decoration-success="shift_type == 'day'"
-                                                   decoration-danger="shift_type == 'night'"
-                                                   class="fw-bold"
                                                    required="1"/>
                                             <field name="equipment_model" string="Model" readonly="1"/>
                                             <field name="equipment_serial" string="Serial / Plate No." readonly="1"/>
@@ -154,7 +146,7 @@
                                             <field name="day_end_time" string="Morning End" widget="float_time"/>
                                             <field name="night_start_time" string="Afternoon Start" widget="float_time"/>
                                             <field name="night_end_time" string="Afternoon End" widget="float_time"/>
-                                            <field name="total_hours" string="Total Hours" widget="float_time" readonly="1" class="fs-4 fw-bolder text-success"/>
+                                            <field name="total_hours" string="Total Hours" widget="float_time" readonly="1" class="fs-4 fw-bold"/>
                                             <field name="idle_time" string="Idle Time" widget="float_time"/>
                                             <field name="idle_reason" string="Idle Reason" placeholder="e.g. Weather, Breakdown, Waiting for Material..."/>
                                         </group>
@@ -162,7 +154,7 @@
                                             <field name="fuel_opening" string="Starting Fuel (L)"/>
                                             <field name="fuel_refueled" string="Fuel Refueled (L)"/>
                                             <field name="fuel_left" string="Fuel Left (Closing) (L)"/>
-                                            <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fs-4 fw-bolder text-danger"/>
+                                            <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fs-4 fw-bold"/>
                                         </group>
                                         <group string="Operation Notes">
                                             <field name="description" string="Remarks / Notes" placeholder="Enter notes or remarks here..."/>
@@ -177,15 +169,15 @@
                                     <field name="description" placeholder="General operation notes or shift remarks..." readonly="state != 'draft'"/>
                                 </group>
                                 <group colspan="4" class="oe_subtotal_footer">
-                                    <field name="total_hours" widget="float_time" string="Total Working Hours" class="oe_subtotal_footer_separator fw-bold text-success fs-5"/>
-                                    <field name="total_idle_time" widget="float_time" string="Total Idle Time" class="fw-bold text-warning fs-5"/>
-                                    <field name="total_fuel_consumed" string="Grand Total Fuel Consumed (L)" class="oe_subtotal_footer_separator fw-bold text-danger fs-5"/>
+                                    <field name="total_hours" widget="float_time" string="Total Working Hours" class="oe_subtotal_footer_separator fw-bold fs-5"/>
+                                    <field name="total_idle_time" widget="float_time" string="Total Idle Time" class="fw-bold fs-5"/>
+                                    <field name="total_fuel_consumed" string="Grand Total Fuel Consumed (L)" class="oe_subtotal_footer_separator fw-bold fs-5"/>
                                 </group>
                             </group>
                         </page>
 
                         <page string="Approval Details" name="approval" invisible="state == 'draft'">
-                            <div class="o_horizontal_separator d-md-none mt-4 mb-3 fw-bold text-primary">
+                            <div class="o_horizontal_separator d-md-none mt-4 mb-3 fw-bold">
                                 <i class="fa fa-check-circle-o me-2"/>Approval Details
                             </div>
                             <group>
@@ -206,13 +198,13 @@
                             <button name="action_save"
                                     string="Save"
                                     type="object"
-                                    class="btn btn-success btn-lg w-100 fw-bold py-3 shadow-sm"
+                                    class="btn btn-secondary btn-lg w-100 fw-bold py-3"
                                     icon="fa-floppy-o"
                                     invisible="state in ('approved', 'rejected')"/>
                             <button name="action_submit"
                                     string="Submit for Approval"
                                     type="object"
-                                    class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow"
+                                    class="btn btn-primary btn-lg w-100 fw-bold py-3"
                                     icon="fa-paper-plane"
                                     invisible="state != 'draft'"/>
                         </div>
@@ -242,7 +234,7 @@
                 <templates>
                     <t t-name="card">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <strong class="text-primary"><field name="name"/></strong>
+                            <strong><field name="name"/></strong>
                             <field name="state" widget="badge"
                                    decoration-info="state == 'draft'"
                                    decoration-warning="state == 'submitted'"
@@ -259,11 +251,11 @@
                         </div>
                         <div class="d-flex justify-content-between mt-2 pt-2 border-top small">
                             <span>
-                                <i class="fa fa-clock-o text-success me-1"/>
+                                <i class="fa fa-clock-o text-muted me-1"/>
                                 <strong><field name="total_hours" widget="float_time"/> hrs</strong>
                             </span>
                             <span>
-                                <i class="fa fa-tint text-danger me-1"/>
+                                <i class="fa fa-tint text-muted me-1"/>
                                 <strong><field name="total_fuel_consumed"/> L</strong>
                             </span>
                             <field name="user_id" widget="many2one_avatar_user"/>

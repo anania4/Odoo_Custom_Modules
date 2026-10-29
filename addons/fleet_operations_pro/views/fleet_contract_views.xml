@@ -15,7 +15,7 @@
             </p>
             <p>
                 Manage insurance policies, leases, rental agreements and service
-                contracts with their costs and renewal dates.
+                contracts with their renewal dates.
             </p>
         </field>
     </record>
@@ -38,11 +38,7 @@
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="days_until_expiry" invisible="1"/>
-                <field name="cost" widget="monetary" optional="show" sum="Total"/>
-                <field name="recurring_cost" widget="monetary" optional="hide"/>
-                <field name="cost_frequency" optional="hide"/>
                 <field name="state" widget="badge"/>
-                <field name="currency_id" column_invisible="1"/>
             </list>
         </field>
     </record>
@@ -84,11 +80,7 @@
                         </group>
                     </group>
                     <group>
-                        <group name="cost_info" string="Cost">
-                            <field name="cost" widget="monetary"/>
-                            <field name="recurring_cost" widget="monetary"/>
-                            <field name="cost_frequency"/>
-                            <field name="currency_id" invisible="1"/>
+                        <group name="company_info" string="Company">
                             <field name="company_id" options="{'no_create': True}"
                                    groups="base.group_multi_company"/>
                         </group>
@@ -166,7 +158,7 @@
             </p>
             <p>
                 Track one-off services performed on your vehicles with their
-                cost, provider and odometer reading.
+                provider and odometer reading.
             </p>
         </field>
     </record>
@@ -183,11 +175,9 @@
                 <field name="service_type_id"/>
                 <field name="description" optional="hide"/>
                 <field name="service_provider" optional="show"/>
-                <field name="cost" widget="monetary" sum="Total"/>
                 <field name="odometer" widget="integer" optional="show"/>
                 <field name="contract_id" optional="show"/>
                 <field name="company_id" column_invisible="1"/>
-                <field name="currency_id" column_invisible="1"/>
             </list>
         </field>
     </record>
@@ -211,9 +201,7 @@
                             <field name="date"/>
                             <field name="service_provider" placeholder="Workshop or vendor..."/>
                         </group>
-                        <group name="cost_info" string="Cost">
-                            <field name="cost" widget="monetary"/>
-                            <field name="currency_id" invisible="1"/>
+                        <group name="service_details" string="Service Details">
                             <field name="odometer" widget="integer"/>
                             <field name="contract_id" options="{'no_create': True}"/>
                             <field name="company_id" options="{'no_create': True}"

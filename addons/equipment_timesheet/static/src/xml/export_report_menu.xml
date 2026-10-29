@@ -3,7 +3,7 @@
 
     <t t-name="equipment_timesheet.ExportReportMenu">
         <DropdownItem class="'o_equipment_timesheet_export_menu'" onSelected.bind="exportReport">
-            <i class="fa fa-fw fa-cog me-1 text-primary"/>Export Report
+            <i class="fa fa-fw fa-cog me-1"/>Export Report
         </DropdownItem>
     </t>
 

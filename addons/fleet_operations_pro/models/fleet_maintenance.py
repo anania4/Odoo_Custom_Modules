@@ -55,22 +55,6 @@ class FleetMaintenance(models.Model):
         help='Vehicle odometer reading at time of maintenance'
     )
     
-    # Financial
-    cost = fields.Monetary(
-        string='Cost',
-        required=True,
-        currency_field='currency_id',
-        tracking=True,
-        help='Total cost of maintenance'
-    )
-    
-    currency_id = fields.Many2one(
-        'res.currency',
-        string='Currency',
-        default=lambda self: self.env.company.currency_id,
-        required=True
-    )
-    
     # Service Provider
     service_provider = fields.Char(
         string='Service Provider',
@@ -149,7 +133,6 @@ class FleetMaintenance(models.Model):
     )
     
     _sql_constraints = [
-        ('cost_positive', 'CHECK(cost >= 0)', 'Cost must be positive!'),
         ('odometer_positive', 'CHECK(odometer >= 0)', 'Odometer must be positive!'),
     ]
     

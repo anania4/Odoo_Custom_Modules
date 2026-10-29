@@ -20,13 +20,6 @@
               action="action_client_fleet_dashboard"
               sequence="1"/>
     
-    <!-- Fleet Requests Menu Item -->
-    <menuitem id="menu_fleet_request"
-              name="Fleet Requests"
-              parent="menu_fleet_root"
-              action="action_fleet_request"
-              sequence="2"/>
-    
     <!-- Vehicles Menu Item -->
     <menuitem id="menu_fleet_vehicle"
               name="Vehicles"
@@ -35,11 +28,7 @@
               sequence="10"/>
     
     <!-- Driver Assignments Menu Item -->
-    <menuitem id="menu_fleet_driver_assignment"
-              name="Driver Assignments"
-              parent="menu_fleet_operations"
-              action="action_fleet_driver_assignment"
-              sequence="30"/>
+    <!-- Driver Assignments managed from Vehicle page -->
     
     <!-- Fuel Logs Menu Item -->
     <menuitem id="menu_fleet_fuel_log"
@@ -47,34 +36,6 @@
               parent="menu_fleet_operations"
               action="action_fleet_fuel_log"
               sequence="40"/>
-    
-    <!-- Maintenance Menu Item -->
-    <menuitem id="menu_fleet_maintenance"
-              name="Maintenance"
-              parent="menu_fleet_operations"
-              action="action_fleet_maintenance"
-              sequence="50"/>
-    
-    <!-- Contracts Menu Item -->
-    <menuitem id="menu_fleet_contract"
-              name="Contracts"
-              parent="menu_fleet_operations"
-              action="action_fleet_contract"
-              sequence="60"/>
-    
-    <!-- Services Menu Item -->
-    <menuitem id="menu_fleet_service"
-              name="Services"
-              parent="menu_fleet_operations"
-              action="action_fleet_service"
-              sequence="65"/>
-    
-    <!-- Toll Records Menu Item -->
-    <menuitem id="menu_fleet_toll_record"
-              name="Toll Records"
-              parent="menu_fleet_operations"
-              action="action_fleet_toll_record"
-              sequence="90"/>
     
     <!-- Configuration Menu -->
     <menuitem id="menu_fleet_configuration"
@@ -127,12 +88,28 @@
               action="action_fleet_fuel_type"
               sequence="30"/>
     
-    <!-- Maintenance Types -->
-    <menuitem id="menu_fleet_maintenance_type"
-              name="Maintenance Types"
-              parent="menu_fleet_config_settings"
-              action="action_fleet_maintenance_type"
-              sequence="40"/>
+    <!-- Maintenance Types - removed -->
+    
+    <!-- Contracts Menu Item -->
+    <menuitem id="menu_fleet_contract"
+              name="Contracts"
+              parent="menu_fleet_operations"
+              action="action_fleet_contract"
+              sequence="60"/>
+    
+    <!-- Services Menu Item -->
+    <menuitem id="menu_fleet_service"
+              name="Services"
+              parent="menu_fleet_operations"
+              action="action_fleet_service"
+              sequence="65"/>
+    
+    <!-- Toll Records Menu Item -->
+    <menuitem id="menu_fleet_toll_record"
+              name="Toll Records"
+              parent="menu_fleet_operations"
+              action="action_fleet_toll_record"
+              sequence="90"/>
     
     <!-- Toll Locations -->
     <menuitem id="menu_fleet_toll_location"

@@ -50,7 +50,6 @@ This module is standalone and does not depend on Odoo's base fleet module.
 
         'views/toll_views.xml',
         'views/trip_views.xml',
-        'views/fleet_request_views.xml',
         'views/vehicle_views.xml',
         'views/fleet_dashboard_views.xml',
         'views/fleet_menu_views.xml',

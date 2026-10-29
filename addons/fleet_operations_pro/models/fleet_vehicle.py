@@ -128,22 +128,10 @@ class FleetVehicle(models.Model):
         tracking=True,
         help='Date when vehicle was acquired'
     )
-    acquisition_cost = fields.Monetary(
-        string='Acquisition Cost',
-        currency_field='currency_id',
-        tracking=True,
-        help='Purchase price of the vehicle'
-    )
     disposal_date = fields.Date(
         string='Disposal Date',
         tracking=True,
         help='Date when vehicle was disposed/sold'
-    )
-    disposal_value = fields.Monetary(
-        string='Disposal Value',
-        currency_field='currency_id',
-        tracking=True,
-        help='Sale/disposal value of the vehicle'
     )
     
     # Odometer
@@ -184,22 +172,6 @@ class FleetVehicle(models.Model):
         help='Additional information about the vehicle'
     )
     
-    # Computed Fields
-    total_cost = fields.Monetary(
-        string='Total Cost',
-        compute='_compute_total_cost',
-        store=False,
-        currency_field='currency_id',
-        help='Total costs incurred for this vehicle'
-    )
-    cost_per_km = fields.Monetary(
-        string='Cost per KM',
-        compute='_compute_cost_per_km',
-        store=False,
-        currency_field='currency_id',
-        help='Average cost per kilometer'
-    )
-    
     # Driver Assignment (Phase 1B)
     driver_assignment_ids = fields.One2many(
         'fleet.driver.assignment',
@@ -211,6 +183,7 @@ class FleetVehicle(models.Model):
         'hr.employee',
         string='Current Driver',
         compute='_compute_current_driver',
+        inverse='_inverse_current_driver',
         store=False,
         help='Currently assigned driver (employee)'
     )
@@ -253,15 +226,7 @@ class FleetVehicle(models.Model):
         store=False,
         help='Date of last maintenance'
     )
-    total_maintenance_cost = fields.Monetary(
-        string='Total Maintenance Cost',
-        compute='_compute_total_maintenance_cost',
-        store=False,
-        currency_field='currency_id',
-        help='Total cost of all maintenance'
-    )
-    
-        # Toll Management (Phase 2C)
+    # Toll Management (Phase 2C)
     toll_record_ids = fields.One2many(
         'fleet.toll.record',
         'vehicle_id',
@@ -274,14 +239,6 @@ class FleetVehicle(models.Model):
         store=False,
         help='Number of toll records'
     )
-    total_toll_cost = fields.Monetary(
-        string='Total Toll Cost',
-        compute='_compute_total_toll_cost',
-        store=False,
-        currency_field='currency_id',
-        help='Total toll expenses for this vehicle'
-    )
-    
     # Trip Management (Phase 2D)
     trip_ids = fields.One2many(
         'fleet.trip',
@@ -300,20 +257,6 @@ class FleetVehicle(models.Model):
         compute='_compute_total_distance',
         store=False,
         help='Total distance from all trips'
-    )
-    
-        # Fleet Requests (accepted by this vehicle)
-    request_ids = fields.One2many(
-        'fleet.request',
-        'vehicle_id',
-        string='Accepted Fleet Requests',
-        help='Fleet requests this vehicle accepted (driver assigned)'
-    )
-    accepted_request_count = fields.Integer(
-        string='Accepted Requests',
-        compute='_compute_accepted_request_count',
-        store=False,
-        help='Number of fleet requests accepted by this vehicle'
     )
     
     _sql_constraints = [
@@ -352,19 +295,6 @@ class FleetVehicle(models.Model):
             else:
                 vehicle.fuel_percentage = 0.0
     
-    def _compute_total_cost(self):
-        """Compute total costs - will be implemented in Phase 1E"""
-        for vehicle in self:
-            vehicle.total_cost = 0.0
-    
-    def _compute_cost_per_km(self):
-        """Compute cost per kilometer"""
-        for vehicle in self:
-            if vehicle.odometer > 0 and vehicle.total_cost > 0:
-                vehicle.cost_per_km = vehicle.total_cost / vehicle.odometer
-            else:
-                vehicle.cost_per_km = 0.0
-    
     def _compute_current_driver(self):
         """Get currently assigned driver"""
         for vehicle in self:
@@ -377,6 +307,46 @@ class FleetVehicle(models.Model):
             ], limit=1, order='date_start desc')
             
             vehicle.current_driver_id = current_assignment.employee_id.id if current_assignment else False
+
+    def _inverse_current_driver(self):
+        """Create/update driver assignment when current driver is set on vehicle"""
+        for vehicle in self:
+            if not vehicle.current_driver_id:
+                # End current active assignment if exists
+                current_assignment = self.env['fleet.driver.assignment'].search([
+                    ('vehicle_id', '=', vehicle.id),
+                    ('date_end', '=', False),
+                ], limit=1)
+                if current_assignment:
+                    current_assignment.write({'date_end': fields.Date.today()})
+                continue
+
+            # Check if there's already an active assignment for this driver/vehicle
+            current_assignment = self.env['fleet.driver.assignment'].search([
+                ('vehicle_id', '=', vehicle.id),
+                ('employee_id', '=', vehicle.current_driver_id.id),
+                ('date_end', '=', False),
+            ], limit=1)
+
+            if current_assignment:
+                continue
+
+            # End any other active assignment on this vehicle
+            other_active = self.env['fleet.driver.assignment'].search([
+                ('vehicle_id', '=', vehicle.id),
+                ('date_end', '=', False),
+                ('employee_id', '!=', vehicle.current_driver_id.id),
+            ])
+            if other_active:
+                other_active.write({'date_end': fields.Date.today()})
+
+            # Create new assignment
+            self.env['fleet.driver.assignment'].create({
+                'vehicle_id': vehicle.id,
+                'employee_id': vehicle.current_driver_id.id,
+                'date_start': fields.Date.today(),
+                'odometer_start': vehicle.odometer or 0.0,
+            })
     
     def _compute_fuel_log_count(self):
         """Count fuel log entries"""
@@ -435,24 +405,12 @@ class FleetVehicle(models.Model):
             ], limit=1, order='date desc')
             vehicle.last_maintenance_date = last_maintenance.date if last_maintenance else False
     
-    def _compute_total_maintenance_cost(self):
-        """Calculate total maintenance cost"""
-        for vehicle in self:
-            completed_maintenance = vehicle.maintenance_ids.filtered(lambda m: m.state == 'completed')
-            vehicle.total_maintenance_cost = sum(completed_maintenance.mapped('cost'))
-    
     # Toll Compute Methods (Phase 2C)
     @api.depends('toll_record_ids')
     def _compute_toll_count(self):
         """Count toll records"""
         for vehicle in self:
             vehicle.toll_count = len(vehicle.toll_record_ids)
-    
-    @api.depends('toll_record_ids', 'toll_record_ids.amount')
-    def _compute_total_toll_cost(self):
-        """Calculate total toll cost"""
-        for vehicle in self:
-            vehicle.total_toll_cost = sum(vehicle.toll_record_ids.mapped('amount'))
     
     # Trip Compute Methods (Phase 2D)
     @api.depends('trip_ids')
@@ -466,15 +424,6 @@ class FleetVehicle(models.Model):
         """Calculate total distance from trips"""
         for vehicle in self:
             vehicle.total_distance = sum(vehicle.trip_ids.mapped('distance'))
-    
-    # Fleet Requests Compute Methods
-    def _compute_accepted_request_count(self):
-        """Count fleet requests accepted (assigned) by this vehicle"""
-        for vehicle in self:
-            vehicle.accepted_request_count = self.env['fleet.request'].search_count([
-                ('vehicle_id', '=', vehicle.id),
-                ('state', '=', 'assigned'),
-            ])
     
     @api.constrains('model_year')
     def _check_model_year(self):
