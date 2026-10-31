@@ -199,7 +199,7 @@ class FleetMaintenance(models.Model):
                 
                 # Update vehicle status to "In Maintenance" if maintenance is in progress
                 if maintenance.state == 'in_progress':
-                    maintenance.vehicle_id.write({'state': 'in_maintenance'})
+                    maintenance.vehicle_id._set_status_code('in_maintenance')
         return maintenances
     
     def write(self, vals):
@@ -210,11 +210,11 @@ class FleetMaintenance(models.Model):
             for maintenance in self:
                 if vals['state'] == 'in_progress':
                     # Set vehicle to "In Maintenance"
-                    maintenance.vehicle_id.write({'state': 'in_maintenance'})
+                    maintenance.vehicle_id._set_status_code('in_maintenance')
                 elif vals['state'] == 'completed':
                     # Set vehicle back to "Available" if it was in maintenance
-                    if maintenance.vehicle_id.state == 'in_maintenance':
-                        maintenance.vehicle_id.write({'state': 'available'})
+                    if maintenance.vehicle_id.status_code == 'in_maintenance':
+                        maintenance.vehicle_id._set_status_code('available')
                     # Set completion date if not set
                     if not maintenance.completion_date:
                         maintenance.write({'completion_date': fields.Date.today()})
@@ -258,7 +258,7 @@ class FleetMaintenance(models.Model):
         
         self.write({'state': 'cancelled'})
         # Set vehicle back to available if it was in maintenance
-        if self.vehicle_id.state == 'in_maintenance':
-            self.vehicle_id.write({'state': 'available'})
+        if self.vehicle_id.status_code == 'in_maintenance':
+            self.vehicle_id._set_status_code('available')
         return True
 

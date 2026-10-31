@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Fleet Operations Pro',
-    'version': '18.0.0.0.1',
+    'version': '18.0.0.0.7',
     'category': 'Operations/Fleet',
     'summary': 'Comprehensive Fleet Management System',
     'description': """
@@ -14,9 +14,9 @@ Features:
 - Driver Management via HR Employees with vehicle assignments
 - Fuel Management with consumption tracking
 - Maintenance Management with service history
-- Contract Management (insurance policies, leases, rental agreements) with expiry tracking
+- Contract Management (insurance policies, leases, service contracts) with payments and expiry reminders
 - Service Management
-- Toll Management
+- Toll Records
 - Trip Management
 - Driver Assignments
 - Vehicle Analysis Reporting
@@ -40,19 +40,21 @@ This module is standalone and does not depend on Odoo's base fleet module.
         'data/vehicle_status_data.xml',
         'data/fuel_type_data.xml',
         'data/maintenance_type_data.xml',
+        'data/contract_type_data.xml',
+        'data/fleet_cron.xml',
 
         'views/driver_views.xml',
         'views/fuel_log_views.xml',
         'views/maintenance_views.xml',
         'views/fleet_contract_views.xml',
 
-        'wizard/fleet_fuel_log_wizard_views.xml',
 
         'views/toll_views.xml',
         'views/trip_views.xml',
         'views/vehicle_views.xml',
         'views/fleet_dashboard_views.xml',
         'views/fleet_menu_views.xml',
+        'views/vehicle_config_views.xml',
         'report/fleet_report_views.xml',
     ],
     'demo': [],

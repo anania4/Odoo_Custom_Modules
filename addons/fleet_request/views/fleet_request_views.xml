@@ -166,6 +166,8 @@
                         domain="[('employee_id.user_id', '=', uid)]"/>
 
                 <separator/>
+                <filter name="pending" string="Pending Approval / Assignment" domain="[('state', 'in', ('submitted', 'dept_approved', 'fleet_approved'))]"/>
+                <separator/>
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
                 <filter name="dept_approved" string="Department Manager Approved" domain="[('state', '=', 'dept_approved')]"/>
@@ -174,8 +176,7 @@
                 <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
 
                 <separator/>
-                <filter name="this_month" string="This Month"
-                        domain="[('request_date', '&gt;=', context_today().strftime('%Y-%m-01')), ('request_date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_request_date" string="Date of Request" date="request_date"/>
 
                 <group expand="0" string="Group By">
                     <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
@@ -183,7 +184,7 @@
                     <filter name="group_driver" string="Driver" context="{'group_by': 'driver_id'}"/>
                     <filter name="group_vehicle" string="Vehicle" context="{'group_by': 'vehicle_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_request_date" string="Date of Request" context="{'group_by': 'request_date'}"/>
+                    <filter name="group_request_date" string="Date of Request" context="{'group_by': 'request_date:month'}"/>
                 </group>
             </search>
         </field>

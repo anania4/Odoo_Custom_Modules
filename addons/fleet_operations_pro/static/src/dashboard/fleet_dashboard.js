@@ -100,7 +100,7 @@ export class FleetDashboard extends Component {
             type: 'ir.actions.act_window',
             name: name,
             res_model: resModel,
-            view_mode: 'list,form',
+            views: [[false, 'list'], [false, 'form']],
             target: 'current',
         };
         if (domain) {
@@ -109,35 +109,53 @@ export class FleetDashboard extends Component {
         this.action.doAction(action);
     }
     
-    openRequests() {
-        this.action.doAction({
-            type: 'ir.actions.act_window',
-            name: 'Fleet Requests',
-            res_model: 'fleet.request',
-            view_mode: 'list,form',
-            target: 'current',
-        });
+    openAvailableVehicles() {
+        this.openAction('fleet.vehicle', [['status_code', '=', 'available']], 'Available Vehicles');
     }
-    
-    openContracts() {
-        this.action.doAction({
-            type: 'ir.actions.act_window',
-            name: 'Contracts',
-            res_model: 'fleet.contract',
-            view_mode: 'list,form',
-            domain: [['active', '=', true]],
-            target: 'current',
-        });
+
+    openAllVehicles() {
+        this.openAction('fleet.vehicle', [], 'Vehicles');
     }
-    
-    openUpcomingServices() {
-        const today = new Date().toISOString().slice(0, 10);
+
+    openOpenServices() {
+        this.openAction('fleet.service', [['state', 'in', ['new', 'running']]], 'Open Services');
+    }
+
+    openVehiclesDueByKm() {
+        const ids = this.state.data?.cards?.services?.due_by_km_vehicle_ids || [];
+        this.openAction('fleet.vehicle', [['id', 'in', ids]], 'Vehicles Due for Service (km)');
+    }
+
+    openContractsAttention() {
+        const ids = this.state.data?.cards?.contracts?.attention_ids || [];
+        this.openAction('fleet.contract', [['id', 'in', ids]], 'Contracts Needing Attention');
+    }
+
+    openPendingRequests() {
+        if (!this.state.data?.cards?.requests?.allowed) {
+            return;
+        }
+        this.openAction(
+            'fleet.request',
+            [['state', 'in', ['submitted', 'dept_approved', 'fleet_approved']]],
+            'Pending Fleet Requests'
+        );
+    }
+
+    openPendingFuelRequests() {
+        this.openAction(
+            'fleet.fuel.request',
+            [['state', 'in', ['submitted', 'approved']]],
+            'Pending Fuel Requests'
+        );
+    }
+
+    openRecord(resModel, resId) {
         this.action.doAction({
             type: 'ir.actions.act_window',
-            name: 'Upcoming Services',
-            res_model: 'fleet.service',
-            view_mode: 'list,form',
-            domain: [['date', '>=', today]],
+            res_model: resModel,
+            res_id: resId,
+            views: [[false, 'form']],
             target: 'current',
         });
     }

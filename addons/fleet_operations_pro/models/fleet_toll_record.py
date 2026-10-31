@@ -43,19 +43,6 @@ class FleetTollRecord(models.Model):
         help='Date when toll was paid'
     )
     
-    toll_location_id = fields.Many2one(
-        'fleet.toll.location',
-        string='Toll Location',
-        required=True,
-        tracking=True,
-        help='Toll location/plaza'
-    )
-    
-    location_description = fields.Char(
-        string='Location Details',
-        help='Additional location details if needed'
-    )
-    
     # Odometer
     odometer = fields.Float(
         string='Odometer (km)',
@@ -100,12 +87,12 @@ class FleetTollRecord(models.Model):
     ]
     
     # Compute Methods
-    @api.depends('vehicle_id', 'toll_location_id', 'date')
+    @api.depends('vehicle_id', 'vehicle_id.license_plate', 'date')
     def _compute_name(self):
         """Generate reference name"""
         for record in self:
-            if record.vehicle_id and record.toll_location_id:
-                record.name = f"{record.vehicle_id.license_plate} - {record.toll_location_id.name} ({record.date})"
+            if record.vehicle_id:
+                record.name = f"{record.vehicle_id.license_plate} ({record.date})"
             else:
                 record.name = f"Toll Record {record.id or 'New'}"
     

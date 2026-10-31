@@ -195,8 +195,8 @@ class FleetFuelLog(models.Model):
         if self.vehicle_id:
             self.odometer = self.vehicle_id.odometer
             # Set current driver if available
-            if self.vehicle_id.current_driver_id:
-                self.driver_id = self.vehicle_id.current_driver_id
+            if self.vehicle_id.driver_id:
+                self.driver_id = self.vehicle_id.driver_id
     
     @api.constrains('odometer', 'vehicle_id')
     def _check_odometer(self):

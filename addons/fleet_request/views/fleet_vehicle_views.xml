@@ -9,6 +9,7 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="%(action_fleet_request_accepted_vehicle)d"
+                        groups="fleet_operations_pro.group_fleet_user"
                         type="action"
                         class="oe_stat_button"
                         icon="fa-clipboard-list">

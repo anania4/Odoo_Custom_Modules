@@ -25,6 +25,22 @@
                     </h2>
                 </div>
             </xpath>
+            <field name="equipment_id" position="before">
+                <field name="asset_type" widget="radio" options="{'horizontal': true}" />
+            </field>
+            <field name="equipment_id" position="attributes">
+                <attribute name="invisible">asset_type != 'machinery'</attribute>
+                <attribute name="required">asset_type == 'machinery'</attribute>
+                <attribute name="string">Machinery</attribute>
+            </field>
+            <field name="equipment_id" position="after">
+                <field
+                    name="vehicle_id"
+                    invisible="asset_type != 'vehicle'"
+                    required="asset_type == 'vehicle'"
+                    options="{'no_create': True}"
+                />
+            </field>
         </field>
     </record>
     <record model="ir.ui.view" id="hr_equipment_request_view_search">
@@ -37,6 +53,36 @@
             <field name="name" position="before">
                 <field name="code" />
             </field>
+            <field name="equipment_id" position="after">
+                <field name="vehicle_id" />
+            </field>
+            <filter name="done" position="after">
+                <separator />
+                <filter
+                    string="Machinery"
+                    name="filter_machinery"
+                    domain="[('asset_type', '=', 'machinery')]"
+                />
+                <filter
+                    string="Vehicles"
+                    name="filter_vehicle"
+                    domain="[('asset_type', '=', 'vehicle')]"
+                />
+            </filter>
+            <xpath expr="//search" position="inside">
+                <group expand="0" string="Group By">
+                    <filter
+                        string="Asset Type"
+                        name="group_asset_type"
+                        context="{'group_by': 'asset_type'}"
+                    />
+                    <filter
+                        string="Vehicle"
+                        name="group_vehicle"
+                        context="{'group_by': 'vehicle_id'}"
+                    />
+                </group>
+            </xpath>
         </field>
     </record>
     <record model="ir.ui.view" id="hr_equipment_request_view_tree">
@@ -48,6 +94,10 @@
         <field name="arch" type="xml">
             <field name="name" position="before">
                 <field name="code" optional="show" />
+            </field>
+            <field name="name" position="after">
+                <field name="asset_type" optional="show" />
+                <field name="vehicle_id" optional="show" />
             </field>
         </field>
     </record>
@@ -61,6 +111,9 @@
             <field name="name" position="after">
                 <span class="text-muted">
                     <field name="code" />
+                </span>
+                <span t-if="record.vehicle_id.raw_value">
+                    Vehicle: <field name="vehicle_id" />
                 </span>
             </field>
         </field>

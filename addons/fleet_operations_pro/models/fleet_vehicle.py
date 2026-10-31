@@ -9,7 +9,10 @@ class FleetVehicle(models.Model):
     _name = 'fleet.vehicle'
     _description = 'Fleet Vehicle'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'name, license_plate'
+    _order = 'license_plate'
+    # Vehicles are referred to by their plate number everywhere
+    _rec_name = 'license_plate'
+    _rec_names_search = ['license_plate', 'name', 'previous_plate_no', 'chassis_no']
 
     # Basic Information
     image = fields.Image(
@@ -19,7 +22,7 @@ class FleetVehicle(models.Model):
         help='Vehicle photo'
     )
     name = fields.Char(
-        string='Vehicle Name',
+        string='Car Name',
         required=True,
         tracking=True,
         help='Vehicle reference name'
@@ -30,29 +33,27 @@ class FleetVehicle(models.Model):
         tracking=True,
         help='Vehicle registration plate number'
     )
-    vin_sn = fields.Char(
-        string='VIN/Chassis Number',
+
+    # Identification
+    previous_plate_no = fields.Char(
+        string='Previous Plate No',
         tracking=True,
-        help='Vehicle Identification Number or Chassis Number'
+        help='Plate number previously registered for this vehicle'
     )
-    
-    # Vehicle Details
-    category_id = fields.Many2one(
-        'fleet.vehicle.category',
-        string='Category',
-        required=True,
+    chassis_no = fields.Char(
+        string='Chassis No',
         tracking=True,
-        help='Vehicle category (Car, Truck, Bus, etc.)'
+        help='Vehicle Identification Number (VIN) / Chassis Number'
     )
-    brand = fields.Char(
-        string='Brand/Make',
-        tracking=True,
-        help='Vehicle manufacturer brand'
+    engine_no = fields.Char(
+        string='Engine No',
+        tracking=True
     )
-    model = fields.Char(
+    model_id = fields.Many2one(
+        'fleet.vehicle.model',
         string='Model',
         tracking=True,
-        help='Vehicle model'
+        help='Vehicle model (configured in Configuration > Vehicle Models)'
     )
     model_year = fields.Integer(
         string='Model Year',
@@ -63,11 +64,56 @@ class FleetVehicle(models.Model):
         string='Color',
         tracking=True
     )
-    
+
+    # Registration & Service
+    permitted_work_service = fields.Char(
+        string='Permitted Work Service',
+        tracking=True,
+        help='Work/service the vehicle is permitted (licensed) for'
+    )
+    body_type = fields.Char(
+        string='Body Type',
+        tracking=True
+    )
+    category_id = fields.Many2one(
+        'fleet.vehicle.category',
+        string='Category',
+        required=True,
+        tracking=True,
+        help='Vehicle category (Car, Truck, Bus, etc.)'
+    )
+    tag_ids = fields.Many2many(
+        'fleet.vehicle.tag',
+        'fleet_vehicle_tag_rel',
+        'vehicle_id',
+        'tag_id',
+        string='Tags'
+    )
+
+    # Assignment & Acquisition
+    manager_id = fields.Many2one(
+        'res.users',
+        string='Manager',
+        tracking=True,
+        help='User responsible for this vehicle'
+    )
+    acquisition_cost = fields.Monetary(
+        string='Acquisition Cost',
+        currency_field='currency_id',
+        tracking=True
+    )
+
     # Engine & Fuel
-    engine_type = fields.Char(
-        string='Engine Type',
-        help='Engine specifications'
+    engine_capacity = fields.Integer(
+        string='Engine Capacity (CC)',
+        help='Motor power in cubic centimetres'
+    )
+    horsepower = fields.Integer(
+        string='Horsepower',
+        help='Motor horse power'
+    )
+    cylinders = fields.Integer(
+        string='No. of Cylinders'
     )
     fuel_type_id = fields.Many2one(
         'fleet.fuel.type',
@@ -99,23 +145,16 @@ class FleetVehicle(models.Model):
         string='Status',
         required=True,
         tracking=True,
+        default=lambda self: self._default_status_id(),
         group_expand='_read_group_status_ids',
-        help='Current vehicle status'
+        help='Current vehicle status (configured in Configuration > Vehicle Statuses)'
     )
-    state = fields.Selection(
-        [
-            ('available', 'Available'),
-            ('rented', 'Rented'),
-            ('in_maintenance', 'In Maintenance'),
-            ('out_of_service', 'Out of Service'),
-            ('sold', 'Sold'),
-            ('disposed', 'Disposed'),
-        ],
-        string='State',
-        default='available',
-        required=True,
-        tracking=True,
-        help='Vehicle operational state'
+    status_code = fields.Char(
+        related='status_id.code',
+        store=True,
+        index=True,
+        string='Status Code',
+        help='Technical code of the status (available, in_maintenance...) used by the dashboard and workflows'
     )
     active = fields.Boolean(
         string='Active',
@@ -137,7 +176,7 @@ class FleetVehicle(models.Model):
     
     # Odometer
     odometer = fields.Float(
-        string='Last Odometer (km)',
+        string='Odometer (km)',
         tracking=True,
         help='Last recorded odometer reading in kilometers'
     )
@@ -160,14 +199,82 @@ class FleetVehicle(models.Model):
         required=True
     )
     
-    # Additional Information
+    # Capacity & Weight
     seats = fields.Integer(
-        string='Number of Seats',
+        string='Seats',
         help='Passenger capacity'
     )
     doors = fields.Integer(
-        string='Number of Doors'
+        string='Doors'
     )
+    axles_front = fields.Integer(
+        string='Front Axles'
+    )
+    axles_back = fields.Integer(
+        string='Back Axles'
+    )
+    general_weight_load = fields.Float(
+        string='General Weight Load'
+    )
+    single_weight_load = fields.Float(
+        string='Single Weight Load'
+    )
+    extra_carry_weight = fields.Float(
+        string='Extra Carry Weight'
+    )
+
+    # Ownership
+    ownership_type = fields.Selection(
+        [
+            ('owned', 'Owned'),
+            ('rented', 'Rented'),
+        ],
+        string='Ownership Type',
+        default='owned',
+        required=True,
+        tracking=True
+    )
+    rental_vendor_id = fields.Many2one(
+        'res.partner',
+        string='Rental Vendor / Owner',
+        tracking=True,
+        help='Company or person the vehicle is rented from'
+    )
+    vendor_contact_phone = fields.Char(
+        string='Vendor Contact Phone',
+        compute='_compute_vendor_contact_phone',
+        store=True,
+        readonly=False
+    )
+
+    # Rental Terms (only when rented)
+    rental_start_date = fields.Date(
+        string='Rental Start Date',
+        tracking=True
+    )
+    rental_end_date = fields.Date(
+        string='Rental End Date',
+        tracking=True
+    )
+    rental_cost = fields.Monetary(
+        string='Rental Cost',
+        currency_field='currency_id',
+        tracking=True
+    )
+    rental_frequency = fields.Selection(
+        [
+            ('daily', 'Daily'),
+            ('monthly', 'Monthly'),
+            ('yearly', 'Yearly'),
+        ],
+        string='Rental Frequency',
+        tracking=True
+    )
+    rental_contract_ref = fields.Char(
+        string='Rental Contract Reference',
+        tracking=True
+    )
+
     notes = fields.Text(
         string='Notes',
         help='Additional information about the vehicle'
@@ -180,11 +287,12 @@ class FleetVehicle(models.Model):
         string='Driver Assignments',
         help='History of driver assignments'
     )
-    current_driver_id = fields.Many2one(
+    driver_id = fields.Many2one(
         'hr.employee',
-        string='Current Driver',
+        string='Driver',
         compute='_compute_current_driver',
         inverse='_inverse_current_driver',
+        search='_search_driver_id',
         store=False,
         help='Currently assigned driver (employee)'
     )
@@ -262,11 +370,35 @@ class FleetVehicle(models.Model):
     
     _sql_constraints = [
         ('license_plate_unique', 'unique(license_plate)', 'License plate must be unique!'),
-        ('vin_sn_unique', 'unique(vin_sn)', 'VIN/Chassis number must be unique!'),
+        ('chassis_no_unique', 'unique(chassis_no)', 'Chassis number must be unique!'),
         ('fuel_tank_capacity_positive', 'CHECK(fuel_tank_capacity >= 0)', 'Fuel tank capacity must be positive!'),
         ('odometer_positive', 'CHECK(odometer >= 0)', 'Odometer reading must be positive!'),
     ]
     
+    @api.depends('rental_vendor_id')
+    def _compute_vendor_contact_phone(self):
+        for vehicle in self:
+            vehicle.vendor_contact_phone = vehicle.rental_vendor_id.phone or vehicle.rental_vendor_id.mobile or False
+
+    @api.constrains('rental_start_date', 'rental_end_date')
+    def _check_rental_dates(self):
+        for vehicle in self:
+            if vehicle.rental_start_date and vehicle.rental_end_date \
+                    and vehicle.rental_end_date < vehicle.rental_start_date:
+                raise ValidationError(_('Rental end date cannot be before rental start date'))
+
+    @api.model
+    def _default_status_id(self):
+        """New vehicles start in the status with code 'available' (or the first status)"""
+        Status = self.env['fleet.vehicle.status']
+        return Status.search([('code', '=', 'available')], limit=1) or Status.search([], limit=1)
+
+    def _set_status_code(self, code):
+        """Move vehicles to the status with the given code, if such a status exists"""
+        status = self.env['fleet.vehicle.status'].search([('code', '=', code)], limit=1)
+        if status:
+            self.filtered(lambda v: v.status_id != status).write({'status_id': status.id})
+
     @api.model
     def _read_group_status_ids(self, statuses, domain):
         """Show all active vehicle statuses as kanban columns, including empty ones."""
@@ -312,12 +444,25 @@ class FleetVehicle(models.Model):
                 ('date_end', '>=', fields.Date.today()),
             ], limit=1, order='date_start desc')
             
-            vehicle.current_driver_id = current_assignment.employee_id.id if current_assignment else False
+            vehicle.driver_id = current_assignment.employee_id.id if current_assignment else False
+
+    def _search_driver_id(self, operator, value):
+        """Allow searching/filtering vehicles by their current driver"""
+        today = fields.Date.today()
+        current = self.env['fleet.driver.assignment'].search([
+            ('date_start', '<=', today),
+            '|', ('date_end', '=', False), ('date_end', '>=', today),
+        ])
+        if value is False or value is None:
+            # "Driver is set" / "Driver is not set"
+            return [('id', 'not in' if operator == '=' else 'in', current.vehicle_id.ids)]
+        matching = current.filtered_domain([('employee_id', operator, value)])
+        return [('id', 'in', matching.vehicle_id.ids)]
 
     def _inverse_current_driver(self):
         """Create/update driver assignment when current driver is set on vehicle"""
         for vehicle in self:
-            if not vehicle.current_driver_id:
+            if not vehicle.driver_id:
                 # End current active assignment if exists
                 current_assignment = self.env['fleet.driver.assignment'].search([
                     ('vehicle_id', '=', vehicle.id),
@@ -330,7 +475,7 @@ class FleetVehicle(models.Model):
             # Check if there's already an active assignment for this driver/vehicle
             current_assignment = self.env['fleet.driver.assignment'].search([
                 ('vehicle_id', '=', vehicle.id),
-                ('employee_id', '=', vehicle.current_driver_id.id),
+                ('employee_id', '=', vehicle.driver_id.id),
                 ('date_end', '=', False),
             ], limit=1)
 
@@ -341,7 +486,7 @@ class FleetVehicle(models.Model):
             other_active = self.env['fleet.driver.assignment'].search([
                 ('vehicle_id', '=', vehicle.id),
                 ('date_end', '=', False),
-                ('employee_id', '!=', vehicle.current_driver_id.id),
+                ('employee_id', '!=', vehicle.driver_id.id),
             ])
             if other_active:
                 other_active.write({'date_end': fields.Date.today()})
@@ -349,7 +494,7 @@ class FleetVehicle(models.Model):
             # Create new assignment
             self.env['fleet.driver.assignment'].create({
                 'vehicle_id': vehicle.id,
-                'employee_id': vehicle.current_driver_id.id,
+                'employee_id': vehicle.driver_id.id,
                 'date_start': fields.Date.today(),
                 'odometer_start': vehicle.odometer or 0.0,
             })
@@ -479,7 +624,7 @@ class FleetVehicle(models.Model):
         self.ensure_one()
         
         # Check if vehicle is in suitable status
-        if self.state not in ['available']:
+        if self.status_code != 'available':
             return (False, None, 'status')
         
         # Check for scheduled maintenance
@@ -495,36 +640,9 @@ class FleetVehicle(models.Model):
         
         return (True, None, None)
     
-    def action_update_odometer(self):
-        """Action to update odometer reading"""
-        self.ensure_one()
-        return {
-            'name': _('Update Odometer'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'fleet.vehicle',
-            'view_mode': 'form',
-            'res_id': self.id,
-            'target': 'new',
-            'context': {'form_view_initial_mode': 'edit'},
-        }
-    
-    def name_get(self):
-        """Custom name display"""
-        result = []
+    @api.depends('license_plate')
+    def _compute_display_name(self):
+        """Refer to vehicles by their plate number across all fleet modules"""
         for vehicle in self:
-            name = f"[{vehicle.license_plate}] {vehicle.name}"
-            result.append((vehicle.id, name))
-        return result
-    
-    @api.model
-    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
-        """Enhanced search by license plate, name, VIN"""
-        if domain is None:
-            domain = []
-        if name:
-            domain = ['|', '|',
-                     ('license_plate', operator, name),
-                     ('name', operator, name),
-                     ('vin_sn', operator, name)] + domain
-        return self._search(domain, limit=limit, order=order)
+            vehicle.display_name = vehicle.license_plate or vehicle.name or ''
 

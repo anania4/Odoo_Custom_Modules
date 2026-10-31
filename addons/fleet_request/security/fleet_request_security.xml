@@ -2,19 +2,71 @@
 <odoo>
     <data>
 
-        <!-- Access rights section shown in Settings > Users -->
-        <record id="module_category_fleet_requests" model="ir.module.category">
-            <field name="name">Fleet Requests</field>
-            <field name="description">Access rights for fleet and fuel requests</field>
-            <field name="sequence">11</field>
-        </record>
-
-        <!-- Fuel Filler: records filled quantity, amount and receipt no. -->
+        <!-- Fuel Filler: a Fleet User who also fills approved fuel requests.
+             Shown in the same "Fleet Operations" access-rights section as the other fleet roles. -->
         <record id="group_fuel_filler" model="res.groups">
             <field name="name">Fuel Filler</field>
-            <field name="category_id" ref="module_category_fleet_requests"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-            <field name="comment">Fills approved fuel requests: enters the filled quantity, amount paid and receipt number, then marks the request as filled.</field>
+            <field name="category_id" ref="fleet_operations_pro.module_category_fleet_operations"/>
+            <field name="implied_ids" eval="[(4, ref('fleet_operations_pro.group_fleet_user'))]"/>
+            <field name="comment">Fleet Requests app: sees all fuel requests and fills approved ones (quantity, amount, receipt number). Can also ask for vehicles and fuel like a Fleet User. No access to the Fleet app.</field>
+        </record>
+
+        <!-- Fleet Manager can do everything a Fuel Filler can -->
+        <record id="fleet_operations_pro.group_fleet_manager" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_fuel_filler'))]"/>
+        </record>
+
+    </data>
+
+    <data noupdate="1">
+
+        <!-- Fleet requests -->
+        <record id="fleet_request_rule_user" model="ir.rule">
+            <field name="name">Fleet Request: own, assigned as driver, or my team's</field>
+            <field name="model_id" ref="model_fleet_request"/>
+            <field name="domain_force">['|', '|', '|', '|',
+                ('employee_id.user_id', '=', user.id),
+                ('create_uid', '=', user.id),
+                ('driver_id.user_id', '=', user.id),
+                ('employee_id.parent_id.user_id', '=', user.id),
+                ('employee_id.department_id.manager_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('fleet_operations_pro.group_fleet_user'))]"/>
+        </record>
+
+        <record id="fleet_request_rule_manager" model="ir.rule">
+            <field name="name">Fleet Request: all (Fleet Manager)</field>
+            <field name="model_id" ref="model_fleet_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('fleet_operations_pro.group_fleet_manager'))]"/>
+        </record>
+
+        <!-- Fuel requests -->
+        <record id="fleet_fuel_request_rule_user" model="ir.rule">
+            <field name="name">Fuel Request: own</field>
+            <field name="model_id" ref="model_fleet_fuel_request"/>
+            <field name="domain_force">['|', ('requested_by.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('fleet_operations_pro.group_fleet_user'))]"/>
+        </record>
+
+        <record id="fleet_fuel_request_rule_filler" model="ir.rule">
+            <field name="name">Fuel Request: all (Fuel Filler, Fleet Manager)</field>
+            <field name="model_id" ref="model_fleet_fuel_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_fuel_filler'))]"/>
+        </record>
+
+        <record id="fleet_fuel_request_line_rule_user" model="ir.rule">
+            <field name="name">Fuel Request Line: own requests</field>
+            <field name="model_id" ref="model_fleet_fuel_request_line"/>
+            <field name="domain_force">['|', ('request_id.requested_by.user_id', '=', user.id), ('request_id.create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('fleet_operations_pro.group_fleet_user'))]"/>
+        </record>
+
+        <record id="fleet_fuel_request_line_rule_filler" model="ir.rule">
+            <field name="name">Fuel Request Line: all (Fuel Filler, Fleet Manager)</field>
+            <field name="model_id" ref="model_fleet_fuel_request_line"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_fuel_filler'))]"/>
         </record>
 
     </data>

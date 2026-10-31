@@ -21,144 +21,167 @@
 
             <t t-else="">
                 <t t-if="state.data">
-                    <!-- Primary KPI Cards -->
-                    <div class="row mb-4">
+                    <!-- Primary Cards: Available Vehicles, Services, Contracts, Pending Fleet Requests -->
+                    <t t-set="cards" t-value="state.data.cards"/>
+                    <div class="row mb-4" t-if="cards">
+                        <!-- 1. Available Vehicles -->
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card bg-primary text-white">
+                            <div class="card h-100 bg-primary text-white cursor-pointer" title="View Available Vehicles"
+                                 t-on-click="() =&gt; this.openAvailableVehicles()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title text-white-50">Total Vehicles</h5>
-                                            <h2 class="mb-0"><t t-esc="state.data.kpis.total_vehicles"/></h2>
+                                            <h5 class="card-title text-white-50">Available Vehicles</h5>
+                                            <h2 class="mb-0"><t t-esc="cards.vehicles.available"/></h2>
                                             <small class="text-white-50">
-                                                <t t-esc="state.data.kpis.available_vehicles"/> Available
+                                                of <t t-esc="cards.vehicles.total"/> total ·
+                                                <t t-esc="cards.vehicles.in_maintenance"/> in maintenance
                                             </small>
                                         </div>
-                                        <i class="fa fa-car fa-2x opacity-50"/>
+                                        <i class="fa fa-car fa-2x opacity-50" title="Vehicles"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <!-- 2. Services -->
+                        <t t-set="svcAlert" t-value="cards.services.open or cards.services.due_by_km"/>
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card bg-success text-white cursor-pointer" title="View Contracts" t-on-click="() =&gt; this.openContracts()">
+                            <div t-att-class="'card h-100 cursor-pointer ' + (svcAlert ? 'bg-warning text-dark' : 'bg-light text-dark border')"
+                                 title="View Open Services" t-on-click="() =&gt; this.openOpenServices()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title text-white-50">Running Contracts</h5>
-                                            <h2 class="mb-0"><t t-esc="state.data.kpis.running_contracts"/></h2>
-                                            <small class="text-white-50">
-                                                of <t t-esc="state.data.kpis.total_contracts"/> Total
+                                            <h5 class="card-title">Services</h5>
+                                            <h2 class="mb-0"><t t-esc="cards.services.open"/></h2>
+                                            <small>
+                                                open (<t t-esc="cards.services.running"/> running)
+                                                <t t-if="cards.services.due_by_km"> ·
+                                                    <a href="#" class="fw-bold text-danger"
+                                                       title="Vehicles that reached the km of their next service"
+                                                       t-on-click.prevent.stop="() =&gt; this.openVehiclesDueByKm()">
+                                                        <t t-esc="cards.services.due_by_km"/> due by km
+                                                    </a>
+                                                </t>
                                             </small>
                                         </div>
-                                        <i class="fa fa-file-text-o fa-2x opacity-50"/>
+                                        <i class="fa fa-wrench fa-2x opacity-50" title="Services"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <!-- 3. Contracts needing attention -->
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card bg-warning text-dark cursor-pointer" title="View Upcoming Services" t-on-click="() =&gt; this.openUpcomingServices()">
+                            <div t-att-class="'card h-100 cursor-pointer ' + (cards.contracts.expired ? 'bg-danger text-white' : cards.contracts.attention ? 'bg-warning text-dark' : 'bg-light text-dark border')"
+                                 title="View Contracts Needing Attention" t-on-click="() =&gt; this.openContractsAttention()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title">Upcoming Services</h5>
-                                            <h2 class="mb-0"><t t-esc="state.data.kpis.upcoming_services"/></h2>
-                                            <small class="text-muted">
-                                                of <t t-esc="state.data.kpis.total_services"/> Total
+                                            <h5 class="card-title">Contracts</h5>
+                                            <h2 class="mb-0"><t t-esc="cards.contracts.attention"/></h2>
+                                            <small>
+                                                need attention:
+                                                <t t-esc="cards.contracts.expiring"/> expiring ·
+                                                <t t-esc="cards.contracts.expired"/> expired ·
+                                                <t t-esc="cards.contracts.payment_due"/> payment due
                                             </small>
                                         </div>
-                                        <i class="fa fa-wrench fa-2x opacity-50"/>
+                                        <i class="fa fa-file-text-o fa-2x opacity-50" title="Contracts"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <!-- 4. Pending Fleet Requests -->
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card bg-info text-white cursor-pointer" title="View Fleet Requests" t-on-click="() =&gt; this.openRequests()">
+                            <div t-att-class="'card h-100 cursor-pointer ' + (cards.requests.pending ? 'bg-warning text-dark' : 'bg-light text-dark border')"
+                                 title="View Pending Fleet Requests" t-on-click="() =&gt; this.openPendingRequests()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title text-white-50">Fleet Requests</h5>
-                                            <h2 class="mb-0"><t t-esc="formatNumber(state.data.kpis.total_requests, 0)"/></h2>
-                                            <small class="text-white-50">
-                                                <t t-esc="state.data.kpis.open_requests"/> Open / <t t-esc="state.data.kpis.assigned_requests"/> Assigned
-                                            </small>
+                                            <h5 class="card-title">Pending Fleet Requests</h5>
+                                            <t t-if="cards.requests.installed and cards.requests.allowed">
+                                                <h2 class="mb-0"><t t-esc="cards.requests.pending"/></h2>
+                                                <small class="d-block">
+                                                    <a href="#" class="text-reset fw-bold" title="Fleet requests waiting for approval or assignment"
+                                                       t-on-click.prevent.stop="() =&gt; this.openPendingRequests()">
+                                                        Fleet: <t t-esc="cards.requests.fleet_pending"/>
+                                                    </a>
+                                                    (<t t-esc="cards.requests.awaiting_department"/> dept. ·
+                                                    <t t-esc="cards.requests.awaiting_fleet_manager"/> fleet mgr ·
+                                                    <t t-esc="cards.requests.awaiting_assignment"/> assign)
+                                                </small>
+                                                <small class="d-block">
+                                                    <a href="#" class="text-reset fw-bold" title="Fuel requests waiting for approval or filling"
+                                                       t-on-click.prevent.stop="() =&gt; this.openPendingFuelRequests()">
+                                                        Fuel: <t t-esc="cards.requests.fuel_pending"/>
+                                                    </a>
+                                                    (<t t-esc="cards.requests.fuel_awaiting_approval"/> approval ·
+                                                    <t t-esc="cards.requests.fuel_awaiting_filling"/> filling)
+                                                </small>
+                                            </t>
+                                            <small t-elif="!cards.requests.installed">Fleet Requests module not installed</small>
+                                            <small t-else="">You do not have access to fleet requests</small>
                                         </div>
-                                        <i class="fa fa-clipboard-list fa-2x opacity-50"/>
+                                        <i class="fa fa-clipboard fa-2x opacity-50" title="Fleet Requests"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Charts and Analytics Row -->
+                    <!-- Needs Action list + Fuel Cost by Vehicle -->
                     <div class="row mb-4">
-                        <!-- Vehicle Status Chart -->
-                        <div class="col-lg-4 col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fa fa-car"/> Vehicles by Status</h5>
+                        <div class="col-lg-8 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fa fa-bell" title="Needs Action"/> Needs Action</h5>
+                                    <span t-if="cards and cards.needs_action_total" class="badge bg-danger">
+                                        <t t-esc="cards.needs_action_total"/>
+                                    </span>
                                 </div>
-                                <div class="card-body">
-                                    <t t-if="state.data.charts.vehicle_by_status.length">
+                                <div class="card-body p-0">
+                                    <t t-if="cards and cards.needs_action.length">
                                         <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.charts.vehicle_by_status" t-as="item" t-key="item.name">
-                                                <div class="list-group-item px-0">
+                                            <t t-foreach="cards.needs_action" t-as="item" t-key="item.key">
+                                                <a href="#" class="list-group-item list-group-item-action py-2"
+                                                   t-on-click.prevent="() =&gt; this.openRecord(item.res_model, item.res_id)">
                                                     <div class="d-flex justify-content-between align-items-center">
-                                                        <span class="fw-bold"><t t-esc="item.name"/></span>
-                                                        <span class="badge bg-primary rounded-pill"><t t-esc="item.value"/></span>
+                                                        <div>
+                                                            <small class="text-muted d-block"><t t-esc="item.kind"/></small>
+                                                            <span class="fw-bold"><t t-esc="item.title"/></span>
+                                                            <small class="text-muted">
+                                                                ·
+                                                                <t t-if="item.amount"><t t-esc="formatCurrency(item.amount)"/> </t>
+                                                                <t t-esc="item.detail"/>
+                                                            </small>
+                                                        </div>
+                                                        <span t-att-class="'badge text-bg-' + item.badge_class">
+                                                            <t t-esc="item.badge"/>
+                                                        </span>
                                                     </div>
-                                                    <div class="d-flex flex-wrap gap-1 mt-2">
-                                                        <t t-foreach="item.plates" t-as="plate" t-key="plate_index">
-                                                            <span class="badge text-bg-light border"><t t-esc="plate"/></span>
-                                                        </t>
-                                                    </div>
-                                                </div>
+                                                </a>
                                             </t>
+                                        </div>
+                                        <div t-if="cards.needs_action_total &gt; cards.needs_action.length"
+                                             class="text-muted small text-center py-2 border-top">
+                                            Showing <t t-esc="cards.needs_action.length"/> of
+                                            <t t-esc="cards.needs_action_total"/>. Use the cards above to see all.
                                         </div>
                                     </t>
                                     <t t-else="">
-                                        <p class="text-muted text-center mb-0">No data available</p>
+                                        <p class="text-muted text-center my-4">
+                                            <i class="fa fa-check-circle text-success" title="All clear"/> Nothing needs action
+                                        </p>
                                     </t>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Vehicle Category Chart -->
-                        <div class="col-lg-4 col-md-6 mb-3">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fa fa-tags"/> Vehicles by Category</h5>
-                                </div>
-                                <div class="card-body">
-                                    <t t-if="state.data.charts.vehicle_by_category.length">
-                                        <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.charts.vehicle_by_category" t-as="item" t-key="item.name">
-                                                <div class="list-group-item px-0">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <span class="fw-bold"><t t-esc="item.name"/></span>
-                                                        <span class="badge bg-success rounded-pill"><t t-esc="item.value"/></span>
-                                                    </div>
-                                                    <div class="d-flex flex-wrap gap-1 mt-2">
-                                                        <t t-foreach="item.plates" t-as="plate" t-key="plate_index">
-                                                            <span class="badge text-bg-light border"><t t-esc="plate"/></span>
-                                                        </t>
-                                                    </div>
-                                                </div>
-                                            </t>
-                                        </div>
-                                    </t>
-                                    <t t-else="">
-                                        <p class="text-muted text-center mb-0">No data available</p>
-                                    </t>
-                                </div>
-                            </div>
-                        </div>
-                        
+
                         <!-- Fuel Cost by Vehicle -->
                         <div class="col-lg-4 col-md-12 mb-3">
-                            <div class="card">
+                            <div class="card h-100">
                                 <div class="card-header">
                                     <h5><i class="fa fa-tint"/> Fuel Cost by Vehicle</h5>
                                     <span class="badge bg-secondary">30 days</span>
@@ -191,83 +214,93 @@
                         </div>
                     </div>
 
-                    <!-- Alerts and Notifications -->
-                    <div class="row mb-4">
-                        <!-- Contract Expiry Alerts -->
+                    <!-- Available Vehicles list + Vehicles with their status -->
+                    <div class="row mb-4" t-if="cards">
                         <div class="col-lg-6 mb-3">
-                            <div class="card border-danger cursor-pointer" title="View Contracts" t-on-click="() =&gt; this.openContracts()">
-                                <div class="card-header bg-danger text-white">
-                                    <h5 class="mb-0"><i class="fa fa-file-text-o"/> Recent Contract Expiries</h5>
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fa fa-car" title="Available Vehicles"/> Available Vehicles</h5>
+                                    <a href="#" class="small" t-on-click.prevent="() =&gt; this.openAvailableVehicles()">
+                                        View all (<t t-esc="cards.vehicles.available"/>)
+                                    </a>
                                 </div>
                                 <div class="card-body p-0">
-                                    <div class="d-flex justify-content-between mb-3">
-                                        <div>
-                                            <h3 class="mb-0 text-danger"><t t-esc="state.data.alerts.expired_contracts"/></h3>
-                                            <small class="text-muted">Overdue</small>
+                                    <t t-if="cards.available_list.length">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-sm mb-0 align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="ps-3">Plate</th>
+                                                        <th>Car Name</th>
+                                                        <th class="pe-3">Driver</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="cards.available_list" t-as="car" t-key="car.id">
+                                                        <tr class="cursor-pointer" t-on-click="() =&gt; this.openRecord('fleet.vehicle', car.id)">
+                                                            <td class="ps-3 fw-bold"><t t-esc="car.plate"/></td>
+                                                            <td><t t-esc="car.name"/></td>
+                                                            <td>
+                                                                <t t-if="car.driver"><t t-esc="car.driver"/></t>
+                                                                <span t-else="" class="text-muted">No driver</span>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
                                         </div>
-                                        <div>
-                                            <h3 class="mb-0 text-warning"><t t-esc="state.data.alerts.expiring_contracts"/></h3>
-                                            <small class="text-muted">Expiring Soon</small>
-                                        </div>
-                                    </div>
-                                    <t t-if="state.data.alerts.contract_details.length">
-                                        <h6 class="text-muted mb-2">Contracts:</h6>
-                                        <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.alerts.contract_details" t-as="item" t-key="item_index">
-                                                <div class="list-group-item px-0 py-2">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div>
-                                                            <div class="fw-bold small"><t t-esc="item.plate"/> · <t t-esc="item.vehicle"/></div>
-                                                            <small class="text-muted"><t t-esc="item.contract"/> · <t t-esc="item.contract_type"/> · <t t-esc="item.provider"/></small>
-                                                        </div>
-                                                        <div class="text-end">
-                                                            <small class="badge bg-secondary"><t t-esc="item.end_date"/></small>
-                                                            <small t-att-class="'badge bg-' + item.status_class">
-                                                                <t t-if="item.days_left &gt;= 0"><t t-esc="item.days_left"/> days left</t>
-                                                                <t t-else="">Overdue</t>
-                                                            </small>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </t>
+                                        <div t-if="cards.vehicles.available &gt; cards.available_list.length"
+                                             class="text-muted small text-center py-2 border-top">
+                                            Showing <t t-esc="cards.available_list.length"/> of
+                                            <t t-esc="cards.vehicles.available"/>
                                         </div>
                                     </t>
-                                    <t t-else="">
-                                        <p class="text-muted text-center small mb-0">No contracts expiring soon</p>
-                                    </t>
+                                    <p t-else="" class="text-muted text-center my-4">No vehicles available right now</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Upcoming Services -->
+
                         <div class="col-lg-6 mb-3">
-                            <div class="card border-warning cursor-pointer" title="View Upcoming Services" t-on-click="() =&gt; this.openUpcomingServices()">
-                                <div class="card-header bg-warning">
-                                    <h5 class="mb-0"><i class="fa fa-wrench"/> Upcoming Services</h5>
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fa fa-flag" title="Vehicle Status"/> Vehicle Status</h5>
+                                    <a href="#" class="small" t-on-click.prevent="() =&gt; this.openAllVehicles()">
+                                        View all (<t t-esc="cards.vehicles.total"/>)
+                                    </a>
                                 </div>
-                                <div class="card-body">
-                                    <t t-if="state.data.alerts.upcoming_services.length">
-                                        <div class="list-group list-group-flush">
-                                            <t t-foreach="state.data.alerts.upcoming_services" t-as="service" t-key="service_index">
-                                                <div class="list-group-item px-0 py-2">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div>
-                                                            <div class="fw-bold small"><t t-esc="service.plate"/> · <t t-esc="service.vehicle"/></div>
-                                                            <small class="text-muted"><t t-esc="service.service"/> · <t t-esc="service.date"/></small>
-                                                        </div>
-                                                        <small class="badge bg-secondary">
-                                                            <t t-if="service.days_until == 0">Today</t>
-                                                            <t t-elif="service.days_until == 1">Tomorrow</t>
-                                                            <t t-else="">in <t t-esc="service.days_until"/> days</t>
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </t>
+                                <div class="card-body p-0">
+                                    <t t-if="cards.status_list.length">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-sm mb-0 align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="ps-3">Plate</th>
+                                                        <th>Car Name</th>
+                                                        <th class="pe-3">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="cards.status_list" t-as="car" t-key="car.id">
+                                                        <tr class="cursor-pointer" t-on-click="() =&gt; this.openRecord('fleet.vehicle', car.id)">
+                                                            <td class="ps-3 fw-bold"><t t-esc="car.plate"/></td>
+                                                            <td><t t-esc="car.name"/></td>
+                                                            <td class="pe-3">
+                                                                <span t-att-class="'badge rounded-pill o_tag_color_' + car.color">
+                                                                    <t t-esc="car.status or 'No status'"/>
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div t-if="cards.vehicles.total &gt; cards.status_list.length"
+                                             class="text-muted small text-center py-2 border-top">
+                                            Showing <t t-esc="cards.status_list.length"/> of
+                                            <t t-esc="cards.vehicles.total"/>
                                         </div>
                                     </t>
-                                    <t t-else="">
-                                        <p class="text-muted text-center small mb-0">No upcoming services</p>
-                                    </t>
+                                    <p t-else="" class="text-muted text-center my-4">No vehicles yet</p>
                                 </div>
                             </div>
                         </div>

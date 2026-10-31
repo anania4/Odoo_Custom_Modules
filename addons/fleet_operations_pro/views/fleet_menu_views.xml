@@ -5,6 +5,7 @@
     <menuitem id="menu_fleet_root"
               name="Fleet"
               web_icon="fleet_operations_pro,static/description/icon.png"
+              groups="group_fleet_viewer"
               sequence="50"/>
     
     <!-- Operations Menu -->
@@ -41,6 +42,7 @@
     <menuitem id="menu_fleet_configuration"
               name="Configuration"
               parent="menu_fleet_root"
+              groups="group_fleet_manager"
               sequence="100"/>
     
     <!-- Configuration Sub-menus -->
@@ -110,12 +112,5 @@
               parent="menu_fleet_operations"
               action="action_fleet_toll_record"
               sequence="90"/>
-    
-    <!-- Toll Locations -->
-    <menuitem id="menu_fleet_toll_location"
-              name="Toll Locations"
-              parent="menu_fleet_config_settings"
-              action="action_fleet_toll_location"
-              sequence="70"/>
     
 </odoo>

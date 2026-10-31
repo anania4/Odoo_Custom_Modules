@@ -10,7 +10,7 @@
         <field name="name">Toll Records</field>
         <field name="res_model">fleet.toll.record</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'search_default_this_month': 1}</field>
+        <field name="context">{'search_default_filter_date': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new toll record
@@ -21,20 +21,6 @@
         </field>
     </record>
     
-    <!-- Toll Location Action -->
-    <record id="action_fleet_toll_location" model="ir.actions.act_window">
-        <field name="name">Toll Locations</field>
-        <field name="res_model">fleet.toll.location</field>
-        <field name="view_mode">list,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Create a new toll location
-            </p>
-            <p>
-                Configure common toll locations for quick entry.
-            </p>
-        </field>
-    </record>
     
     <!-- Action for Tolls from Vehicle -->
     <record id="action_fleet_toll_record_vehicle" model="ir.actions.act_window">
@@ -58,7 +44,6 @@
                 <field name="date"/>
                 <field name="vehicle_id"/>
                 <field name="driver_id"/>
-                <field name="toll_location_id"/>
                 <field name="odometer"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </list>
@@ -73,9 +58,8 @@
             <form string="Toll Record">
                 <sheet>
                     <div class="oe_title">
-                        <label for="toll_location_id" string="Toll Location"/>
                         <h1>
-                            <field name="toll_location_id" placeholder="Select toll location..." options="{'no_create': True}"/>
+                            <field name="name" readonly="1"/>
                         </h1>
                     </div>
                     
@@ -87,7 +71,6 @@
                         </group>
                         
                         <group name="toll_info" string="Toll Details">
-                            <field name="location_description" placeholder="Additional location details..."/>
                             <field name="odometer" widget="integer"/>
                         </group>
                     </group>
@@ -122,14 +105,8 @@
             <search string="Search Toll Records">
                 <field name="vehicle_id" string="Vehicle"/>
                 <field name="driver_id" string="Driver"/>
-                <field name="toll_location_id" string="Location"/>
                 
-                <filter name="this_month" string="This Month" 
-                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01')), ('date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter name="last_month" string="Last Month" 
-                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-01')), ('date', '&lt;', context_today().strftime('%Y-%m-01'))]"/>
-                <filter name="this_year" string="This Year" 
-                        domain="[('date', '&gt;=', context_today().strftime('%Y-01-01')), ('date', '&lt;=', context_today().strftime('%Y-12-31'))]"/>
+                <filter name="filter_date" string="Date" date="date"/>
                 
                 <separator/>
                 <filter invisible="1" string="Late Activities" name="activities_overdue" 
@@ -140,116 +117,10 @@
                 <group expand="0" string="Group By">
                     <filter name="group_vehicle" string="Vehicle" context="{'group_by': 'vehicle_id'}"/>
                     <filter name="group_driver" string="Driver" context="{'group_by': 'driver_id'}"/>
-                    <filter name="group_location" string="Toll Location" context="{'group_by': 'toll_location_id'}"/>
-                    <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-    
-    <!-- ========================================= -->
-    <!-- Toll Location Views                       -->
-    <!-- ========================================= -->
-    
-    <!-- Toll Location List View -->
-    <record id="view_fleet_toll_location_list" model="ir.ui.view">
-        <field name="name">fleet.toll.location.list</field>
-        <field name="model">fleet.toll.location</field>
-        <field name="arch" type="xml">
-            <list string="Toll Locations">
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="code"/>
-                <field name="city"/>
-                <field name="state"/>
-                <field name="country_id"/>
-                <field name="toll_count"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-            </list>
-        </field>
-    </record>
-    
-    <!-- Toll Location Form View -->
-    <record id="view_fleet_toll_location_form" model="ir.ui.view">
-        <field name="name">fleet.toll.location.form</field>
-        <field name="model">fleet.toll.location</field>
-        <field name="arch" type="xml">
-            <form string="Toll Location">
-                <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="%(action_fleet_toll_record)d" type="action"
-                                class="oe_stat_button" icon="fa-road">
-                            <field name="toll_count" widget="statinfo" string="Toll Records"/>
-                        </button>
-                    </div>
-                    
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" 
-                            invisible="active"/>
-                    
-                    <div class="oe_title">
-                        <label for="name"/>
-                        <h1>
-                            <field name="name" placeholder="e.g. Highway 101 Toll Plaza"/>
-                        </h1>
-                    </div>
-                    
-                    <group>
-                        <group name="basic_info" string="Basic Information">
-                            <field name="code" placeholder="e.g. HW101"/>
-                            <field name="sequence"/>
-                        </group>
-                        
-                        <group name="settings" string="Settings">
-                            <field name="active" widget="boolean_toggle"/>
-                            <field name="company_id" options="{'no_create': True}" 
-                                   groups="base.group_multi_company"/>
-                        </group>
-                    </group>
-                    
-                    <group name="location_info" string="Location Details">
-                        <group>
-                            <field name="city"/>
-                            <field name="state"/>
-                            <field name="country_id" options="{'no_create': True}"/>
-                        </group>
-                        <group>
-                            <field name="address" placeholder="Full address of the toll location..."/>
-                        </group>
-                    </group>
-                    
-                    <separator string="Description"/>
-                    <field name="description" placeholder="Additional information about this toll location..." nolabel="1"/>
-                </sheet>
-                
-                <!-- Chatter -->
-                <chatter/>
-            </form>
-        </field>
-    </record>
-    
-    <!-- Toll Location Search View -->
-    <record id="view_fleet_toll_location_search" model="ir.ui.view">
-        <field name="name">fleet.toll.location.search</field>
-        <field name="model">fleet.toll.location</field>
-        <field name="arch" type="xml">
-            <search string="Search Toll Locations">
-                <field name="name" string="Location Name"/>
-                <field name="code" string="Code"/>
-                <field name="city" string="City"/>
-                <field name="state" string="State"/>
-                <field name="country_id" string="Country"/>
-                
-                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
-                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
-                
-                <group expand="0" string="Group By">
-                    <filter name="group_city" string="City" context="{'group_by': 'city'}"/>
-                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
-                    <filter name="group_country" string="Country" context="{'group_by': 'country_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date:month'}"/>
                 </group>
             </search>
         </field>
     </record>
     
 </odoo>
-

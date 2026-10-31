@@ -6,7 +6,7 @@
         <record id="seq_fleet_contract" model="ir.sequence">
             <field name="name">Fleet Contract</field>
             <field name="code">fleet.contract</field>
-            <field name="prefix">FCL/%(year)s/</field>
+            <field name="prefix">%(year)s/</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>
@@ -15,7 +15,7 @@
         <record id="seq_fleet_service" model="ir.sequence">
             <field name="name">Fleet Service</field>
             <field name="code">fleet.service</field>
-            <field name="prefix">SVN</field>
+            <field name="prefix">SRV/%(year)s/</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>

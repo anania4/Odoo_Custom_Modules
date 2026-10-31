@@ -21,6 +21,10 @@ class FleetVehicle(models.Model):
 
     def _compute_accepted_request_count(self):
         """Count fleet requests accepted (assigned) by this vehicle"""
+        if not self.env['fleet.request'].has_access('read'):
+            # e.g. Fleet Viewer: may open vehicles but not fleet requests
+            self.accepted_request_count = 0
+            return
         for vehicle in self:
             vehicle.accepted_request_count = self.env['fleet.request'].search_count([
                 ('vehicle_id', '=', vehicle.id),

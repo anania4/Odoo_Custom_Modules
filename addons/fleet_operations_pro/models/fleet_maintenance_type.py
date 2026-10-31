@@ -9,15 +9,14 @@ class FleetMaintenanceType(models.Model):
     _order = 'sequence, name'
 
     name = fields.Char(
-        string='Maintenance Type',
+        string='Service Type',
         required=True,
         translate=True,
-        help='Type of maintenance service'
+        help='Type of service / maintenance'
     )
     code = fields.Char(
         string='Code',
-        required=True,
-        help='Internal code for the maintenance type'
+        help='Optional internal code'
     )
     sequence = fields.Integer(
         string='Sequence',

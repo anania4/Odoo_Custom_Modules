@@ -144,14 +144,15 @@
                         domain="[('state', '=', 'approved')]"/>
 
                 <separator/>
+                <filter name="pending" string="Pending Approval / Filling" domain="[('state', 'in', ('submitted', 'approved'))]"/>
+                <separator/>
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
                 <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
                 <filter name="filled" string="Filled" domain="[('state', '=', 'filled')]"/>
 
                 <separator/>
-                <filter name="this_month" string="This Month"
-                        domain="[('request_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter name="filter_request_date" string="Request Date" date="request_date"/>
 
                 <group expand="0" string="Group By">
                     <filter name="group_requested_by" string="Requested By"
@@ -165,7 +166,7 @@
                     <filter name="group_filler" string="Filled By"
                             context="{'group_by': 'filler_id'}"/>
                     <filter name="group_request_date" string="Request Date"
-                            context="{'group_by': 'request_date'}"/>
+                            context="{'group_by': 'request_date:month'}"/>
                 </group>
             </search>
         </field>

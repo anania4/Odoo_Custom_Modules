@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vehicle Models -->
+    <record id="view_fleet_vehicle_model_list" model="ir.ui.view">
+        <field name="name">fleet.vehicle.model.list</field>
+        <field name="model">fleet.vehicle.model</field>
+        <field name="arch" type="xml">
+            <list string="Vehicle Models" editable="bottom">
+                <field name="brand"/>
+                <field name="name"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_model_search" model="ir.ui.view">
+        <field name="name">fleet.vehicle.model.search</field>
+        <field name="model">fleet.vehicle.model</field>
+        <field name="arch" type="xml">
+            <search string="Vehicle Models">
+                <field name="name"/>
+                <field name="brand"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Brand" name="group_brand" context="{'group_by': 'brand'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fleet_vehicle_model" model="ir.actions.act_window">
+        <field name="name">Vehicle Models</field>
+        <field name="res_model">fleet.vehicle.model</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_fleet_vehicle_model"
+              name="Vehicle Models"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_vehicle_model"
+              sequence="15"/>
+
+    <!-- Vehicle Tags -->
+    <record id="view_fleet_vehicle_tag_list" model="ir.ui.view">
+        <field name="name">fleet.vehicle.tag.list</field>
+        <field name="model">fleet.vehicle.tag</field>
+        <field name="arch" type="xml">
+            <list string="Vehicle Tags" editable="bottom">
+                <field name="name"/>
+                <field name="color" widget="color_picker"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fleet_vehicle_tag" model="ir.actions.act_window">
+        <field name="name">Vehicle Tags</field>
+        <field name="res_model">fleet.vehicle.tag</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_fleet_vehicle_tag"
+              name="Vehicle Tags"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_vehicle_tag"
+              sequence="16"/>
+
+    <!-- Contract Types -->
+    <record id="view_fleet_contract_type_list" model="ir.ui.view">
+        <field name="name">fleet.contract.type.list</field>
+        <field name="model">fleet.contract.type</field>
+        <field name="arch" type="xml">
+            <list string="Contract Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="prefix"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fleet_contract_type" model="ir.actions.act_window">
+        <field name="name">Contract Types</field>
+        <field name="res_model">fleet.contract.type</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a contract type</p>
+            <p>The prefix starts the contract reference, e.g. INS gives INS/2026/00001.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_fleet_contract_type"
+              name="Contract Types"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_contract_type"
+              sequence="40"/>
+
+    <!-- Service Types (shared with maintenance records) -->
+    <record id="view_fleet_service_type_list" model="ir.ui.view">
+        <field name="name">fleet.maintenance.type.list</field>
+        <field name="model">fleet.maintenance.type</field>
+        <field name="arch" type="xml">
+            <list string="Service Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="code" optional="hide"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fleet_service_type" model="ir.actions.act_window">
+        <field name="name">Service Types</field>
+        <field name="res_model">fleet.maintenance.type</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_fleet_service_type"
+              name="Service Types"
+              parent="menu_fleet_config_settings"
+              action="action_fleet_service_type"
+              sequence="45"/>
+
+</odoo>

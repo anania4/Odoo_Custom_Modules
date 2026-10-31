@@ -1,54 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        
-        <!-- Security Categories -->
+
+        <!-- Settings > Users > Access Rights: "Fleet Operations" section -->
         <record id="module_category_fleet_operations" model="ir.module.category">
             <field name="name">Fleet Operations</field>
-            <field name="description">Manage fleet operations access rights</field>
+            <field name="description">Access rights for the Fleet and Fleet Requests apps</field>
             <field name="sequence">10</field>
         </record>
-        
-        <!-- Security Groups -->
-        
-        <!-- Fleet Manager - Full Access -->
-        <record id="group_fleet_manager" model="res.groups">
-            <field name="name">Fleet Manager</field>
-            <field name="category_id" ref="module_category_fleet_operations"/>
-            <field name="comment">Full access to all fleet operations including configuration</field>
-        </record>
-        
-        <!-- Fleet User - Operations Access -->
+
+        <!-- Fleet User: Fleet Requests app only; asks for vehicles and fuel -->
         <record id="group_fleet_user" model="res.groups">
             <field name="name">Fleet User</field>
             <field name="category_id" ref="module_category_fleet_operations"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-            <field name="comment">Can create and manage fleet operations but not system configuration</field>
+            <field name="comment">Fleet Requests app only: creates and follows own fleet and fuel requests (department managers also see and approve their team's fleet requests). No access to the Fleet app.</field>
         </record>
-        
-        <!-- Fleet Driver - Own Records Only -->
-        <record id="group_fleet_driver" model="res.groups">
-            <field name="name">Fleet Driver</field>
-            <field name="category_id" ref="module_category_fleet_operations"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-            <field name="comment">Can only view and update own driver records, trips, and fuel logs</field>
-        </record>
-        
-        <!-- Fleet Maintenance - Maintenance Only -->
-        <record id="group_fleet_maintenance" model="res.groups">
-            <field name="name">Fleet Maintenance Team</field>
-            <field name="category_id" ref="module_category_fleet_operations"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-            <field name="comment">Access to maintenance records, schedules, and vehicle status</field>
-        </record>
-        
-        <!-- Fleet Viewer - Read Only -->
+
+        <!-- Fleet Viewer: Fleet app, read only -->
         <record id="group_fleet_viewer" model="res.groups">
             <field name="name">Fleet Viewer</field>
             <field name="category_id" ref="module_category_fleet_operations"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
-            <field name="comment">Read-only access to fleet data for reporting purposes</field>
+            <field name="comment">Fleet app only, read-only: dashboard, vehicles, contracts, services, fuel logs, tolls, trips and reports. No configuration, no Fleet Requests app.</field>
         </record>
-        
+
+        <!-- Fleet Manager: everything (the Fuel Filler group in Fleet Requests is added to it there) -->
+        <record id="group_fleet_manager" model="res.groups">
+            <field name="name">Fleet Manager</field>
+            <field name="category_id" ref="module_category_fleet_operations"/>
+            <field name="implied_ids" eval="[(4, ref('group_fleet_viewer')), (4, ref('group_fleet_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">Full access to the Fleet and Fleet Requests apps, including configuration and approvals.</field>
+        </record>
+
     </data>
 </odoo>

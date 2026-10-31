@@ -14,8 +14,8 @@
                 Create a new vehicle contract
             </p>
             <p>
-                Manage insurance policies, leases, rental agreements and service
-                contracts with their renewal dates.
+                Manage insurance policies, leases and service contracts with
+                their payments and renewal dates.
             </p>
         </field>
     </record>
@@ -28,17 +28,29 @@
             <list string="Contracts"
                   decoration-success="state == 'running'"
                   decoration-info="state == 'draft'"
-                  decoration-warning="expiring_alert"
-                  decoration-danger="state == 'cancelled' or days_until_expiry &lt; 0">
+                  decoration-warning="state == 'running' and expiring_alert"
+                  decoration-muted="state == 'closed'"
+                  decoration-danger="state == 'expired'">
                 <field name="name"/>
-                <field name="contract_type" widget="badge"/>
+                <field name="contract_type_id" widget="badge"/>
                 <field name="vehicle_id"/>
                 <field name="partner_id" optional="show"/>
                 <field name="reference" optional="hide"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
-                <field name="days_until_expiry" invisible="1"/>
-                <field name="state" widget="badge"/>
+                <field name="cost" sum="Total" optional="show"/>
+                <field name="cost_frequency" optional="show"/>
+                <field name="next_due_date" optional="show"/>
+                <field name="payment_state" widget="badge"
+                       decoration-success="payment_state == 'paid'"
+                       decoration-warning="payment_state == 'unpaid'"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="expiring_alert" column_invisible="1"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'running'"
+                       decoration-info="state == 'draft'"
+                       decoration-danger="state == 'expired'"/>
             </list>
         </field>
     </record>
@@ -52,53 +64,75 @@
                 <header>
                     <button name="action_run" string="Set to Running" type="object"
                             class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_cancel" string="Cancel Contract" type="object"
-                            class="btn-secondary" invisible="state not in ('draft', 'running')"/>
+                    <button name="action_register_payment" string="Register Payment" type="object"
+                            class="btn-primary" invisible="state != 'running' or payment_state == 'paid'"/>
                     <button name="action_set_expired" string="Mark as Expired" type="object"
-                            class="btn-secondary" invisible="state not in ('draft', 'running')"/>
+                            invisible="state not in ('draft', 'running')"/>
+                    <button name="action_close" string="Close" type="object"
+                            invisible="state == 'closed'"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state not in ('expired', 'closed')"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,running,expired"/>
+                           statusbar_visible="draft,running,expired,closed"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_services" type="object"
+                                class="oe_stat_button" icon="fa-wrench">
+                            <field name="service_count" widget="statinfo" string="Services"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Paid" bg_color="text-bg-success"
+                            invisible="payment_state != 'paid'"/>
+                    <field name="active" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
                     <div class="oe_title">
+                        <label for="name"/>
                         <h1>
-                            <field name="name" readonly="1" placeholder="Contract Reference"/>
+                            <field name="name" readonly="1"/>
                         </h1>
                     </div>
                     <group>
-                        <group name="contract_info" string="Contract Information">
-                            <field name="contract_type" readonly="state != 'draft'"/>
+                        <group name="contract_info" string="Contract">
                             <field name="vehicle_id" options="{'no_create': True}"/>
+                            <field name="contract_type_id" options="{'no_create': True}" readonly="state != 'draft'"/>
                             <field name="partner_id"/>
                             <field name="reference" placeholder="Policy number, lease number..."/>
-                            <field name="days_until_expiry" visible="end_date"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="company_id" options="{'no_create': True}"
+                                   groups="base.group_multi_company"/>
                         </group>
                         <group name="dates_info" string="Validity">
                             <field name="start_date"/>
                             <field name="end_date"/>
-                            <field name="expiring_alert" widget="boolean_toggle" readonly="1"/>
+                            <field name="reminder_days"/>
+                            <field name="days_until_expiry" invisible="state != 'running'"
+                                   decoration-warning="expiring_alert"
+                                   decoration-danger="days_until_expiry &lt; 0"/>
+                            <field name="expiring_alert" invisible="1"/>
                         </group>
                     </group>
                     <group>
-                        <group name="company_info" string="Company">
-                            <field name="company_id" options="{'no_create': True}"
-                                   groups="base.group_multi_company"/>
+                        <group name="cost_info" string="Cost">
+                            <field name="cost"/>
+                            <field name="cost_frequency"/>
+                            <field name="total_cost" invisible="not cost_frequency"/>
+                            <field name="deposit"/>
                         </group>
-                        <group name="service_info" string="Services">
-                            <button name="action_view_services" type="object"
-                                    class="oe_stat_button" icon="fa-wrench"
-                                    invisible="service_count == 0">
-                                <div class="o_stat_info">
-                                    <span class="o_stat_value">
-                                        <field name="service_count"/> Services
-                                    </span>
-                                </div>
-                            </button>
+                        <group name="payment_info" string="Payment">
+                            <field name="next_due_date" invisible="not cost_frequency"/>
+                            <field name="payment_state" widget="radio" options="{'horizontal': true}"/>
+                            <field name="payment_date" required="payment_state == 'paid'"/>
                         </group>
                     </group>
-                    <group string="Notes">
-                        <field name="notes" placeholder="Contract terms, renewal conditions..." nolabel="1"/>
-                    </group>
+                    <notebook>
+                        <page name="notes" string="Notes">
+                            <field name="notes" placeholder="Contract terms, renewal conditions..."/>
+                        </page>
+                        <page name="attachments" string="Attachments">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>
@@ -113,32 +147,47 @@
             <search string="Search Contracts">
                 <field name="name" string="Reference"/>
                 <field name="vehicle_id" string="Vehicle"/>
-                <field name="partner_id" string="Provider"/>
-                <field name="reference" string="External Reference"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="contract_type_id" string="Contract Type"/>
+                <field name="reference" string="Vendor Reference"/>
+                <field name="user_id" string="Responsible"/>
 
+                <filter name="filter_my" string="My Contracts" domain="[('user_id', '=', uid)]"/>
+                <separator/>
                 <filter name="filter_expiring" string="Expiring in 30 Days"
-                        domain="[('state', '=', 'running'), ('end_date', '&gt;=', context_today()), ('end_date', '&lt;=', (context_today() + datetime.timedelta(days=30)))]"/>
-                <filter name="filter_expired" string="Past End Date"
-                        domain="[('end_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                        domain="[('state', '=', 'running'), ('end_date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('end_date', '&lt;=', (context_today() + datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_past_end" string="Past End Date (still running)"
+                        domain="[('state', '=', 'running'), ('end_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_payment_due" string="Payment Due"
+                        domain="[('state', '=', 'running'), ('payment_state', '=', 'unpaid'), '|', ('next_due_date', '&lt;=', context_today().strftime('%Y-%m-%d')), ('cost_frequency', '=', False)]"/>
+                <filter name="filter_unpaid" string="Unpaid" domain="[('payment_state', '=', 'unpaid')]"/>
+                <filter name="filter_paid" string="Paid" domain="[('payment_state', '=', 'paid')]"/>
 
                 <separator/>
                 <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
                 <filter name="filter_running" string="Running" domain="[('state', '=', 'running')]"/>
-                <filter name="filter_expired" string="Expired" domain="[('state', '=', 'expired')]"/>
-                <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <filter name="filter_state_expired" string="Expired" domain="[('state', '=', 'expired')]"/>
+                <filter name="filter_closed" string="Closed" domain="[('state', '=', 'closed')]"/>
 
                 <separator/>
-                <filter name="filter_type_insurance" string="Insurance" domain="[('contract_type', '=', 'insurance')]"/>
-                <filter name="filter_type_lease" string="Lease" domain="[('contract_type', '=', 'lease')]"/>
-                <filter name="filter_type_rental" string="Rental Agreement" domain="[('contract_type', '=', 'rental_agreement')]"/>
-                <filter name="filter_type_service" string="Service Contract" domain="[('contract_type', '=', 'service_contract')]"/>
+                <filter name="filter_recurring" string="Recurring" domain="[('cost_frequency', '!=', False)]"/>
+                <filter name="filter_one_time" string="One-time" domain="[('cost_frequency', '=', False)]"/>
+
+                <separator/>
+                <filter name="filter_start_date" string="Start Date" date="start_date"/>
+                <filter name="filter_end_date" string="End Date" date="end_date"/>
+
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
 
                 <group expand="0" string="Group By">
-                    <filter name="group_type" string="Contract Type" context="{'group_by': 'contract_type'}"/>
+                    <filter name="group_type" string="Contract Type" context="{'group_by': 'contract_type_id'}"/>
                     <filter name="group_vehicle" string="Vehicle" context="{'group_by': 'vehicle_id'}"/>
-                    <filter name="group_partner" string="Provider" context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
-                    <filter name="group_end_date" string="End Date" context="{'group_by': 'end_date'}"/>
+                    <filter name="group_partner" string="Vendor" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_user" string="Responsible" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_payment" string="Payment Status" context="{'group_by': 'payment_state'}"/>
+                    <filter name="group_end_date" string="End Date" context="{'group_by': 'end_date:month'}"/>
                 </group>
             </search>
         </field>
@@ -157,8 +206,8 @@
                 Record a new vehicle service
             </p>
             <p>
-                Track one-off services performed on your vehicles with their
-                provider and odometer reading.
+                Track services performed on your vehicles with their vendor,
+                cost, payment and odometer reading.
             </p>
         </field>
     </record>
@@ -168,15 +217,29 @@
         <field name="name">fleet.service.list</field>
         <field name="model">fleet.service</field>
         <field name="arch" type="xml">
-            <list string="Services">
+            <list string="Services"
+                  decoration-info="state == 'new'"
+                  decoration-warning="state == 'running'"
+                  decoration-muted="state == 'cancelled'">
                 <field name="name"/>
-                <field name="date"/>
                 <field name="vehicle_id"/>
                 <field name="service_type_id"/>
-                <field name="description" optional="hide"/>
-                <field name="service_provider" optional="show"/>
+                <field name="partner_id" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="hide"/>
+                <field name="date"/>
+                <field name="end_date" optional="show"/>
                 <field name="odometer" widget="integer" optional="show"/>
-                <field name="contract_id" optional="show"/>
+                <field name="next_service_odometer" widget="integer" optional="hide"/>
+                <field name="contract_id" optional="hide"/>
+                <field name="cost" sum="Total" optional="show"/>
+                <field name="payment_state" widget="badge"
+                       decoration-success="payment_state == 'paid'"
+                       decoration-warning="payment_state == 'unpaid'"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-info="state == 'new'"
+                       decoration-warning="state == 'running'"/>
+                <field name="currency_id" column_invisible="1"/>
                 <field name="company_id" column_invisible="1"/>
             </list>
         </field>
@@ -188,32 +251,70 @@
         <field name="model">fleet.service</field>
         <field name="arch" type="xml">
             <form string="Fleet Service">
+                <header>
+                    <button name="action_start" string="Start" type="object"
+                            class="btn-primary" invisible="state != 'new'"/>
+                    <button name="action_done" string="Mark as Done" type="object"
+                            class="btn-primary" invisible="state not in ('new', 'running')"/>
+                    <button name="action_register_payment" string="Register Payment" type="object"
+                            invisible="state == 'cancelled' or payment_state == 'paid'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('done', 'cancelled')"/>
+                    <button name="action_reset_new" string="Reset to New" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,running,done"/>
+                </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Paid" bg_color="text-bg-success"
+                            invisible="payment_state != 'paid'"/>
+                    <field name="active" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
                     <div class="oe_title">
+                        <label for="name"/>
                         <h1>
-                            <field name="name" readonly="1" placeholder="Service Reference"/>
+                            <field name="name" readonly="1"/>
                         </h1>
                     </div>
                     <group>
-                        <group name="service_info" string="Service Information">
+                        <group name="service_info" string="Service">
                             <field name="vehicle_id" options="{'no_create': True}"/>
-                            <field name="service_type_id"/>
-                            <field name="date"/>
-                            <field name="service_provider" placeholder="Workshop or vendor..."/>
-                        </group>
-                        <group name="service_details" string="Service Details">
-                            <field name="odometer" widget="integer"/>
-                            <field name="contract_id" options="{'no_create': True}"/>
+                            <field name="service_type_id" options="{'no_create': True}"/>
+                            <field name="partner_id"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="contract_id" options="{'no_create': True}"
+                                   domain="[('vehicle_id', '=', vehicle_id)]"/>
                             <field name="company_id" options="{'no_create': True}"
                                    groups="base.group_multi_company"/>
                         </group>
+                        <group name="dates_info" string="Dates">
+                            <field name="date"/>
+                            <field name="end_date" required="state == 'done'"/>
+                        </group>
                     </group>
-                    <group string="Description">
-                        <field name="description" placeholder="Work performed..." nolabel="1"/>
+                    <group>
+                        <group name="odometer_info" string="Odometer">
+                            <field name="odometer" widget="integer"/>
+                            <field name="service_interval" widget="integer"/>
+                            <field name="next_service_odometer" widget="integer"
+                                   invisible="not service_interval"/>
+                        </group>
+                        <group name="payment_info" string="Cost &amp; Payment">
+                            <field name="cost"/>
+                            <field name="payment_state" widget="radio" options="{'horizontal': true}"/>
+                            <field name="payment_date" required="payment_state == 'paid'"/>
+                        </group>
                     </group>
-                    <group string="Notes">
-                        <field name="notes" placeholder="Additional notes..." nolabel="1"/>
-                    </group>
+                    <notebook>
+                        <page name="description" string="Description of Work">
+                            <field name="description" placeholder="Work performed..."/>
+                        </page>
+                        <page name="notes" string="Notes">
+                            <field name="notes" placeholder="Additional notes..."/>
+                        </page>
+                        <page name="attachments" string="Attachments">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>
@@ -229,16 +330,37 @@
                 <field name="name" string="Reference"/>
                 <field name="vehicle_id" string="Vehicle"/>
                 <field name="service_type_id" string="Service Type"/>
-                <field name="service_provider" string="Provider"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="user_id" string="Responsible"/>
                 <field name="contract_id" string="Contract"/>
 
-                <filter name="filter_this_month" string="This Month"
-                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-01')), ('date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_my" string="My Services" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_open" string="Open (New + Running)" domain="[('state', 'in', ('new', 'running'))]"/>
+                <separator/>
+                <filter name="filter_new" string="New" domain="[('state', '=', 'new')]"/>
+                <filter name="filter_running" string="Running" domain="[('state', '=', 'running')]"/>
+                <filter name="filter_done" string="Done" domain="[('state', '=', 'done')]"/>
+                <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="filter_unpaid" string="Unpaid"
+                        domain="[('payment_state', '=', 'unpaid'), ('state', '!=', 'cancelled')]"/>
+                <filter name="filter_paid" string="Paid" domain="[('payment_state', '=', 'paid')]"/>
+                <separator/>
+                <filter name="filter_under_contract" string="Under a Contract" domain="[('contract_id', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_date" string="Start Date" date="date"/>
+                <filter name="filter_end_date" string="End Date" date="end_date"/>
+                <separator/>
+                <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
 
                 <group expand="0" string="Group By">
                     <filter name="group_vehicle" string="Vehicle" context="{'group_by': 'vehicle_id'}"/>
                     <filter name="group_type" string="Service Type" context="{'group_by': 'service_type_id'}"/>
-                    <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+                    <filter name="group_partner" string="Vendor" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_payment" string="Payment Status" context="{'group_by': 'payment_state'}"/>
+                    <filter name="group_date" string="Start Date" context="{'group_by': 'date:month'}"/>
                     <filter name="group_contract" string="Contract" context="{'group_by': 'contract_id'}"/>
                 </group>
             </search>
