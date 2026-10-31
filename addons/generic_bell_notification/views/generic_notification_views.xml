@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_generic_notification_tree" model="ir.ui.view">
+        <field name="name">generic.notification.list</field>
+        <field name="model">generic.notification</field>
+        <field name="arch" type="xml">
+            <list decoration-bf="not is_read" decoration-info="not is_read" create="false" edit="false">
+                <field name="create_date" string="Date" widget="datetime"/>
+                <field name="name" string="Subject"/>
+                <field name="body"/>
+                <field name="is_read" column_invisible="True"/>
+                <field name="res_model" column_invisible="True"/>
+                <button name="action_open_record" type="object" string="Open" 
+                        icon="fa-external-link" invisible="not res_model"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_generic_notification_search" model="ir.ui.view">
+        <field name="name">generic.notification.search</field>
+        <field name="model">generic.notification</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter string="Unread" name="unread" domain="[('is_read', '=', False)]"/>
+                <separator/>
+                <filter string="My Notifications" name="my_notif" domain="[('user_id', '=', context.get('uid'))]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_generic_notification" model="ir.actions.act_window">
+        <field name="name">My Notifications</field>
+        <field name="res_model">generic.notification</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_generic_notification_search"/>
+        <field name="context">{'search_default_unread': 1, 'search_default_my_notif': 1}</field>
+    </record>
+</odoo>

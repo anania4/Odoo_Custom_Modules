@@ -16,9 +16,10 @@ class FleetRequest(models.Model):
 
     name = fields.Char(
         string='Request Reference',
-        compute='_compute_name',
-        store=True,
-        help='Reference of the request'
+        default='/',
+        copy=False,
+        readonly=True,
+        help='Reference of the request (FR/year/sequence)'
     )
 
     employee_id = fields.Many2one(
@@ -88,6 +89,18 @@ class FleetRequest(models.Model):
         help='Trip duration computed from scheduled start and end'
     )
 
+    vehicle_category_id = fields.Many2one(
+        'fleet.vehicle.category',
+        string='Type of Car',
+        tracking=True,
+        help='Type of car the requester wants (from Vehicle Categories)'
+    )
+
+    remark = fields.Text(
+        string='Remark',
+        help='Additional remarks from the requester'
+    )
+
     purpose = fields.Text(
         string='Purpose',
         help='Purpose of the trip'
@@ -144,15 +157,6 @@ class FleetRequest(models.Model):
         help='Driver assigned by the Fleet Manager, fetched from the Employees app'
     )
 
-    delegated_employee_id = fields.Many2one(
-        'hr.employee',
-        string='Driver Delegation',
-        tracking=True,
-        copy=False,
-        help='Employee delegated to drive, fetched from the Employees app '
-             '(chosen by the Fleet Manager when assigning a driver)'
-    )
-
     vehicle_id = fields.Many2one(
         'fleet.vehicle',
         string='Vehicle',
@@ -166,12 +170,13 @@ class FleetRequest(models.Model):
     # Computes
     # =========================================
 
-    @api.depends('employee_id', 'employee_id.name')
-    def _compute_name(self):
-        """Generate request reference"""
-        for request in self:
-            employee_name = request.employee_id.name or 'New'
-            request.name = 'FR/%05d/%s' % (request.id or 0, employee_name)
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Generate request reference FR/year/sequence"""
+        for vals in vals_list:
+            if vals.get('name', '/') == '/':
+                vals['name'] = self.env['ir.sequence'].next_by_code('fleet.request') or '/'
+        return super().create(vals_list)
 
     @api.depends('scheduled_start', 'scheduled_end')
     def _compute_duration(self):

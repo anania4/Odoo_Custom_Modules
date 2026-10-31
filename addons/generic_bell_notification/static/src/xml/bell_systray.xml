@@ -1,0 +1,52 @@
+<t t-name="generic_bell_notification.BellSystray">
+<div class="o_systray_item o_gbn_systray_item" t-ref="root">
+    <button type="button" class="o_gbn_button" t-on-click.stop="_onToggle">
+        <i class="fa fa-bell"/>
+        <span t-if="state.counter > 0" class="o_gbn_counter">
+            <t t-esc="state.counter"/>
+        </span>
+    </button>
+
+    <div t-if="state.open" class="o_gbn_dropdown">
+        <div class="o_gbn_dropdown_header">
+            <span class="o_gbn_header_title">Notifications</span>
+            <div class="o_gbn_header_actions">
+                <span class="o_gbn_mark_all" t-on-click.stop="markAllAsRead">Mark all as read</span>
+                <span class="o_gbn_clear_all" t-on-click.stop="clearAll">Clear All</span>
+                <i class="fa fa-times o_gbn_close" t-on-click.stop="_onToggle" title="Close"/>
+            </div>
+        </div>
+
+        <t t-if="state.notifications.length">
+            <div class="o_gbn_list">
+                <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
+                    <div t-attf-class="o_gbn_card o_gbn_type_#{notif.notif_type or 'info'} #{notif.is_read ? 'o_gbn_read' : ''}">
+                        <div class="o_gbn_icon" t-on-click="openNotification.bind(this, notif.id)">
+                            <i t-attf-class="fa #{notif.icon_class or 'fa-bell'}"/>
+                        </div>
+                        <div class="o_gbn_content" t-on-click="openNotification.bind(this, notif.id)">
+                            <div class="o_gbn_title" t-esc="notif.name"/>
+                            <div class="o_gbn_body" style="white-space: pre-line;" t-esc="notif.body"/>
+                            <div class="o_gbn_time" t-esc="notif.create_date"/>
+                        </div>
+                        <i class="fa fa-check o_gbn_mark_single" title="Mark as read"
+                           t-on-click.stop="markAsRead.bind(this, notif.id)"/>
+                    </div>
+                </t>
+            </div>
+        </t>
+
+        <t t-else="">
+            <div class="o_gbn_empty">
+                <i class="fa fa-bell-slash fa-3x"></i>
+                <p>You’re all caught up!</p>
+                <small>Check back later for new notifications.</small>
+            </div>
+        </t>
+
+        <t t-if="state.notifications.length >= state.limit">
+            <button class="o_gbn_load_more" t-on-click="loadMore">Load More</button>
+        </t>
+    </div>
+</div>
+</t>

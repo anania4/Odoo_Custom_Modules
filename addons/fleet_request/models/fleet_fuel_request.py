@@ -65,7 +65,7 @@ class FleetFuelRequest(models.Model):
         string='Receipt No.',
         tracking=True,
         copy=False,
-        help='Receipt number provided by the Fleet Manager'
+        help='Receipt number recorded by the Fuel Filler'
     )
 
     amount = fields.Monetary(
@@ -73,7 +73,22 @@ class FleetFuelRequest(models.Model):
         currency_field='currency_id',
         tracking=True,
         copy=False,
-        help='Fuel payment amount recorded by the Fleet Manager'
+        help='Fuel payment amount recorded by the Fuel Filler'
+    )
+
+    filler_id = fields.Many2one(
+        'res.users',
+        string='Filled By',
+        readonly=True,
+        tracking=True,
+        copy=False,
+        help='Fuel Filler who marked the request as filled'
+    )
+
+    filled_date = fields.Datetime(
+        string='Filled On',
+        readonly=True,
+        copy=False
     )
 
     currency_id = fields.Many2one(
@@ -115,7 +130,7 @@ class FleetFuelRequest(models.Model):
     can_edit_financials = fields.Boolean(
         string='Can Edit Financials',
         compute='_compute_can_edit_financials',
-        help='Technical field used to restrict receipt and amount to the Fleet Manager'
+        help='Technical field used to restrict receipt and amount to the Fuel Filler'
     )
 
     notes = fields.Text(
@@ -143,9 +158,9 @@ class FleetFuelRequest(models.Model):
     @api.depends('state')
     @api.depends_context('uid')
     def _compute_can_edit_financials(self):
-        is_manager = self.env.user.has_group('fleet_operations_pro.group_fleet_manager')
+        is_filler = self.env.user.has_group('fleet_request.group_fuel_filler')
         for request in self:
-            request.can_edit_financials = is_manager and request.state == 'approved'
+            request.can_edit_financials = is_filler and request.state == 'approved'
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -157,6 +172,10 @@ class FleetFuelRequest(models.Model):
     def _check_fleet_manager(self):
         if not self.env.user.has_group('fleet_operations_pro.group_fleet_manager'):
             raise UserError(_('Only a Fleet Manager can perform this action.'))
+
+    def _check_fuel_filler(self):
+        if not self.env.user.has_group('fleet_request.group_fuel_filler'):
+            raise UserError(_('Only a Fuel Filler can perform this action.'))
 
     def action_submit(self):
         """Employee submits the fuel request"""
@@ -192,9 +211,9 @@ class FleetFuelRequest(models.Model):
             request.state = 'approved'
 
     def action_mark_filled(self):
-        """Fleet Manager records the fuel receipt and completes the request"""
+        """Fuel Filler records quantity, amount and receipt and completes the request"""
         for request in self:
-            request._check_fleet_manager()
+            request._check_fuel_filler()
             if request.state != 'approved':
                 raise UserError(_('Only approved fuel requests can be marked as filled.'))
             if not request.receipt_no:
@@ -222,7 +241,8 @@ class FleetFuelRequest(models.Model):
                     line_amount = request.amount * line.current_filled / total_filled
                     remaining_amount -= line_amount
 
-                line.fuel_log_id = self.env['fleet.fuel.log'].create({
+                # sudo: the filler may be restricted by driver record rules on fuel logs
+                line.fuel_log_id = self.env['fleet.fuel.log'].sudo().create({
                     'vehicle_id': request.vehicle_id.id,
                     'driver_id': request.requested_by.id,
                     'date': fields.Date.today(),
@@ -236,7 +256,11 @@ class FleetFuelRequest(models.Model):
                     'fuel_request_line_id': line.id,
                 })
 
-            request.state = 'filled'
+            request.write({
+                'state': 'filled',
+                'filler_id': self.env.user.id,
+                'filled_date': fields.Datetime.now(),
+            })
 
 
 class FleetFuelRequestLine(models.Model):
@@ -318,13 +342,13 @@ class FleetFuelRequestLine(models.Model):
     current_filled = fields.Float(
         string='Current Filled (L)',
         digits=(10, 2),
-        help='Actual quantity filled, entered by the Fleet Manager'
+        help='Actual quantity filled, entered by the Fuel Filler'
     )
 
     can_edit_filled = fields.Boolean(
         string='Can Edit Filled Quantity',
         compute='_compute_can_edit_filled',
-        help='Technical field used to restrict the filled quantity to the Fleet Manager'
+        help='Technical field used to restrict the filled quantity to the Fuel Filler'
     )
 
     fuel_log_id = fields.Many2one(
@@ -394,9 +418,9 @@ class FleetFuelRequestLine(models.Model):
     @api.depends('request_state')
     @api.depends_context('uid')
     def _compute_can_edit_filled(self):
-        is_manager = self.env.user.has_group('fleet_operations_pro.group_fleet_manager')
+        is_filler = self.env.user.has_group('fleet_request.group_fuel_filler')
         for line in self:
-            line.can_edit_filled = is_manager and line.request_state == 'approved'
+            line.can_edit_filled = is_filler and line.request_state == 'approved'
 
 
 class FleetFuelLog(models.Model):

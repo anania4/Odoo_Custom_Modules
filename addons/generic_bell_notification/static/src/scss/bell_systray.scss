@@ -1,0 +1,341 @@
+// ---------------------------------------------------------------------------
+// Odoo's own top-corner toast notifications.
+// Same look as before (dark title, grey text) but bigger, and the native
+// close (X) button is visible again. The bell's classes are prefixed o_gbn_
+// so they no longer hide or restyle Odoo's toast elements.
+// ---------------------------------------------------------------------------
+.o_notification_manager {
+    @media (min-width: 576px) {
+        width: 380px;
+    }
+
+    .o_notification {
+        .o_notification_title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            word-break: break-word;
+        }
+
+        .o_notification_body,
+        .o_notification_content {
+            font-size: 14px;
+            line-height: 1.45;
+            color: #6b7280;
+            word-break: break-word;
+        }
+
+        .o_notification_close {
+            display: block;
+            cursor: pointer;
+        }
+    }
+}
+
+.o_gbn_systray_item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.o_gbn_button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    position: relative;
+}
+
+.o_gbn_button .fa-bell {
+    color: #f4c430;
+    font-size: 16px;
+}
+
+.o_gbn_counter {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    background: #dc3545;
+    color: #fff;
+    border-radius: 9px;
+    min-width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    font-size: 11px;
+    padding: 0 4px;
+    font-weight: 600;
+}
+
+.o_gbn_dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 400px;
+    max-width: 90vw;
+    max-height: 480px;
+    overflow-y: auto;
+    background: #fffdf8;
+    border-radius: 12px;
+    border: 1px solid #efe2c2;
+    box-shadow: 0 14px 32px rgba(94, 66, 12, 0.20);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+}
+
+.o_gbn_dropdown_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid #f1e2b6;
+    font-weight: 600;
+    font-size: 16px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(180deg, #fff3cf 0%, #fff9e8 100%);
+    z-index: 2;
+    gap: 8px;
+}
+
+.o_gbn_header_title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #4a3410;
+}
+
+.o_gbn_header_actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.o_gbn_mark_all,
+.o_gbn_clear_all {
+    font-size: 13px;
+    color: #b7791f;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.o_gbn_mark_all:hover,
+.o_gbn_clear_all:hover {
+    color: #8a5a10;
+    text-decoration: underline;
+}
+
+.o_gbn_close {
+    display: none;
+    font-size: 14px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.o_gbn_close:hover {
+    color: #111827;
+    background: #f3f4f6;
+}
+
+.o_gbn_list {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.o_gbn_card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #f6ecd2;
+    border-left: 4px solid var(--gbn-accent, #f4c430);
+    background: var(--gbn-soft, #fffaea);
+    transition: background 0.2s ease, opacity 0.3s ease;
+}
+
+.o_gbn_card:hover {
+    background: #fff3d1;
+}
+
+.o_gbn_type_info    { --gbn-accent: #3b8bd4; --gbn-soft: #f4f9fe; }
+.o_gbn_type_success { --gbn-accent: #2fa36b; --gbn-soft: #f3fbf7; }
+.o_gbn_type_warning { --gbn-accent: #f0a020; --gbn-soft: #fff8e8; }
+.o_gbn_type_danger  { --gbn-accent: #e0584f; --gbn-soft: #fff5f4; }
+
+.o_gbn_icon {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    color: var(--gbn-accent, #f4c430);
+    background: #fff;
+    border: 1px solid var(--gbn-accent, #f4c430);
+    cursor: pointer;
+}
+
+.o_gbn_card.o_gbn_read {
+    opacity: 0.6;
+    background: #faf7ef;
+    border-left-color: #e6dcc3;
+}
+
+.o_gbn_card.o_gbn_read .o_gbn_icon {
+    color: #a99b7d;
+    border-color: #e6dcc3;
+}
+
+.o_gbn_content {
+    flex: 1 1 auto;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.o_gbn_title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #3b2a0c;
+    word-break: break-word;
+}
+
+.o_gbn_body {
+    font-size: 13.5px;
+    color: #6f5f45;
+    margin-top: 3px;
+    line-height: 1.45;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.o_gbn_time {
+    font-size: 12px;
+    color: #a8977a;
+    margin-top: 4px;
+}
+
+.o_gbn_mark_single {
+    cursor: pointer;
+    color: #9ca3af;
+    font-size: 13px;
+    padding: 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.o_gbn_mark_single:hover {
+    color: #2fa36b;
+    background: #eaf7f0;
+}
+
+.o_gbn_empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 14px;
+    color: #6b7280;
+}
+
+.o_gbn_empty i {
+    color: #e3c36a;
+    margin-bottom: 12px;
+}
+
+.o_gbn_empty p {
+    font-weight: 600;
+    font-size: 15px;
+    margin: 0;
+    color: #374151;
+}
+
+.o_gbn_empty small {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+.o_gbn_load_more {
+    width: calc(100% - 24px);
+    margin: 8px 12px 12px;
+    padding: 8px 12px;
+    background: #f4c430;
+    color: #4a3410;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s ease;
+}
+
+.o_gbn_load_more:hover {
+    background: #e6b420;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 767.98px) {
+    .o_gbn_dropdown {
+        position: fixed;
+        top: calc(var(--o-navbar-height, 46px) + 6px);
+        left: 8px;
+        right: 8px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100vh - var(--o-navbar-height, 46px) - 20px);
+        border-radius: 10px;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+        z-index: 1055;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .o_gbn_close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .o_gbn_dropdown_header {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .o_gbn_header_actions {
+        gap: 8px;
+    }
+
+    .o_gbn_mark_all,
+    .o_gbn_clear_all {
+        font-size: 11px;
+        padding: 4px 6px;
+        background: #fff0c2;
+        border-radius: 4px;
+    }
+
+    .o_gbn_card {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .o_gbn_mark_single {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .o_gbn_load_more {
+        padding: 10px 12px;
+    }
+}

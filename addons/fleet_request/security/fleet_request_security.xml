@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Access rights section shown in Settings > Users -->
+        <record id="module_category_fleet_requests" model="ir.module.category">
+            <field name="name">Fleet Requests</field>
+            <field name="description">Access rights for fleet and fuel requests</field>
+            <field name="sequence">11</field>
+        </record>
+
+        <!-- Fuel Filler: records filled quantity, amount and receipt no. -->
+        <record id="group_fuel_filler" model="res.groups">
+            <field name="name">Fuel Filler</field>
+            <field name="category_id" ref="module_category_fleet_requests"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Fills approved fuel requests: enters the filled quantity, amount paid and receipt number, then marks the request as filled.</field>
+        </record>
+
+    </data>
+</odoo>

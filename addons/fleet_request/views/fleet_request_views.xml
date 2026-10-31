@@ -88,12 +88,16 @@
                         </group>
 
                         <group name="trip_info" string="Trip Details">
+                            <field name="vehicle_category_id" readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
                             <field name="purpose" readonly="state != 'draft'"
                                    placeholder="Purpose of the trip..."/>
                             <field name="pickup_location" readonly="state != 'draft'"
                                    placeholder="Pickup location..."/>
                             <field name="destination" readonly="state != 'draft'"
                                    placeholder="Destination..."/>
+                            <field name="remark" readonly="state != 'draft'"
+                                   placeholder="Remarks..."/>
                         </group>
                     </group>
 
@@ -105,10 +109,6 @@
                         <field name="driver_id" options="{'no_create': True}"
                                invisible="state not in ('fleet_approved', 'assigned')"
                                readonly="state != 'fleet_approved'"/>
-                        <field name="delegated_employee_id"
-                               invisible="state not in ('fleet_approved', 'assigned')"
-                               readonly="state != 'fleet_approved'"
-                               placeholder="Employee delegated to drive..."/>
                         <field name="vehicle_id"
                                invisible="state != 'assigned'"
                                readonly="1"
@@ -142,7 +142,7 @@
                 <field name="pickup_location" optional="hide"/>
                 <field name="destination" optional="hide"/>
                 <field name="vehicle_id" optional="show"/>
-                <field name="delegated_employee_id" optional="hide"/>
+                <field name="vehicle_category_id" optional="show"/>
             </list>
         </field>
     </record>
@@ -158,6 +158,7 @@
                 <field name="department_id" string="Department"/>
                 <field name="driver_id" string="Driver"/>
                 <field name="vehicle_id" string="Vehicle"/>
+                <field name="vehicle_category_id" string="Type of Car"/>
                 <field name="destination" string="Destination"/>
                 <field name="purpose" string="Purpose"/>
 

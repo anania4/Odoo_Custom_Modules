@@ -26,6 +26,7 @@ Features:
         'hr',
     ],
     'data': [
+        'security/fleet_request_security.xml',
         'security/ir.model.access.csv',
         'data/fuel_request_sequence.xml',
         'views/fleet_request_views.xml',

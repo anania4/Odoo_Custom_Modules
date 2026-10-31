@@ -37,7 +37,7 @@
                             groups="fleet_operations_pro.group_fleet_manager"/>
                     <button name="action_mark_filled" string="Mark as Filled" type="object"
                             class="btn-primary" invisible="state != 'approved'"
-                            groups="fleet_operations_pro.group_fleet_manager"/>
+                            groups="fleet_request.group_fuel_filler"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,submitted,approved,filled"/>
                 </header>
@@ -58,10 +58,12 @@
                             <field name="request_date"/>
                         </group>
 
-                        <group name="fleet_manager_info" string="Fleet Manager">
+                        <group name="fuel_filler_info" string="Fuel Filler">
                             <field name="receipt_no" readonly="not can_edit_financials"/>
                             <field name="amount" readonly="not can_edit_financials"/>
                             <field name="currency_id" invisible="1"/>
+                            <field name="filler_id" invisible="state != 'filled'"/>
+                            <field name="filled_date" invisible="state != 'filled'"/>
                         </group>
                     </group>
 
@@ -116,6 +118,7 @@
                 <field name="request_date"/>
                 <field name="receipt_no" optional="show"/>
                 <field name="amount" widget="monetary" optional="show"/>
+                <field name="filler_id" optional="show"/>
                 <field name="state" widget="badge"/>
                 <field name="department_id" optional="hide"/>
                 <field name="currency_id" column_invisible="1"/>
@@ -137,6 +140,8 @@
 
                 <filter name="filter_my_requests" string="My Requests"
                         domain="[('requested_by.user_id', '=', uid)]"/>
+                <filter name="filter_to_fill" string="To Fill"
+                        domain="[('state', '=', 'approved')]"/>
 
                 <separator/>
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
@@ -157,6 +162,8 @@
                             context="{'group_by': 'department_id'}"/>
                     <filter name="group_state" string="Status"
                             context="{'group_by': 'state'}"/>
+                    <filter name="group_filler" string="Filled By"
+                            context="{'group_by': 'filler_id'}"/>
                     <filter name="group_request_date" string="Request Date"
                             context="{'group_by': 'request_date'}"/>
                 </group>
