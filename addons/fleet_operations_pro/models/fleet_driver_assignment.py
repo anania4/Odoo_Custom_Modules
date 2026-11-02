@@ -18,6 +18,7 @@ class FleetDriverAssignment(models.Model):
     employee_id = fields.Many2one(
         'hr.employee',
         string='Driver',
+        domain="[('is_fleet_driver', '=', True)]",
         required=True,
         ondelete='cascade',
         index=True,
@@ -111,6 +112,15 @@ class FleetDriverAssignment(models.Model):
                 assignment.distance_driven = assignment.odometer_end - assignment.odometer_start
             else:
                 assignment.distance_driven = 0.0
+
+    @api.constrains('employee_id')
+    def _check_registered_driver(self):
+        """Vehicles can only be delegated to employees on the Drivers list"""
+        for assignment in self:
+            if assignment.employee_id and not assignment.employee_id.is_fleet_driver:
+                raise ValidationError(_(
+                    '%s is not on the Drivers list. Add them in Fleet > Drivers first.'
+                ) % assignment.employee_id.name)
 
     @api.constrains('date_start', 'date_end')
     def _check_dates(self):

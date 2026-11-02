@@ -128,7 +128,8 @@
 
                     <group>
                         <group name="assignment" string="Assignment &amp; Acquisition">
-                            <field name="driver_id" readonly="1"/>
+                            <field name="driver_id" string="Driver (delegated)" options="{'no_create': True}"
+                                   help="Choosing a driver here delegates the vehicle to them: the previous delegation is ended and a new one starts today (see Driver History)."/>
                             <field name="manager_id" options="{'no_create': True}"/>
                             <field name="acquisition_date"/>
                             <field name="acquisition_cost" widget="monetary"/>

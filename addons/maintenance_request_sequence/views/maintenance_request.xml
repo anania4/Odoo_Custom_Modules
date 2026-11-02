@@ -41,6 +41,10 @@
                     options="{'no_create': True}"
                 />
             </field>
+            <field name="duration" position="after">
+                <field name="currency_id" invisible="1" />
+                <field name="maintenance_cost" widget="monetary" />
+            </field>
         </field>
     </record>
     <record model="ir.ui.view" id="hr_equipment_request_view_search">
@@ -99,6 +103,15 @@
                 <field name="asset_type" optional="show" />
                 <field name="vehicle_id" optional="show" />
             </field>
+            <field name="stage_id" position="after">
+                <field name="currency_id" column_invisible="1" />
+                <field
+                    name="maintenance_cost"
+                    widget="monetary"
+                    optional="show"
+                    sum="Total Cost"
+                />
+            </field>
         </field>
     </record>
     <record model="ir.ui.view" id="hr_equipment_request_view_kanban">
@@ -119,3 +132,5 @@
         </field>
     </record>
 </odoo>
+
+

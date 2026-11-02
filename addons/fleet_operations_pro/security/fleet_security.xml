@@ -17,11 +17,19 @@
             <field name="comment">Fleet Requests app only: creates and follows own fleet and fuel requests (department managers also see and approve their team's fleet requests). No access to the Fleet app.</field>
         </record>
 
+        <!-- Fleet Driver: Fleet app, Drivers page only, read only -->
+        <record id="group_fleet_driver" model="res.groups">
+            <field name="name">Fleet Driver</field>
+            <field name="category_id" ref="module_category_fleet_operations"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Fleet app, Drivers page only, read-only: driver details, license, current vehicle, assignment history and summary.</field>
+        </record>
+
         <!-- Fleet Viewer: Fleet app, read only -->
         <record id="group_fleet_viewer" model="res.groups">
             <field name="name">Fleet Viewer</field>
             <field name="category_id" ref="module_category_fleet_operations"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('group_fleet_driver'))]"/>
             <field name="comment">Fleet app only, read-only: dashboard, vehicles, contracts, services, fuel logs, tolls, trips and reports. No configuration, no Fleet Requests app.</field>
         </record>
 

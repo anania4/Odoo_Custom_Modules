@@ -127,6 +127,7 @@ class FleetRequest(models.Model):
             ('dept_approved', 'Department Manager Approved'),
             ('fleet_approved', 'Fleet Manager Approved'),
             ('assigned', 'Assigned'),
+            ('completed', 'Completed'),
             ('rejected', 'Rejected'),
         ],
         string='Status',
@@ -151,10 +152,10 @@ class FleetRequest(models.Model):
     driver_id = fields.Many2one(
         'hr.employee',
         string='Driver',
-        domain="[('company_id', '=', company_id)]",
+        domain="[('company_id', '=', company_id), ('is_fleet_driver', '=', True)]",
         tracking=True,
         copy=False,
-        help='Driver assigned by the Fleet Manager, fetched from the Employees app'
+        help='Driver assigned by the Fleet Manager, chosen from the Fleet > Drivers list'
     )
 
     vehicle_id = fields.Many2one(
@@ -165,6 +166,36 @@ class FleetRequest(models.Model):
         copy=False,
         help='Vehicle currently driven by the assigned driver (automatic)'
     )
+
+    # =========================================
+    # Completion (by the delegated driver)
+    # =========================================
+
+    completed_date = fields.Datetime(
+        string='Completed On',
+        readonly=True,
+        tracking=True,
+        copy=False,
+        help='When the delegated driver marked the trip as completed'
+    )
+    completion_note = fields.Text(
+        string='Completion Note',
+        copy=False,
+        help='Optional note from the driver when completing the trip'
+    )
+    is_delegated_driver = fields.Boolean(
+        string='I Am the Delegated Driver',
+        compute='_compute_is_delegated_driver',
+        help='True when the current user is the driver assigned to this request'
+    )
+
+    @api.depends('driver_id')
+    @api.depends_context('uid')
+    def _compute_is_delegated_driver(self):
+        for request in self:
+            request.is_delegated_driver = bool(
+                request.driver_id and request.driver_id.sudo().user_id == self.env.user
+            )
 
     # =========================================
     # Computes
@@ -211,7 +242,7 @@ class FleetRequest(models.Model):
     def _check_assigned_state(self):
         """A request can only be in the Assigned stage with a driver and vehicle"""
         for request in self:
-            if request.state == 'assigned' and (not request.driver_id or not request.vehicle_id):
+            if request.state in ('assigned', 'completed') and (not request.driver_id or not request.vehicle_id):
                 raise ValidationError(_('A driver must be assigned to move the request to the Assigned stage.'))
 
     # =========================================
@@ -333,3 +364,18 @@ class FleetRequest(models.Model):
                     'Assign a vehicle to the driver first.') % request.driver_id.name)
             request.vehicle_id = vehicle
             request.state = 'assigned'
+
+    def action_complete(self):
+        """The delegated driver (or a Fleet Manager) marks the trip as done"""
+        is_manager = self.env.user.has_group('fleet_operations_pro.group_fleet_manager')
+        for request in self:
+            if request.state != 'assigned':
+                raise UserError(_('Only assigned requests can be marked as completed.'))
+            if not (request.is_delegated_driver or is_manager):
+                raise UserError(_(
+                    'Only the delegated driver (%s) or a Fleet Manager can complete this request.'
+                ) % request.driver_id.name)
+            request.write({
+                'state': 'completed',
+                'completed_date': fields.Datetime.now(),
+            })

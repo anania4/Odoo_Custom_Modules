@@ -40,3 +40,9 @@ access_fleet_vehicle_tag_user,fleet.vehicle.tag.user,model_fleet_vehicle_tag,gro
 access_fleet_fuel_type_user,fleet.fuel.type.user,model_fleet_fuel_type,group_fleet_user,1,0,0,0
 access_fleet_driver_assignment_user,fleet.driver.assignment.user,model_fleet_driver_assignment,group_fleet_user,1,0,0,0
 access_fleet_fuel_log_user,fleet.fuel.log.user,model_fleet_fuel_log,group_fleet_user,1,0,0,0
+access_fleet_monthly_report_viewer,fleet.monthly.report.viewer,model_fleet_monthly_report,group_fleet_viewer,1,1,1,1
+access_fleet_driver_driver,fleet.driver.driver,model_fleet_driver,group_fleet_driver,1,0,0,0
+access_fleet_driver_manager,fleet.driver.manager,model_fleet_driver,group_fleet_manager,1,1,1,1
+access_fleet_driver_assignment_driver,fleet.driver.assignment.driver,model_fleet_driver_assignment,group_fleet_driver,1,0,0,0
+access_fleet_vehicle_driver,fleet.vehicle.driver,model_fleet_vehicle,group_fleet_driver,1,0,0,0
+access_fleet_vehicle_model_driver,fleet.vehicle.model.driver,model_fleet_vehicle_model,group_fleet_driver,1,0,0,0

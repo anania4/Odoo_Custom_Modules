@@ -290,6 +290,7 @@ class FleetVehicle(models.Model):
     driver_id = fields.Many2one(
         'hr.employee',
         string='Driver',
+        domain="[('is_fleet_driver', '=', True)]",
         compute='_compute_current_driver',
         inverse='_inverse_current_driver',
         search='_search_driver_id',

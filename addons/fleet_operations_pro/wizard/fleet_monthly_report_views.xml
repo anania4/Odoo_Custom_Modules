@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_fleet_monthly_report_form" model="ir.ui.view">
+        <field name="name">fleet.monthly.report.form</field>
+        <field name="model">fleet.monthly.report</field>
+        <field name="arch" type="xml">
+            <form string="Fleet Report">
+                <group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="vehicle_ids" widget="many2many_tags"
+                               placeholder="All vehicles" options="{'no_create': True}"/>
+                        <field name="company_id" groups="base.group_multi_company"
+                               options="{'no_create': True}"/>
+                    </group>
+                </group>
+                <p class="text-muted small">
+                    Excel file, one row per vehicle for the chosen dates: odometer at the start and end, km driven,
+                    trips, fuel, services done, contracts paid or due, costs and a remark.
+                    Set up to print on landscape A4, one page wide.
+                </p>
+                <footer>
+                    <button name="action_export_xlsx" string="Export Excel" type="object"
+                            class="btn-primary" icon="fa-file-excel-o"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_fleet_monthly_report" model="ir.actions.act_window">
+        <field name="name">Fleet Report</field>
+        <field name="res_model">fleet.monthly.report</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_fleet_monthly_report"
+              name="Fleet Report"
+              parent="menu_fleet_reporting"
+              action="action_fleet_monthly_report"
+              sequence="5"/>
+
+</odoo>

@@ -61,7 +61,8 @@
     <menuitem id="menu_fleet_reporting"
               name="Reporting"
               parent="menu_fleet_root"
-              sequence="90"/>
+              sequence="90"
+              groups="group_fleet_viewer"/>
     
     <menuitem id="menu_fleet_vehicle_report"
               name="Vehicle Analysis"

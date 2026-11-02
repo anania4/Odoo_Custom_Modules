@@ -25,6 +25,24 @@ class MaintenanceRequest(models.Model):
         tracking=True,
         ondelete="restrict",
     )
+    currency_id = fields.Many2one(
+        comodel_name="res.currency",
+        related="company_id.currency_id",
+        string="Currency",
+    )
+    maintenance_cost = fields.Monetary(
+        string="Maintenance Cost",
+        currency_field="currency_id",
+        tracking=True,
+        copy=False,
+        help="Total cost incurred for this maintenance.",
+    )
+
+    @api.constrains("maintenance_cost")
+    def _check_maintenance_cost(self):
+        for rec in self:
+            if rec.maintenance_cost < 0:
+                raise ValidationError(_("Maintenance cost cannot be negative."))
 
     @api.onchange("asset_type")
     def _onchange_asset_type(self):

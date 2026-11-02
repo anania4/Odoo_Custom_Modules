@@ -69,4 +69,145 @@
         </field>
     </record>
 
+    <!-- ========================================= -->
+    <!-- Drivers                                   -->
+    <!-- ========================================= -->
+
+    <record id="view_fleet_driver_list" model="ir.ui.view">
+        <field name="name">fleet.driver.list</field>
+        <field name="model">fleet.driver</field>
+        <field name="arch" type="xml">
+            <list string="Drivers"
+                  decoration-danger="license_state == 'expired'"
+                  decoration-warning="license_state == 'due_soon'">
+                <field name="name"/>
+                <field name="mobile_phone" optional="show"/>
+                <field name="work_phone" optional="hide"/>
+                <field name="license_number"/>
+                <field name="license_category" optional="show"/>
+                <field name="license_expiry_date"/>
+                <field name="license_state" widget="badge"
+                       decoration-success="license_state == 'valid'"
+                       decoration-warning="license_state == 'due_soon'"
+                       decoration-danger="license_state == 'expired'"/>
+                <field name="current_vehicle_id" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_driver_form" model="ir.ui.view">
+        <field name="name">fleet.driver.form</field>
+        <field name="model">fleet.driver</field>
+        <field name="arch" type="xml">
+            <form string="Driver">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget name="web_ribbon" title="License Expired" bg_color="text-bg-danger"
+                            invisible="not active or license_state != 'expired'"/>
+                    <widget name="web_ribbon" title="License Expires Soon" bg_color="text-bg-warning"
+                            invisible="not active or license_state != 'due_soon'"/>
+                    <field name="active" invisible="1"/>
+                    <field name="image_128" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="employee_id" string="Driver"/>
+                        <h1>
+                            <field name="employee_id" placeholder="Select an employee..."
+                                   options="{'no_create': True}"
+                                   domain="[('company_id', 'in', allowed_company_ids)]"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Driver Details">
+                            <field name="mobile_phone" widget="phone"/>
+                            <field name="work_phone" widget="phone"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="License">
+                            <field name="license_number"/>
+                            <field name="license_category" placeholder="e.g. Automobile, Heavy Truck"/>
+                            <field name="license_expiry_date"
+                                   decoration-danger="license_state == 'expired'"
+                                   decoration-warning="license_state == 'due_soon'"/>
+                            <field name="license_state" widget="badge"
+                                   decoration-success="license_state == 'valid'"
+                                   decoration-warning="license_state == 'due_soon'"
+                                   decoration-danger="license_state == 'expired'"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Current Assignment">
+                            <field name="current_vehicle_id" invisible="not current_vehicle_id"/>
+                            <field name="current_vehicle_plate" invisible="not current_vehicle_id"/>
+                            <field name="current_vehicle_model" invisible="not current_vehicle_id"/>
+                            <field name="assigned_since" invisible="not current_vehicle_id"/>
+                            <div colspan="2" class="text-muted" invisible="current_vehicle_id">
+                                No vehicle currently assigned.
+                            </div>
+                        </group>
+                        <group string="Summary">
+                            <field name="vehicle_count"/>
+                            <field name="total_km"/>
+                            <field name="service_count"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Assignment History" name="assignment_history">
+                            <field name="assignment_ids" readonly="1">
+                                <list create="0" delete="0" edit="0">
+                                    <field name="vehicle_id"/>
+                                    <field name="date_start" string="From"/>
+                                    <field name="date_end" string="To"/>
+                                    <field name="distance_driven" optional="show"/>
+                                    <field name="is_active" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fleet_driver_search" model="ir.ui.view">
+        <field name="name">fleet.driver.search</field>
+        <field name="model">fleet.driver</field>
+        <field name="arch" type="xml">
+            <search string="Drivers">
+                <field name="name"/>
+                <field name="license_number"/>
+                <field name="mobile_phone"/>
+                <filter string="License Expired" name="license_expired"
+                        domain="[('license_expiry_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="License Expires in 30 Days" name="license_due_soon"
+                        domain="[('license_expiry_date', '&gt;=', context_today().strftime('%Y-%m-%d')),
+                                 ('license_expiry_date', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="License Category" name="group_license_category"
+                            context="{'group_by': 'license_category'}"/>
+                    <filter string="Company" name="group_company"
+                            context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fleet_driver" model="ir.actions.act_window">
+        <field name="name">Drivers</field>
+        <field name="res_model">fleet.driver</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_fleet_driver_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add your first driver</p>
+            <p>Register employees as drivers with their license details.
+               Assignments come from the vehicles' driver assignments.</p>
+        </field>
+    </record>
+
 </odoo>

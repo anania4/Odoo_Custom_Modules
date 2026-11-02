@@ -28,5 +28,5 @@ class FleetVehicle(models.Model):
         for vehicle in self:
             vehicle.accepted_request_count = self.env['fleet.request'].search_count([
                 ('vehicle_id', '=', vehicle.id),
-                ('state', '=', 'assigned'),
+                ('state', 'in', ('assigned', 'completed')),
             ])

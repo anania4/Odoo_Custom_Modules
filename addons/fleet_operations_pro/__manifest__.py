@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Fleet Operations Pro',
-    'version': '18.0.0.0.7',
+    'version': '18.0.0.0.10',
     'category': 'Operations/Fleet',
     'summary': 'Comprehensive Fleet Management System',
     'description': """
@@ -56,6 +56,7 @@ This module is standalone and does not depend on Odoo's base fleet module.
         'views/fleet_menu_views.xml',
         'views/vehicle_config_views.xml',
         'report/fleet_report_views.xml',
+        'wizard/fleet_monthly_report_views.xml',
     ],
     'demo': [],
     'images': [

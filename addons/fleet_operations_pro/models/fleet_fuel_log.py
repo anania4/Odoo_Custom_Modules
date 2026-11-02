@@ -28,6 +28,7 @@ class FleetFuelLog(models.Model):
     driver_id = fields.Many2one(
         'hr.employee',
         string='Driver',
+        domain="[('is_fleet_driver', '=', True)]",
         tracking=True,
         help='Driver (employee) who filled the fuel'
     )

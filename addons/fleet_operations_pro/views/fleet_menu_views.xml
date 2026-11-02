@@ -5,7 +5,7 @@
     <menuitem id="menu_fleet_root"
               name="Fleet"
               web_icon="fleet_operations_pro,static/description/icon.png"
-              groups="group_fleet_viewer"
+              groups="group_fleet_driver"
               sequence="50"/>
     
     <!-- Operations Menu -->
@@ -19,15 +19,25 @@
               name="Dashboard"
               parent="menu_fleet_root"
               action="action_client_fleet_dashboard"
-              sequence="1"/>
+              sequence="1"
+              groups="group_fleet_viewer"/>
     
     <!-- Vehicles Menu Item -->
     <menuitem id="menu_fleet_vehicle"
               name="Vehicles"
               parent="menu_fleet_operations"
               action="action_fleet_vehicle"
-              sequence="10"/>
+              sequence="10"
+              groups="group_fleet_viewer"/>
     
+    <!-- Drivers Menu Item (Fleet Driver group and above) -->
+    <menuitem id="menu_fleet_driver"
+              name="Drivers"
+              parent="menu_fleet_operations"
+              action="action_fleet_driver"
+              groups="group_fleet_driver"
+              sequence="20"/>
+
     <!-- Driver Assignments Menu Item -->
     <!-- Driver Assignments managed from Vehicle page -->
     
@@ -36,7 +46,8 @@
               name="Fuel Logs"
               parent="menu_fleet_operations"
               action="action_fleet_fuel_log"
-              sequence="40"/>
+              sequence="40"
+              groups="group_fleet_viewer"/>
     
     <!-- Configuration Menu -->
     <menuitem id="menu_fleet_configuration"
@@ -97,20 +108,23 @@
               name="Contracts"
               parent="menu_fleet_operations"
               action="action_fleet_contract"
-              sequence="60"/>
+              sequence="60"
+              groups="group_fleet_viewer"/>
     
     <!-- Services Menu Item -->
     <menuitem id="menu_fleet_service"
               name="Services"
               parent="menu_fleet_operations"
               action="action_fleet_service"
-              sequence="65"/>
+              sequence="65"
+              groups="group_fleet_viewer"/>
     
     <!-- Toll Records Menu Item -->
     <menuitem id="menu_fleet_toll_record"
               name="Toll Records"
               parent="menu_fleet_operations"
               action="action_fleet_toll_record"
-              sequence="90"/>
+              sequence="90"
+              groups="group_fleet_viewer"/>
     
 </odoo>
