@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import fleet_bell
 from . import fleet_vehicle
 from . import fleet_vehicle_model
 from . import fleet_vehicle_category
@@ -17,3 +18,4 @@ from . import fleet_contract
 from . import fleet_service
 from . import fleet_dashboard
 
+from . import fleet_bell_notifications

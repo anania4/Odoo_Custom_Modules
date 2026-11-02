@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Fleet Operations Pro',
-    'version': '18.0.0.0.10',
+    'version': '18.0.0.0.11',
     'category': 'Operations/Fleet',
     'summary': 'Comprehensive Fleet Management System',
     'description': """
@@ -30,6 +30,7 @@ This module is standalone and does not depend on Odoo's base fleet module.
         'mail',
         'web',
         'hr',
+        'generic_bell_notification',
     ],
     'data': [
         'security/fleet_security.xml',
