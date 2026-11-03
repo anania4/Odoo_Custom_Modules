@@ -66,6 +66,9 @@ class MaintenanceRequest(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # A request created with a vehicle is a vehicle request
+            if vals.get("vehicle_id") and "asset_type" not in vals:
+                vals["asset_type"] = "vehicle"
             if vals.get("code", "/") == "/":
                 team_id = vals.get("maintenance_team_id")
                 sequence = self.env["maintenance.team"].browse(

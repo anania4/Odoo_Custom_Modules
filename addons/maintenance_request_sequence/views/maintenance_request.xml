@@ -30,7 +30,6 @@
             </field>
             <field name="equipment_id" position="attributes">
                 <attribute name="invisible">asset_type != 'machinery'</attribute>
-                <attribute name="required">asset_type == 'machinery'</attribute>
                 <attribute name="string">Machinery</attribute>
             </field>
             <field name="equipment_id" position="after">

@@ -4,6 +4,7 @@
 import re
 
 from odoo import fields
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -47,3 +48,61 @@ class TestMaintenanceRequestSequence(TransactionCase):
         request = self.env["maintenance.request"].create({"name": "Default Req"})
         self.assertRegex(request.code, r"^MR/%s/\d{5}$" % year)
         self.assertNotRegex(request.code, re.escape("%(range_year)s"))
+
+
+class TestMaintenanceRequestAsset(TransactionCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.vehicle = cls.env["fleet.vehicle"].create(
+            {
+                "name": "Test Vehicle",
+                "license_plate": "TEST-MR-001",
+                "category_id": cls.env.ref(
+                    "fleet_operations_pro.vehicle_category_car"
+                ).id,
+            }
+        )
+        cls.equipment = cls.env["maintenance.equipment"].create(
+            {"name": "Test Machine"}
+        )
+
+    def test_vehicle_sets_asset_type(self):
+        request = self.env["maintenance.request"].create(
+            {"name": "Vehicle Req", "vehicle_id": self.vehicle.id}
+        )
+        self.assertEqual(request.asset_type, "vehicle")
+        self.assertEqual(self.vehicle.maintenance_request_count, 1)
+
+    def test_machinery_default_and_optional_equipment(self):
+        request = self.env["maintenance.request"].create({"name": "Plain Req"})
+        self.assertEqual(request.asset_type, "machinery")
+        self.assertFalse(request.equipment_id)
+
+    def test_asset_type_mismatch(self):
+        with self.assertRaises(ValidationError):
+            self.env["maintenance.request"].create(
+                {
+                    "name": "Bad Req",
+                    "asset_type": "machinery",
+                    "vehicle_id": self.vehicle.id,
+                }
+            )
+        with self.assertRaises(ValidationError):
+            self.env["maintenance.request"].create(
+                {
+                    "name": "Bad Req 2",
+                    "vehicle_id": self.vehicle.id,
+                    "equipment_id": self.equipment.id,
+                }
+            )
+
+    def test_maintenance_cost(self):
+        request = self.env["maintenance.request"].create(
+            {"name": "Cost Req", "maintenance_cost": 250.0}
+        )
+        self.assertEqual(request.maintenance_cost, 250.0)
+        self.assertEqual(request.currency_id, request.company_id.currency_id)
+        self.assertFalse(request.copy().maintenance_cost)
+        with self.assertRaises(ValidationError):
+            request.maintenance_cost = -1

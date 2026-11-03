@@ -5,7 +5,7 @@
     "name": "Maintenance Request Sequence",
     "summary": """
         Adds sequence to maintenance requests""",
-    "version": "18.0.1.3.0",
+    "version": "18.0.1.4.0",
     "license": "AGPL-3",
     "author": "Creu Blanca,Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/maintenance",
