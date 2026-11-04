@@ -34,7 +34,7 @@ class MefsBudgetEstimateLine(models.Model):
     total_material_cost = fields.Monetary(
         string='Total Material Cost', compute='_compute_costs', store=True)
     material_categ_id = fields.Many2one(
-        related='material_product_id.categ_id', string='Material Class')
+        'product.category', string='Material Class')
 
     # --- Equipment ---
     equipment_product_id = fields.Many2one('product.product', string='Equipment Type')
@@ -45,7 +45,7 @@ class MefsBudgetEstimateLine(models.Model):
     total_equipment_cost = fields.Monetary(
         string='Total Equipment Cost', compute='_compute_costs', store=True)
     equipment_categ_id = fields.Many2one(
-        related='equipment_product_id.categ_id', string='Equipment Class')
+        'product.category', string='Equipment Class')
 
     # --- Manpower ---
     manpower_product_id = fields.Many2one('product.product', string='Manpower Type')
@@ -54,7 +54,7 @@ class MefsBudgetEstimateLine(models.Model):
     total_manpower_cost = fields.Monetary(
         string='Total Manpower Cost', compute='_compute_costs', store=True)
     labour_categ_id = fields.Many2one(
-        related='manpower_product_id.categ_id', string='Labour Class')
+        'product.category', string='Labour Class')
 
     # --- Subcontractor ---
     subcontract_cost_unit = fields.Monetary(string='Subcontractor Cost per Unit')
@@ -106,6 +106,9 @@ class MefsBudgetEstimateLine(models.Model):
             'manpower_price_day': 0.0,
             'subcontract_cost_unit': 0.0,
             'subcontract_categ_id': False,
+            'material_categ_id': False,
+            'equipment_categ_id': False,
+            'labour_categ_id': False,
         })
         return True
 

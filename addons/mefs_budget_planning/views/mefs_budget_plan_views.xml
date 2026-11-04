@@ -46,7 +46,7 @@
                                     <field name="material_unit_price"/>
                                     <field name="material_price_per_work_unit"/>
                                     <field name="total_material_cost" class="o_budget_total_col" sum="Total Material Cost"/>
-                                    <field name="material_categ_id"/>
+                                    <field name="material_categ_id" options="{'no_create': True}"/>
                                     <!-- Equipment -->
                                     <field name="equipment_product_id" options="{'no_create': True}"/>
                                     <field name="equipment_count"/>
@@ -54,13 +54,13 @@
                                     <field name="equipment_rate_hour"/>
                                     <field name="equipment_rental_hours"/>
                                     <field name="total_equipment_cost" class="o_budget_total_col" sum="Total Equipment Cost"/>
-                                    <field name="equipment_categ_id"/>
+                                    <field name="equipment_categ_id" options="{'no_create': True}"/>
                                     <!-- Manpower -->
                                     <field name="manpower_product_id" options="{'no_create': True}"/>
                                     <field name="manpower_count"/>
                                     <field name="manpower_price_day"/>
                                     <field name="total_manpower_cost" class="o_budget_total_col" sum="Total Manpower Cost"/>
-                                    <field name="labour_categ_id"/>
+                                    <field name="labour_categ_id" options="{'no_create': True}"/>
                                     <!-- Subcontractor -->
                                     <field name="subcontract_cost_unit"/>
                                     <field name="total_subcontractor_cost" class="o_budget_total_col" sum="Total Subcontractor Cost"/>
