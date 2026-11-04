@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mefs_boq_tree" model="ir.ui.view">
+        <field name="name">mefs.boq.tree</field>
+        <field name="model">mefs.boq</field>
+        <field name="arch" type="xml">
+            <list string="Bills of Quantity">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="date"/>
+                <field name="revision_name" optional="show"/>
+                <field name="total_amount" string="Total Before VAT" sum="Total Before VAT"/>
+                <field name="grand_total" sum="Grand Total"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'waiting_approval'"
+                       decoration-success="state == 'locked'"
+                       decoration-muted="state == 'revised'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mefs_boq_form" model="ir.ui.view">
+        <field name="name">mefs.boq.form</field>
+        <field name="model">mefs.boq</field>
+        <field name="arch" type="xml">
+            <form string="Bill of Quantity">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'waiting_approval' or submitted_by == uid or not is_project_manager"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object" invisible="state != 'waiting_approval'"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object" invisible="state != 'locked' or not is_project_manager"/>
+                    <button name="action_create_payment" string="Create Payment" type="object" class="oe_highlight" invisible="state != 'locked' or not is_project_manager"/>
+                    <field name="is_project_manager" invisible="1"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,waiting_approval,locked"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payments" type="object" class="oe_stat_button" icon="fa-money">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="payment_count" nolabel="1"/>
+                                </span>
+                                <span class="o_stat_text">BOQ Payments</span>
+                            </div>
+                        </button>
+                        <button name="action_view_revisions" type="object" class="oe_stat_button" icon="fa-history" invisible="revision_count == 0">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="revision_count" nolabel="1"/>
+                                </span>
+                                <span class="o_stat_text">Revisions</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id" readonly="state != 'draft'"/>
+                            <field name="date" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="parent_boq_id" invisible="not parent_boq_id"/>
+                            <field name="submitted_by" readonly="1" invisible="not submitted_by"/>
+                            <field name="approved_by" readonly="1" invisible="not approved_by"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="BOQ Lines" name="boq_lines">
+                            <field name="boq_line_ids" readonly="state != 'draft'">
+                                <list editable="bottom"
+                                      delete="true"
+                                      decoration-bf="display_type == 'line_section' or is_subtotal"
+                                      decoration-it="is_subtotal">
+                                    <control>
+                                        <!-- Level 1: 1, 2, 3 … -->
+                                        <create name="add_line_control"
+                                                string="Add line"
+                                                context="{'default_display_type': 'line_section'}"/>
+                                        <!-- Level 2: 1.1, 1.2 … -->
+                                        <create name="add_section_control"
+                                                string="Add a section"
+                                                context="{'default_display_type': 'line_sub_section'}"/>
+                                        <!-- Level 3: 1.1.1, 1.1.2 … -->
+                                        <create name="add_sub_section_control"
+                                                string="Add a subsection"
+                                                context="{'default_display_type': 'line_sub'}"/>
+                                        <!-- Level 4: 1.1.1.1, 1.1.1.2 … -->
+                                        <create name="add_sub_line_control"
+                                                string="Add a sub line"
+                                                context="{'default_display_type': 'line_sub2'}"/>
+                                        <!-- Note -->
+                                        <create name="add_note_control"
+                                                string="Add a note"
+                                                context="{'default_display_type': 'line_note'}"/>
+                                    </control>
+
+                                    <field name="sequence" widget="handle" column_invisible="True"/>
+                                    <field name="display_type" column_invisible="True"/>
+                                    <field name="is_subtotal" column_invisible="True"/>
+
+                                    <!-- Bill No. -->
+                                    <field name="bill_no" string="Bill No." readonly="1" invisible="is_subtotal"/>
+
+                                    <!-- Work Type — visible and selectable -->
+                                    <field name="work_type_id"
+                                           invisible="is_subtotal or display_type == 'line_note'"
+                                           options="{'no_create_edit': False}"
+                                           string="Work Type"/>
+                                    <field name="work_type"
+                                           column_invisible="True"/>
+                                    <field name="code"
+                                           column_invisible="True"
+                                           readonly="1"/>
+
+                                    <field name="product_id"
+                                           column_invisible="True"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="role_id"
+                                           column_invisible="True"
+                                           options="{'no_create': True, 'no_open': True}"/>
+
+                                    <!-- Description of Works — always visible -->
+                                    <field name="name" string="Description of Works"/>
+
+                                    <field name="description" column_invisible="True"/>
+                                    <field name="task_id"
+                                           column_invisible="True"
+                                           options="{'no_create': True, 'no_open': True}"/>
+
+                                    <!-- Unit -->
+                                    <field name="uom_id"
+                                           invisible="is_subtotal or display_type == 'line_note'"
+                                           string="Unit"/>
+
+                                    <!-- Quantity -->
+                                    <field name="revised_contract_qty"
+                                           invisible="is_subtotal or display_type == 'line_note'"
+                                           string="Quantity"/>
+
+                                    <!-- Price in ETB -->
+                                    <field name="unit_price"
+                                           invisible="is_subtotal or display_type == 'line_note'"
+                                           string="Price in ETB"/>
+
+                                    <!-- Taxes / VAT -->
+                                    <field name="taxes_id"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}"
+                                           invisible="is_subtotal or display_type == 'line_note'"
+                                           optional="show"
+                                           string="Taxes"/>
+
+                                    <!-- Total Price in ETB — computed, never user-editable -->
+                                    <field name="subtotal"
+                                           invisible="display_type == 'line_note'"
+                                           readonly="1"
+                                           string="Total Price in ETB"/>
+
+                                    <!-- Hidden columns -->
+                                    <field name="original_contract_qty"
+                                           column_invisible="True"
+                                           readonly="1"
+                                           string="Orig. Qty"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_amount"/>
+                                <field name="vat_amount"/>
+                                <div class="oe_subtotal_footer_separator oe_inline">
+                                    <label for="grand_total"/>
+                                </div>
+                                <field name="grand_total" nolabel="1" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Terms &amp; Notes" name="terms_notes">
+                            <field name="note" placeholder="Note: Fuel base price, price adjustment terms, or contractor conditions to print on the BOQ document..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mefs_boq_search" model="ir.ui.view">
+        <field name="name">mefs.boq.search</field>
+        <field name="model">mefs.boq</field>
+        <field name="arch" type="xml">
+            <search string="Search BOQ">
+                <field name="name"/>
+                <field name="project_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Approved" name="locked" domain="[('state', '=', 'locked')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="group_by_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_mefs_boq" model="ir.actions.act_window">
+        <field name="name">Bills of Quantity</field>
+        <field name="res_model">mefs.boq</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('parent_boq_id', '=', False)]</field>
+        <field name="search_view_id" ref="view_mefs_boq_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Bill of Quantity!
+            </p>
+        </field>
+    </record>
+</odoo>

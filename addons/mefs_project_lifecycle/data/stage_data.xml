@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stage_design" model="project.project.stage">
+        <field name="name">Design</field>
+        <field name="sequence">1</field>
+        <field name="pipeline_type">full_scope_only</field>
+        <field name="allow_backward" eval="True"/>
+        <field name="fold" eval="False"/>
+    </record>
+
+    <record id="stage_tendering" model="project.project.stage">
+        <field name="name">Tendering</field>
+        <field name="sequence">2</field>
+        <field name="pipeline_type">full_scope_only</field>
+        <field name="allow_backward" eval="True"/>
+        <field name="fold" eval="False"/>
+    </record>
+
+    <record id="stage_permits" model="project.project.stage">
+        <field name="name">Permits and Approvals</field>
+        <field name="sequence">3</field>
+        <field name="pipeline_type">both</field>
+        <field name="allow_backward" eval="True"/>
+        <field name="fold" eval="False"/>
+    </record>
+
+    <record id="stage_construction" model="project.project.stage">
+        <field name="name">Construction</field>
+        <field name="sequence">4</field>
+        <field name="pipeline_type">both</field>
+        <field name="allow_backward" eval="True"/>
+        <field name="allow_boq_revision" eval="True"/>
+        <field name="fold" eval="False"/>
+    </record>
+
+    <record id="stage_closeout" model="project.project.stage">
+        <field name="name">Closeout</field>
+        <field name="sequence">5</field>
+        <field name="pipeline_type">both</field>
+        <field name="allow_backward" eval="True"/>
+        <field name="fold" eval="False"/>
+    </record>
+
+    <record id="stage_completed" model="project.project.stage">
+        <field name="name">Completed</field>
+        <field name="sequence">6</field>
+        <field name="pipeline_type">both</field>
+        <field name="allow_backward" eval="True"/>
+        <field name="fold" eval="True"/>
+    </record>
+</odoo>

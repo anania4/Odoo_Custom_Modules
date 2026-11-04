@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_mefs_budget" model="ir.module.category">
+        <field name="name">Budget Planning</field>
+        <field name="sequence">51</field>
+    </record>
+
+    <record id="group_mefs_budget_user" model="res.groups">
+        <field name="name">Budget Planning User</field>
+        <field name="category_id" ref="module_category_mefs_budget"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="groups_id" eval="[(4, ref('group_mefs_budget_user'))]"/>
+    </record>
+</odoo>

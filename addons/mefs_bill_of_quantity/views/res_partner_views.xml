@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_view_buttons_inherit_boq" model="ir.ui.view">
+        <field name="name">res.partner.view.buttons.inherit.boq</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="%(action_mefs_boq)d" type="action" groups="mefs_bill_of_quantity.group_mefs_boq_user" class="oe_stat_button" icon="fa-list-ol" context="{'search_default_partner_id': id}">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">BOQs</span>
+                    </div>
+                </button>
+            </div>
+        </field>
+    </record>
+</odoo>

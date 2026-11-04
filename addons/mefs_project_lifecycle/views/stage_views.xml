@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add pipeline_type and allow_backward to the tree view -->
+    <record id="view_project_stage_tree_inherit_lifecycle" model="ir.ui.view">
+        <field name="name">project.project.stage.tree.inherit.lifecycle</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="before">
+                <field name="pipeline_type" optional="show"/>
+                <field name="allow_backward" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Add pipeline_type and allow_backward to the form view -->
+    <record id="view_project_stage_form_inherit_lifecycle" model="ir.ui.view">
+        <field name="name">project.project.stage.form.inherit.lifecycle</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_form"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="after">
+                <field name="pipeline_type" widget="radio"/>
+                <field name="allow_backward"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Add pipeline_type to the quick create form (required field) -->
+    <record id="view_project_stage_quick_create_inherit_lifecycle" model="ir.ui.view">
+        <field name="name">project.project.stage.quick.create.inherit.lifecycle</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_form_quick_create"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="after">
+                <field name="pipeline_type" widget="radio"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Show pipeline_type on the kanban card -->
+    <record id="view_project_stage_kanban_inherit_lifecycle" model="ir.ui.view">
+        <field name="name">project.project.stage.kanban.inherit.lifecycle</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_kanban"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="pipeline_type"/>
+            </field>
+        </field>
+    </record>
+</odoo>

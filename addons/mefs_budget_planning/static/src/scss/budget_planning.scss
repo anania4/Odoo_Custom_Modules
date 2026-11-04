@@ -1,0 +1,12 @@
+// Darkened total columns in the Project Estimated Cost table
+.o_list_renderer {
+    td.o_budget_total_col,
+    th.o_budget_total_col {
+        background-color: #d9d9d9 !important;
+        font-weight: bold;
+    }
+    tfoot td.o_budget_total_col,
+    .o_list_footer td.o_budget_total_col {
+        background-color: #bfbfbf !important;
+    }
+}

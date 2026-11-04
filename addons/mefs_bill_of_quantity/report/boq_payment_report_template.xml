@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_boq_payment_document">
+        <t t-call="web.basic_layout">
+            <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; line-height: 1.25;">
+
+                <!-- ======================================================== -->
+                <!-- PAGE 1: INTERIM PAYMENT CERTIFICATE COVER SHEET         -->
+                <!-- ======================================================== -->
+                <div style="min-height: 180mm;">
+                    <!-- Contractor Box -->
+                    <div style="border: 1.5px solid #000; text-align: center; padding: 5px; font-weight: bold; font-size: 14pt; letter-spacing: 0.5px; text-transform: uppercase; background-color: #fff; margin-bottom: 4px;">
+                        <t t-out="report_data['contractor']"/>
+                    </div>
+
+                    <!-- IPC Title -->
+                    <div style="text-align: center; font-weight: bold; font-size: 12pt; margin: 4px 0 6px 0; text-transform: uppercase; color: #111;">
+                        INTERIM PAYMENT CERTIFICATE - <t t-out="report_data['ipc_number']"/>
+                    </div>
+
+                    <!-- Project Metadata Header -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8.5pt;">
+                        <tr>
+                            <td style="width: 70%; vertical-align: top; line-height: 1.35;">
+                                <strong>Project:</strong> <span t-out="report_data['project_name']"/><br/>
+                                <strong>Client:</strong> <span t-out="report_data['client_name']"/><br/>
+                                <strong>Consultant:</strong> <span t-out="report_data['consultant']"/>
+                            </td>
+                            <td style="width: 30%; vertical-align: top; text-align: right; line-height: 1.35;">
+                                <strong>Date:</strong> <span t-out="report_data['date_month_year'] or report_data['date_full']"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Two-Column Side-by-Side Grid -->
+                    <table style="width: 100%; border-collapse: collapse; font-size: 8pt;">
+                        <tr>
+                            <!-- LEFT COLUMN: Advance Payment Summary & Previous Payment Summary -->
+                            <td style="width: 47%; vertical-align: top; padding-right: 12px;">
+
+                                <!-- Summary for Advance Payment Table -->
+                                <div style="font-weight: bold; font-size: 8.5pt; margin-bottom: 2px;">Summary for Advance Payment</div>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 12px;">
+                                    <thead>
+                                        <tr style="background-color: #f2f2f2; font-weight: bold; text-align: center; border-bottom: 1px solid #000;">
+                                            <th style="border: 1px solid #000; padding: 3px; width: 22%;">No</th>
+                                            <th style="border: 1px solid #000; padding: 3px; width: 26%;">Date</th>
+                                            <th style="border: 1px solid #000; padding: 3px; width: 28%;">Net payment</th>
+                                            <th style="border: 1px solid #000; padding: 3px; width: 24%;">Vat</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="report_data['advance_payment_list']">
+                                            <t t-foreach="report_data['advance_payment_list']" t-as="adv">
+                                                <tr>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: center;"><t t-out="adv['no']"/></td>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: center;"><t t-out="adv['date']"/></td>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="adv['net_payment']"/></td>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="adv['vat']"/></td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <tr>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: center;">-</td>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: center;">-</td>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">0.00</td>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">0.00</td>
+                                            </tr>
+                                        </t>
+                                        <tr style="font-weight: bold; border-top: 1px solid #000; background-color: #fafafa;">
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: center;">Total</td>
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: center;"></td>
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="report_data['advance_payment_total_net']"/></td>
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="report_data['advance_payment_total_vat']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Summary for Previous Payment Table -->
+                                <div style="font-weight: bold; font-size: 8.5pt; margin-bottom: 2px;">Summary for Previous Payment</div>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 10px;">
+                                    <thead>
+                                        <tr style="background-color: #f2f2f2; font-weight: bold; text-align: center; border-bottom: 1px solid #000;">
+                                            <th style="border: 1px solid #000; padding: 3px; width: 22%;">No</th>
+                                            <th style="border: 1px solid #000; padding: 3px; width: 26%;">Date</th>
+                                            <th style="border: 1px solid #000; padding: 3px; width: 28%;">Net payment</th>
+                                            <th style="border: 1px solid #000; padding: 3px; width: 24%;">Vat</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="report_data['previous_payment_list']">
+                                            <t t-foreach="report_data['previous_payment_list']" t-as="prev">
+                                                <tr>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: center;"><t t-out="prev['no']"/></td>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: center;"><t t-out="prev['date']"/></td>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="prev['net_payment']"/></td>
+                                                    <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="prev['vat']"/></td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <tr>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: center;">-</td>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: center;">-</td>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">0.00</td>
+                                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">0.00</td>
+                                            </tr>
+                                        </t>
+                                        <tr style="font-weight: bold; border-top: 1px solid #000; background-color: #fafafa;">
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: center;">Total</td>
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: center;"></td>
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="report_data['previous_payment_total_net']"/></td>
+                                            <td style="border: 1px solid #000; padding: 3px; text-align: right;"><t t-out="report_data['previous_payment_total_vat']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </td>
+
+                            <!-- RIGHT COLUMN: Contract Sums, Executed Work, Deductions, VAT, Invoice -->
+                            <td style="width: 53%; vertical-align: top;">
+
+                                <!-- Contract Sums Table -->
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 6px;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; width: 65%;">Main Contract</td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; width: 35%; text-align: right;"><t t-out="report_data['main_contract_amount']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 2px 6px;">Supplementary Contract</td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; text-align: right;"><t t-out="report_data['supplementary_contract_amount']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 2px 6px;">Variation Order</td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; text-align: right;"><t t-out="report_data['variation_order_amount']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 2px 6px;">VAT(15%)</td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; text-align: right;"><t t-out="report_data['contract_vat_amount']"/></td>
+                                        </tr>
+                                        <tr style="font-weight: bold; background-color: #f7f7f7;">
+                                            <td style="border: 1px solid #000; padding: 3px 6px;">Total Sum</td>
+                                            <td style="border: 1px solid #000; padding: 3px 6px; text-align: right;"><t t-out="report_data['total_contract_sum']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Progress Payment & Deductions Table -->
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 6px;">
+                                    <tbody>
+                                        <tr style="font-weight: bold;">
+                                            <td style="border: 1px solid #000; padding: 3px 6px; width: 65%;">Payment due for executed work</td>
+                                            <td style="border: 1px solid #000; padding: 3px 6px; width: 35%; text-align: right;"><t t-out="report_data['total_current_amount']"/></td>
+                                        </tr>
+                                        <tr style="font-weight: bold; background-color: #f0f0f0;">
+                                            <td style="border: 1px solid #000; padding: 2px 6px;">DEDUCTIONS</td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; text-align: center; font-size: 7.5pt;">Amount Birr</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px 2px 14px;">1. Previous payments</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['previous_payments_deduction']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px 2px 14px;">2. Loan Repayment</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['loan_repayment']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px 2px 14px;">3. Retention (5%)</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['retention_amount']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px 2px 14px;">4. Advance Repayment</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['advance_repayment']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px 2px 14px;">5. Others</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['other_deductions']"/></td>
+                                        </tr>
+                                        <tr style="font-weight: bold; background-color: #fafafa;">
+                                            <td style="border: 1px solid #000; padding: 3px 6px; text-align: center;">Total</td>
+                                            <td style="border: 1px solid #000; padding: 3px 6px; text-align: right;"><t t-out="report_data['total_deductions']"/></td>
+                                        </tr>
+                                        <tr style="font-weight: bold; background-color: #f7f7f7;">
+                                            <td style="border: 1px solid #000; padding: 3px 6px;">Net amount due to contractor this payment before VAT</td>
+                                            <td style="border: 1px solid #000; padding: 3px 6px; text-align: right;"><t t-out="report_data['net_amount_before_vat']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- VAT Payments Table -->
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 6px;">
+                                    <thead>
+                                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                            <th colspan="3" style="border: 1px solid #000; padding: 2px 6px; text-align: left;">Vat Payments</th>
+                                        </tr>
+                                        <tr style="background-color: #fafafa; font-weight: bold; font-size: 7.5pt; text-align: center;">
+                                            <th style="border: 1px solid #000; padding: 2px 6px; text-align: left; width: 52%;">Details</th>
+                                            <th style="border: 1px solid #000; padding: 2px 6px; width: 24%;">Deduction</th>
+                                            <th style="border: 1px solid #000; padding: 2px 6px; width: 24%;">Payable</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px;">VAT on amount of work Executed</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"></td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['vat_on_executed']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px;">VAT on Advance Repayment</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['vat_on_advance']"/></td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px;">VAT on Previous Payment</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['vat_on_previous']"/></td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px;">VAT on Loan Repayment</td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"><t t-out="report_data['vat_on_loan']"/></td>
+                                            <td style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;"></td>
+                                        </tr>
+                                        <tr style="font-weight: bold; background-color: #fafafa;">
+                                            <td style="border: 1px solid #000; padding: 2px 6px; text-align: center;">Total Deduction</td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; text-align: right;"><t t-out="report_data['total_vat_deductions']"/></td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; text-align: right;"><t t-out="report_data['total_vat_deductions']"/></td>
+                                        </tr>
+                                        <tr style="font-weight: bold; background-color: #f7f7f7;">
+                                            <td colspan="2" style="border: 1px solid #000; padding: 3px 6px; text-align: center;">Vat Payable in this payment</td>
+                                            <td style="border: 1px solid #000; padding: 3px 6px; text-align: right;"><t t-out="report_data['vat_payable']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Invoice Summary Table -->
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 6px;">
+                                    <tbody>
+                                        <tr style="font-weight: bold; background-color: #f0f0f0;">
+                                            <td colspan="2" style="border: 1px solid #000; padding: 2px 6px;">Invoice</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; width: 65%;">Invoice amount Before VAT</td>
+                                            <td style="border: 1px solid #000; padding: 2px 6px; width: 35%; text-align: right;"><t t-out="report_data['net_amount_before_vat']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Net Amount Due (Inc VAT) Box -->
+                                <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #000; background-color: #ebebeb;">
+                                    <tbody>
+                                        <tr style="font-weight: bold; font-size: 8.5pt;">
+                                            <td style="border: 1.5px solid #000; padding: 4px 6px; width: 65%;">Net amount due to contractor this payment including VAT</td>
+                                            <td style="border: 1.5px solid #000; padding: 4px 6px; width: 35%; text-align: right; font-size: 9pt;"><t t-out="report_data['net_amount_due']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Certification Statement & Amount in Words -->
+                    <div style="margin-top: 8px; font-size: 8.5pt;">
+                        <div>We certify that the Contractor is now entitled in the sum of Birr:</div>
+                        <div style="font-weight: bold; font-size: 9.5pt; margin-top: 2px; color: #000;">
+                            <t t-out="report_data['amount_words']"/>
+                        </div>
+                    </div>
+
+                    <!-- Signatures & Dates Block -->
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 8.5pt;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top;">
+                                <div>Certificate Date <span style="display: inline-block; border-bottom: 1px solid #333; min-width: 150px; text-align: center;"><t t-out="report_data['certificate_date']"/></span></div>
+                                <div style="margin-top: 3px;">Approved Date <span style="display: inline-block; border-bottom: 1px solid #333; min-width: 150px; text-align: center;"><t t-out="report_data['approved_date']"/></span></div>
+                                <div style="margin-top: 3px;">Paid Date <span style="display: inline-block; border-bottom: 1px solid #333; min-width: 150px; text-align: center;"><t t-out="report_data['paid_date']"/></span></div>
+                                <div style="margin-top: 25px; border-bottom: 1px solid #000; width: 70%;"></div>
+                                <div style="font-weight: bold; margin-top: 2px;">Certified By</div>
+                            </td>
+                            <td style="width: 50%; vertical-align: bottom; text-align: right;">
+                                <div style="border-bottom: 1px solid #000; width: 75%; margin-left: auto;"></div>
+                                <div style="font-weight: bold; margin-top: 2px;">Approved By</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- ======================================================== -->
+                <!-- PAGE 2: DETAILED BILL OF QUANTITIES PROGRESS MEASUREMENT -->
+                <!-- ======================================================== -->
+                <div style="page-break-before: always;"/>
+
+                <div>
+                    <!-- Contractor Box -->
+                    <div style="border: 1.5px solid #000; text-align: center; padding: 4px; font-weight: bold; font-size: 13pt; letter-spacing: 0.5px; text-transform: uppercase; background-color: #fff; margin-bottom: 4px;">
+                        <t t-out="report_data['contractor']"/>
+                    </div>
+
+                    <!-- BOQ Meta Details -->
+                    <table style="width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 6px;">
+                        <tr>
+                            <td style="width: 70%; vertical-align: top; line-height: 1.35;">
+                                <strong>Project :- </strong><span t-out="report_data['project_name']"/><br/>
+                                <strong>Client:- </strong><span t-out="report_data['client_name']"/><br/>
+                                <strong>Consultant:- </strong><span t-out="report_data['consultant']"/><br/>
+                                <strong>Shoring Contractor: </strong><span t-out="report_data['contractor']"/>
+                            </td>
+                            <td style="width: 30%; vertical-align: top; text-align: right; line-height: 1.35;">
+                                <strong>Payment No. </strong><span style="font-weight: bold;" t-out="report_data['payment_no']"/><br/>
+                                <strong>Date </strong><span t-out="report_data['date_full']"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 12-Column Table -->
+                    <table style="width: 100%; border-collapse: collapse; font-size: 7pt; table-layout: fixed; border: 1px solid #000;">
+                        <thead>
+                            <tr style="background-color: #e5e5e5; font-weight: bold; text-align: center; border-bottom: 1.5px solid #000;">
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 5%;">Bill No.</th>
+                                <th style="border: 1px solid #000; padding: 3px 3px; text-align: left; width: 27%;">Description of Works</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 4%;">Unit</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">Quantity</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">Price in ETB</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 7%;">Total in ETB</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">Previously Executed</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">Currently Executed</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">Todate Executed</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">Previous Amount</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">Current Amount</th>
+                                <th style="border: 1px solid #000; padding: 3px 2px; width: 7%;">Todate Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="report_data['rows']" t-as="row">
+                                <!-- Section Row -->
+                                <t t-if="row['is_section']">
+                                    <tr style="font-weight: bold; background-color: #efefef;">
+                                        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center;"><t t-out="row['bill_no']"/></td>
+                                        <td colspan="11" style="border: 1px solid #000; padding: 3px 4px; text-align: left;"><t t-out="row['name']"/></td>
+                                    </tr>
+                                </t>
+                                <!-- Subtotal Row -->
+                                <t t-elif="row['is_subtotal']">
+                                    <tr style="font-weight: bold; background-color: #e0e0e0; border-top: 1px solid #000; border-bottom: 1px solid #000;">
+                                        <td style="border: 1px solid #000; padding: 3px 2px;"></td>
+                                        <td colspan="4" style="border: 1px solid #000; padding: 3px 4px; text-align: left;"><t t-out="row['name']"/></td>
+                                        <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="row['contract_amount']"/></td>
+                                        <td colspan="3" style="border: 1px solid #000; padding: 3px 2px;"></td>
+                                        <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="row['previous_amount']"/></td>
+                                        <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="row['current_amount']"/></td>
+                                        <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="row['todate_amount']"/></td>
+                                    </tr>
+                                </t>
+                                <!-- Note Row -->
+                                <t t-elif="row['is_note']">
+                                    <tr>
+                                        <td style="border: 1px solid #ccc; padding: 2px;"></td>
+                                        <td colspan="11" style="border: 1px solid #ccc; padding: 2px 4px; font-style: italic; color: #444;"><t t-out="row['name']"/></td>
+                                    </tr>
+                                </t>
+                                <!-- Regular Item Row -->
+                                <t t-else="">
+                                    <tr style="page-break-inside: avoid;">
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: center;"><t t-out="row['bill_no']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 4px; text-align: left;"><t t-out="row['name']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: center;"><t t-out="row['unit']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['contract_qty']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['unit_price']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['contract_amount']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['previously_executed_qty']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['currently_executed_qty']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['todate_executed_qty']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['previous_amount']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['current_amount']"/></td>
+                                        <td style="border: 1px solid #ccc; padding: 2px 2px; text-align: right;"><t t-out="row['todate_amount']"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+
+                            <!-- Bill Summaries (e.g. 1. Mobilization, 2. Shoring Works) -->
+                            <t t-foreach="report_data['section_summaries']" t-as="sec">
+                                <tr style="font-weight: 500; background-color: #fafafa;">
+                                    <td style="border: 1px solid #000; padding: 2px 2px; text-align: center;"><t t-out="sec['num']"/></td>
+                                    <td colspan="4" style="border: 1px solid #000; padding: 2px 4px; text-align: left;"><t t-out="sec['title']"/></td>
+                                    <td style="border: 1px solid #000; padding: 2px 2px; text-align: right;"><t t-out="sec['contract_amount']"/></td>
+                                    <td colspan="3" style="border: 1px solid #000; padding: 2px 2px;"></td>
+                                    <td style="border: 1px solid #000; padding: 2px 2px; text-align: right;"><t t-out="sec['previous_amount']"/></td>
+                                    <td style="border: 1px solid #000; padding: 2px 2px; text-align: right;"><t t-out="sec['current_amount']"/></td>
+                                    <td style="border: 1px solid #000; padding: 2px 2px; text-align: right;"><t t-out="sec['todate_amount']"/></td>
+                                </tr>
+                            </t>
+
+                            <!-- Grand Summary: I. Summary Total Before VAT -->
+                            <tr style="font-weight: bold; background-color: #e5e5e5; border-top: 2px solid #000;">
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: center;">I</td>
+                                <td colspan="4" style="border: 1px solid #000; padding: 3px 4px; text-align: left;">Summary Total Before VAT</td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['summary_total_before_vat']['contract']"/></td>
+                                <td colspan="3" style="border: 1px solid #000; padding: 3px 2px;"></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['summary_total_before_vat']['prev']"/></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['summary_total_before_vat']['curr']"/></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['summary_total_before_vat']['todate']"/></td>
+                            </tr>
+
+                            <!-- Grand Summary: II. VAT (15%) -->
+                            <tr style="font-weight: bold; background-color: #e5e5e5;">
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: center;">II</td>
+                                <td colspan="4" style="border: 1px solid #000; padding: 3px 4px; text-align: left;">VAT (15%)</td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['vat_15']['contract']"/></td>
+                                <td colspan="3" style="border: 1px solid #000; padding: 3px 2px;"></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['vat_15']['prev']"/></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['vat_15']['curr']"/></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['vat_15']['todate']"/></td>
+                            </tr>
+
+                            <!-- Grand Summary: III. Grand Total -->
+                            <tr style="font-weight: bold; background-color: #d8d8d8; border-bottom: 2px solid #000;">
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: center;">III</td>
+                                <td colspan="4" style="border: 1px solid #000; padding: 3px 4px; text-align: left;">Grand Total</td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['grand_total']['contract']"/></td>
+                                <td colspan="3" style="border: 1px solid #000; padding: 3px 2px;"></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['grand_total']['prev']"/></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['grand_total']['curr']"/></td>
+                                <td style="border: 1px solid #000; padding: 3px 2px; text-align: right;"><t t-out="report_data['grand_total']['todate']"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </t>
+    </template>
+
+    <template id="report_boq_payment_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="report_data" t-value="o._get_payment_report_data()"/>
+                <t t-call="mefs_bill_of_quantity.report_boq_payment_document"/>
+            </t>
+        </t>
+    </template>
+</odoo>

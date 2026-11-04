@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Budget Plan: form -->
+    <record id="view_mefs_budget_plan_form" model="ir.ui.view">
+        <field name="name">mefs.budget.plan.form</field>
+        <field name="model">mefs.budget.plan</field>
+        <field name="arch" type="xml">
+            <form string="Budget Plan">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="composed_by_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="boq_id" readonly="not project_id"
+                                   options="{'no_create': True}"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Project Estimated Cost" name="estimated_cost">
+                            <field name="estimate_line_ids"
+                                   readonly="not boq_id"
+                                   context="{'mefs_budget_item_no': True}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <!-- Work item (BOQ) -->
+                                    <field name="boq_line_id" options="{'no_create': True}"/>
+                                    <field name="work_item"/>
+                                    <field name="work_duration_days"/>
+                                    <field name="work_quantity"/>
+                                    <field name="work_uom_id"/>
+                                    <!-- Material -->
+                                    <field name="material_product_id" options="{'no_create': True}"/>
+                                    <button name="action_add_material_row" type="object"
+                                            icon="fa-plus" title="Add another material for this work item"/>
+                                    <field name="material_uom_id"/>
+                                    <field name="material_consumption"/>
+                                    <field name="material_unit_price"/>
+                                    <field name="material_price_per_work_unit"/>
+                                    <field name="total_material_cost" class="o_budget_total_col" sum="Total Material Cost"/>
+                                    <field name="material_categ_id"/>
+                                    <!-- Equipment -->
+                                    <field name="equipment_product_id" options="{'no_create': True}"/>
+                                    <field name="equipment_count"/>
+                                    <field name="equipment_output"/>
+                                    <field name="equipment_rate_hour"/>
+                                    <field name="equipment_rental_hours"/>
+                                    <field name="total_equipment_cost" class="o_budget_total_col" sum="Total Equipment Cost"/>
+                                    <field name="equipment_categ_id"/>
+                                    <!-- Manpower -->
+                                    <field name="manpower_product_id" options="{'no_create': True}"/>
+                                    <field name="manpower_count"/>
+                                    <field name="manpower_price_day"/>
+                                    <field name="total_manpower_cost" class="o_budget_total_col" sum="Total Manpower Cost"/>
+                                    <field name="labour_categ_id"/>
+                                    <!-- Subcontractor -->
+                                    <field name="subcontract_cost_unit"/>
+                                    <field name="total_subcontractor_cost" class="o_budget_total_col" sum="Total Subcontractor Cost"/>
+                                    <field name="subcontract_categ_id" options="{'no_create': True}"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="total_material_cost"/>
+                                <field name="total_equipment_cost"/>
+                                <field name="total_manpower_cost"/>
+                                <field name="total_subcontractor_cost"/>
+                                <field name="total_estimated_cost" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Budget Plan: list -->
+    <record id="view_mefs_budget_plan_list" model="ir.ui.view">
+        <field name="name">mefs.budget.plan.list</field>
+        <field name="model">mefs.budget.plan</field>
+        <field name="arch" type="xml">
+            <list string="Budget Plans">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="composed_by_id"/>
+                <field name="project_id"/>
+                <field name="boq_id"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="total_material_cost" sum="Total" optional="show"/>
+                <field name="total_equipment_cost" sum="Total" optional="show"/>
+                <field name="total_manpower_cost" sum="Total" optional="show"/>
+                <field name="total_subcontractor_cost" sum="Total" optional="show"/>
+                <field name="total_estimated_cost" sum="Total"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Budget Plan: search -->
+    <record id="view_mefs_budget_plan_search" model="ir.ui.view">
+        <field name="name">mefs.budget.plan.search</field>
+        <field name="model">mefs.budget.plan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="boq_id"/>
+                <field name="composed_by_id"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
+                    <filter name="group_composed_by" string="Composed By" context="{'group_by': 'composed_by_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_mefs_budget_plan" model="ir.actions.act_window">
+        <field name="name">Budget Plans</field>
+        <field name="res_model">mefs.budget.plan</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a budget plan</p>
+            <p>Choose a project and its approved BOQ, then estimate material,
+               equipment, manpower and subcontractor costs per work item.</p>
+        </field>
+    </record>
+</odoo>

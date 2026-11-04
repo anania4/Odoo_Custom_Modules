@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_mefs_boq_root_main"
+              name="Bill Of Quantity"
+              web_icon="mefs_bill_of_quantity,static/description/icon.png"
+              sequence="50"
+              groups="group_mefs_boq_user"/>
+
+    <!-- Operational Menus -->
+    <menuitem id="menu_mefs_boq_main"
+              name="Bills of Quantity"
+              parent="menu_mefs_boq_root_main"
+              sequence="10"
+              action="action_mefs_boq"
+              groups="group_mefs_boq_user"/>
+
+    <menuitem id="menu_mefs_boq_work_type"
+              name="Work Types"
+              parent="menu_mefs_boq_root_main"
+              sequence="20"
+              action="action_mefs_boq_work_type"
+              groups="group_mefs_boq_user"/>
+
+
+</odoo>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree / List View -->
+    <record id="view_mefs_boq_payment_tree" model="ir.ui.view">
+        <field name="name">mefs.boq.payment.tree</field>
+        <field name="model">mefs.boq.payment</field>
+        <field name="arch" type="xml">
+            <list string="BOQ Payments / IPC">
+                <field name="name"/>
+                <field name="boq_id"/>
+                <field name="project_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="date"/>
+                <field name="total_current_amount" string="Executed Work" sum="Total Executed"/>
+                <field name="total_deductions" string="Deductions" optional="show"/>
+                <field name="vat_amount" string="VAT" optional="show"/>
+                <field name="net_amount_due" string="Net Amount Due" sum="Total Net Due"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'submitted'"
+                       decoration-primary="state == 'approved'"
+                       decoration-success="state == 'paid'"
+                       decoration-muted="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_mefs_boq_payment_form" model="ir.ui.view">
+        <field name="name">mefs.boq.payment.form</field>
+        <field name="model">mefs.boq.payment</field>
+        <field name="arch" type="xml">
+            <form string="BOQ Payment / Interim Payment Certificate">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="state != 'submitted'" groups="project.group_project_manager"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="oe_highlight" invisible="state != 'approved'" groups="project.group_project_manager"/>
+                    <button name="action_load_boq_lines" string="Reload BOQ Lines" type="object" invisible="state not in ('draft', 'submitted')"/>
+                    <button name="action_sync_from_daily_reports" string="Sync from Daily Reports" type="object" invisible="state not in ('draft', 'submitted')"/>
+                    <button name="action_print_ipc" string="Print IPC" type="object" invisible="state == 'draft'"/>
+                    <button name="action_set_to_draft" string="Reset to Draft" type="object" invisible="state not in ('submitted', 'cancel')"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state in ('paid', 'cancel')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Payment Certificate No."/>
+                        <h1>
+                            <field name="name" readonly="state != 'draft'"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="boq_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="project_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="consultant" readonly="state not in ('draft', 'submitted')"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state not in ('draft', 'submitted')"/>
+                            <field name="contractor" readonly="state not in ('draft', 'submitted')"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Executed Work &amp; Payments" name="executed_work">
+                            <field name="line_ids" readonly="state in ('paid', 'cancel')">
+                                <list editable="bottom"
+                                      delete="true"
+                                      decoration-bf="display_type == 'line_section' or is_subtotal"
+                                      decoration-it="is_subtotal">
+                                    <field name="sequence" widget="handle" column_invisible="True"/>
+                                    <field name="display_type" column_invisible="True"/>
+                                    <field name="is_subtotal" column_invisible="True"/>
+                                    <field name="boq_line_id" column_invisible="True"/>
+
+                                    <field name="bill_no" string="Bill No."/>
+                                    <field name="name" string="Description of Works"/>
+                                    <field name="uom_id" string="Unit" invisible="display_type in ('line_section', 'line_note') or is_subtotal"/>
+                                    <field name="contract_qty" string="Contract Qty" invisible="display_type in ('line_section', 'line_note') or is_subtotal"/>
+                                    <field name="unit_price" string="Price in ETB" invisible="display_type in ('line_section', 'line_note') or is_subtotal"/>
+                                    <field name="contract_amount" string="Total Contract" sum="Total Contract" invisible="display_type in ('line_section', 'line_note')"/>
+
+                                    <field name="previously_executed_qty" string="Prev. Executed" invisible="display_type in ('line_section', 'line_note') or is_subtotal"/>
+                                    <field name="currently_executed_qty" string="Curr. Executed" invisible="display_type in ('line_section', 'line_note') or is_subtotal"/>
+                                    <field name="todate_executed_qty" string="Todate Executed" invisible="display_type in ('line_section', 'line_note') or is_subtotal"/>
+
+                                    <field name="previous_amount" string="Previous Amount" sum="Total Previous" invisible="display_type in ('line_section', 'line_note')"/>
+                                    <field name="current_amount" string="Current Amount" sum="Total Current" invisible="display_type in ('line_section', 'line_note')"/>
+                                    <field name="todate_amount" string="Todate Amount" sum="Total Todate" invisible="display_type in ('line_section', 'line_note')"/>
+                                </list>
+                            </field>
+
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_previous_amount" string="Previous Total"/>
+                                <field name="total_current_amount" string="Current Executed Total"/>
+                                <field name="total_todate_amount" string="Todate Total"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_mefs_boq_payment_search" model="ir.ui.view">
+        <field name="name">mefs.boq.payment.search</field>
+        <field name="model">mefs.boq.payment</field>
+        <field name="arch" type="xml">
+            <search string="Search BOQ Payments">
+                <field name="name"/>
+                <field name="boq_id"/>
+                <field name="project_id"/>
+                <field name="partner_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Paid" name="paid" domain="[('state', '=', 'paid')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="BOQ" name="group_by_boq" context="{'group_by': 'boq_id'}"/>
+                    <filter string="Project" name="group_by_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window Action -->
+    <record id="action_mefs_boq_payment" model="ir.actions.act_window">
+        <field name="name">BOQ Payments / IPC</field>
+        <field name="res_model">mefs.boq.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_mefs_boq_payment_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first BOQ Progress Payment / Interim Payment Certificate!
+            </p>
+        </field>
+    </record>
+</odoo>

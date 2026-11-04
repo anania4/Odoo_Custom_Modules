@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mefs_boq_user,mefs.boq.user,model_mefs_boq,group_mefs_boq_user,1,1,1,1
+access_mefs_boq_line_user,mefs.boq.line.user,model_mefs_boq_line,group_mefs_boq_user,1,1,1,1
+access_mefs_boq_payment_user,mefs.boq.payment.user,model_mefs_boq_payment,group_mefs_boq_user,1,1,1,1
+access_mefs_boq_payment_line_user,mefs.boq.payment.line.user,model_mefs_boq_payment_line,group_mefs_boq_user,1,1,1,1
+access_mefs_boq_work_type_user,mefs.boq.work.type.user,model_mefs_boq_work_type,group_mefs_boq_user,1,1,1,0
+access_mefs_boq_work_type_admin,mefs.boq.work.type.admin,model_mefs_boq_work_type,base.group_system,1,1,1,1

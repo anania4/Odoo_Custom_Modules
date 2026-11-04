@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. Print BOQ -->
+    <record id="action_report_mefs_boq_original" model="ir.actions.report">
+        <field name="name">Print BOQ</field>
+        <field name="model">mefs.boq</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mefs_bill_of_quantity.report_boq_original_template</field>
+        <field name="report_file">mefs_bill_of_quantity.report_boq_original_template</field>
+        <field name="print_report_name">'BOQ - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_mefs_boq"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- 2. Print Current BOQ (Unbound from print menu) -->
+    <record id="action_report_mefs_boq_current" model="ir.actions.report">
+        <field name="name">Print Current BOQ</field>
+        <field name="model">mefs.boq</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mefs_bill_of_quantity.report_boq_current_template</field>
+        <field name="report_file">mefs_bill_of_quantity.report_boq_current_template</field>
+        <field name="print_report_name">'Current BOQ - %s' % (object.revision_name or object.name)</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <!-- Backward compatibility alias (unbound from menus) -->
+    <record id="action_report_mefs_boq" model="ir.actions.report">
+        <field name="name">Print Original BOQ (Legacy)</field>
+        <field name="model">mefs.boq</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mefs_bill_of_quantity.report_boq_original_template</field>
+        <field name="report_file">mefs_bill_of_quantity.report_boq_original_template</field>
+        <field name="print_report_name">'BOQ - %s' % (object.revision_name or object.name)</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+</odoo>

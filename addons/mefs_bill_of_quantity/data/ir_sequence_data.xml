@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_mefs_boq" model="ir.sequence">
+            <field name="name">Bill of Quantity</field>
+            <field name="code">mefs.boq</field>
+            <field name="prefix">BOQ/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_mefs_boq_line_code" model="ir.sequence">
+            <field name="name">BOQ Line Item Code</field>
+            <field name="code">mefs.boq.line.code</field>
+            <field name="prefix"></field>
+            <field name="padding">2</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_mefs_boq_payment" model="ir.sequence">
+            <field name="name">BOQ Payment / IPC</field>
+            <field name="code">mefs.boq.payment</field>
+            <field name="prefix">IPC-</field>
+            <field name="padding">2</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+
+</odoo>

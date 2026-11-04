@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mefs_boq_work_type_tree" model="ir.ui.view">
+        <field name="name">mefs.boq.work.type.tree</field>
+        <field name="model">mefs.boq.work.type</field>
+        <field name="arch" type="xml">
+            <list string="Work Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Work Type"/>
+                <field name="code" string="Code"/>
+                <field name="description"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_mefs_boq_work_type_form" model="ir.ui.view">
+        <field name="name">mefs.boq.work.type.form</field>
+        <field name="model">mefs.boq.work.type</field>
+        <field name="arch" type="xml">
+            <form string="Work Type">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Work Type"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Anchor, Pile, Grout..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g. ANCHOR, PILE, GROUT"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Optional details or description of this work type..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_mefs_boq_work_type_search" model="ir.ui.view">
+        <field name="name">mefs.boq.work.type.search</field>
+        <field name="model">mefs.boq.work.type</field>
+        <field name="arch" type="xml">
+            <search string="Search Work Types">
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_mefs_boq_work_type" model="ir.actions.act_window">
+        <field name="name">Work Types</field>
+        <field name="res_model">mefs.boq.work.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_mefs_boq_work_type_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Work Type!
+            </p>
+            <p>
+                Work types are used on BOQ lines to categorize works (e.g. Anchor, Grout, Pile, Excavation, Soil Nail, Shotcrete) and generate work item codes.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="work_type_anchor" model="mefs.boq.work.type">
+        <field name="name">Anchor</field>
+        <field name="code">ANCHOR</field>
+        <field name="sequence">10</field>
+        <field name="description">Ground anchor and tieback works</field>
+    </record>
+
+    <record id="work_type_grout" model="mefs.boq.work.type">
+        <field name="name">Grout</field>
+        <field name="code">GROUT</field>
+        <field name="sequence">20</field>
+        <field name="description">Pressure and curtain grouting works</field>
+    </record>
+
+    <record id="work_type_pile" model="mefs.boq.work.type">
+        <field name="name">Pile</field>
+        <field name="code">PILE</field>
+        <field name="sequence">30</field>
+        <field name="description">Bored and foundation piling works</field>
+    </record>
+
+    <record id="work_type_excavation" model="mefs.boq.work.type">
+        <field name="name">Excavation</field>
+        <field name="code">EXCAV</field>
+        <field name="sequence">40</field>
+        <field name="description">Bulk earthwork and foundation excavation</field>
+    </record>
+
+    <record id="work_type_soil_nail" model="mefs.boq.work.type">
+        <field name="name">Soil Nail</field>
+        <field name="code">SNAIL</field>
+        <field name="sequence">50</field>
+        <field name="description">Soil nailing and slope stabilization</field>
+    </record>
+
+    <record id="work_type_shotcrete" model="mefs.boq.work.type">
+        <field name="name">Shotcrete</field>
+        <field name="code">SHOT</field>
+        <field name="sequence">60</field>
+        <field name="description">Sprayed concrete and slope protection</field>
+    </record>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_project_form_inherit_lifecycle" model="ir.ui.view">
+        <field name="name">project.project.form.inherit.lifecycle</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <field name="stage_id" position="attributes">
+                <attribute name="context">{'pipeline_project_type': project_type}</attribute>
+            </field>
+            <field name="partner_id" position="after">
+                <field name="project_type" widget="radio" required="1"/>
+            </field>
+        </field>
+    </record>
+</odoo>
