@@ -613,34 +613,16 @@ $gray-900: #0f172a;  // Almost black for high contrast text
 }
 
 
+
 // ---------------------------------------------------------------------------
-// Vehicle board: live vehicle cards (plate, car name, driver, status dot)
-// Green = Active, red = In Use, grey = any other status
+// Vehicle board: minimal soft-tinted cards
+// A hint of green (Active), red (In Use) or grey (any other status). Fixed layout.
 // ---------------------------------------------------------------------------
-$vc-green-1: #059669;
-$vc-green-2: #34d399;
-$vc-red-1: #dc2626;
-$vc-red-2: #fb7185;
-$vc-grey-1: #475569;
-$vc-grey-2: #94a3b8;
-
-@keyframes o_fleet_dot_pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.85); }
-    70%  { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-}
-
-@keyframes o_fleet_card_in {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
 .o_fleet_dashboard .o_fleet_vehicle_board {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid $gray-200;
-    border-radius: 20px;
-    padding: 1.25rem 1.4rem 1.4rem;
-    box-shadow: 0 10px 30px -18px rgba(15, 23, 42, 0.35);
+    background: #fff;
+    border: 1px solid #eef0f3;
+    border-radius: 14px;
+    padding: 1rem 1.1rem 1.1rem;
 
     .o_board_header {
         display: flex;
@@ -648,309 +630,106 @@ $vc-grey-2: #94a3b8;
         gap: 0.75rem;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 1.1rem;
+        margin-bottom: 0.9rem;
 
         h5 {
-            font-weight: 800;
-            letter-spacing: -0.2px;
-            color: $gray-900;
-            .fa { color: $primary-light; margin-right: 0.4rem; }
+            font-weight: 600;
+            color: #1e293b;
+            .fa { color: #94a3b8; margin-right: 0.35rem; }
         }
     }
 
-    .o_board_legend { display: flex; gap: 0.5rem; }
-
+    .o_board_legend { display: flex; gap: 0.9rem; }
     .o_board_pill {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        padding: 0.35rem 0.85rem;
-        border-radius: 999px;
+        gap: 0.4rem;
         font-size: 0.8rem;
-        font-weight: 700;
-        border: 1px solid transparent;
+        color: #64748b;
     }
-    .o_board_pill_in_use { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
-    .o_board_pill_active { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .o_vehicle_dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #cbd5e1;
+    }
+    .o_dot_active { background: #22c55e; }
+    .o_dot_in_use { background: #ef4444; }
 
     .o_board_grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1.1rem;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.6rem;
     }
 
-    // ---- dot ---------------------------------------------------------------
-    .o_vehicle_dot {
-        display: inline-block;
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        flex: none;
-        background: $vc-grey-2;
-    }
-    // legend dots (on light background)
-    .o_board_legend {
-        .o_dot_active { background: $vc-green-2; box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25); }
-        .o_dot_in_use { background: $vc-red-1; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18); }
-    }
-
-    // ---- card --------------------------------------------------------------
+    // ---- card ----
     .o_vehicle_card {
-        --vc-1: #{$vc-grey-1};
-        --vc-2: #{$vc-grey-2};
-        --vc-glow: rgba(71, 85, 105, 0.35);
-
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        cursor: pointer;
-        border-radius: 18px;
-        background: #fff;
-        overflow: hidden;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 20px -14px rgba(15, 23, 42, 0.35);
-        transition: transform 0.22s cubic-bezier(.2, .8, .2, 1), box-shadow 0.22s ease;
-        animation: o_fleet_card_in 0.35s ease both;
-
-        &.o_card_active {
-            --vc-1: #{$vc-green-1};
-            --vc-2: #{$vc-green-2};
-            --vc-glow: rgba(16, 185, 129, 0.45);
-        }
-        &.o_card_in_use {
-            --vc-1: #{$vc-red-1};
-            --vc-2: #{$vc-red-2};
-            --vc-glow: rgba(239, 68, 68, 0.45);
-        }
-
-        &:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 18px 34px -14px var(--vc-glow);
-            .o_vc_watermark { transform: translateX(6px) rotate(-8deg) scale(1.05); }
-        }
-    }
-
-    // coloured gradient header
-    .o_vc_head {
-        position: relative;
-        padding: 0.85rem 0.95rem 1.15rem;
-        min-height: 92px;
-        color: #fff;
-        background:
-            radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 55%),
-            linear-gradient(135deg, var(--vc-1) 0%, var(--vc-2) 100%);
-        overflow: hidden;
-    }
-
-    .o_vc_watermark {
-        position: absolute;
-        right: -8px;
-        bottom: -14px;
-        font-size: 4.6rem;
-        opacity: 0.16;
-        transform: rotate(-8deg);
-        transition: transform 0.3s ease;
-        pointer-events: none;
-    }
-
-    .o_vc_pill {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.2rem 0.6rem 0.2rem 0.5rem;
-        border-radius: 999px;
-        font-size: 0.68rem;
-        font-weight: 800;
-        letter-spacing: 0.6px;
-        text-transform: uppercase;
-        background: rgba(255, 255, 255, 0.22);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 255, 255, 0.35);
-
-        .o_vehicle_dot { background: #fff; }
-        .o_dot_active { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35); }
-        .o_dot_in_use { animation: o_fleet_dot_pulse 1.6s infinite; }
-        .o_dot_other { opacity: 0.75; }
-    }
-
-    // number plate
-    .o_vc_plate {
-        position: relative;
-        display: inline-flex;
-        align-items: stretch;
-        margin-top: 0.7rem;
-        max-width: 100%;
-        background: #fff;
-        border-radius: 7px;
-        border: 2px solid #0f172a;
-        box-shadow: 0 6px 14px -6px rgba(15, 23, 42, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.9);
-        overflow: hidden;
-    }
-    .o_vc_plate_band {
-        width: 10px;
-        background: linear-gradient(180deg, #1d4ed8 0%, #2563eb 100%);
-        flex: none;
-    }
-    .o_vc_plate_text {
-        padding: 0.15rem 0.65rem;
-        font-family: 'Courier New', ui-monospace, monospace;
-        font-size: 1.15rem;
-        font-weight: 800;
-        letter-spacing: 2px;
-        color: #0f172a;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    // white body
-    .o_vc_body {
-        position: relative;
-        padding: 0.8rem 0.95rem 0.9rem;
-        margin-top: -10px;
-        background: #fff;
-        border-radius: 14px 14px 0 0;
-    }
-    .o_vc_name {
-        font-weight: 700;
-        font-size: 0.98rem;
-        color: $gray-800;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .o_vc_driver {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.55rem;
-        min-width: 0;
-    }
-    .o_vc_avatar {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        flex: none;
-        font-size: 0.72rem;
-        font-weight: 800;
-        color: #fff;
-        background: linear-gradient(135deg, var(--vc-1) 0%, var(--vc-2) 100%);
-        box-shadow: 0 0 0 2px #fff, 0 0 0 3px $gray-200;
-    }
-    .o_vc_avatar_empty {
-        background: $gray-100;
-        color: $gray-400;
-    }
-    .o_vc_driver_name {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: $gray-600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .o_no_driver {
-        font-style: italic;
-        font-weight: 500;
-        color: $gray-400;
-    }
-}
-
-// Fixed layout: every card has the same size and every element sits in the same place,
-// whatever the plate, car name, driver or status text length.
-// Compact sizes: small cards so many vehicles fit on screen.
-.o_fleet_dashboard .o_fleet_vehicle_board {
-    $vc-head-h: 82px;
-    $vc-body-h: 72px;
-    $vc-pad: 10px;
-
-    .o_board_grid {
-        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-        gap: 0.75rem;
-        align-items: start;
-    }
-
-    .o_vehicle_card {
-        height: $vc-head-h + $vc-body-h - 8px;   // body overlaps the header by 8px
-        border-radius: 14px;
-    }
-
-    .o_vc_head {
-        height: $vc-head-h;
-        min-height: 0;
-        padding: 0;
-        flex: none;
-    }
-
-    .o_vc_watermark {
-        font-size: 3.3rem;
-        right: -6px;
-        bottom: -10px;
-    }
-
-    .o_vc_pill {
-        position: absolute;
-        top: $vc-pad;
-        left: $vc-pad;
-        max-width: calc(100% - #{2 * $vc-pad});
-        padding: 0.12rem 0.5rem 0.12rem 0.4rem;
-        font-size: 0.6rem;
-        gap: 0.3rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        .o_vehicle_dot { width: 7px; height: 7px; }
-    }
-
-    .o_vc_plate {
-        position: absolute;
-        left: $vc-pad;
-        bottom: 16px;
-        margin-top: 0;
-        max-width: calc(100% - #{2 * $vc-pad});
-        height: 26px;
-        border-radius: 6px;
-    }
-    .o_vc_plate_band { width: 7px; }
-    .o_vc_plate_text {
-        display: flex;
-        align-items: center;
-        line-height: 1;
-        padding: 0 0.5rem;
-        font-size: 0.92rem;
-        letter-spacing: 1.5px;
-    }
-
-    .o_vc_body {
-        height: $vc-body-h;
-        flex: none;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        margin-top: -8px;
-        padding: 0.6rem $vc-pad 0.65rem;
-        border-radius: 12px 12px 0 0;
+        height: 84px;
+        padding: 0.7rem 0.8rem;
+        border-radius: 12px;
+        background: #f8fafc;                   // grey hint: any other status
+        cursor: pointer;
+        transition: background-color 0.15s ease, transform 0.15s ease;
+
+        &:hover { transform: translateY(-1px); }
+
+        &.o_card_active {
+            background: #f3fbf6;               // green hint
+            &:hover { background: #ebf7f0; }
+            .o_vc_dot { background: #22c55e; }
+            .o_vc_status { color: #3f7d5a; }
+        }
+        &.o_card_in_use {
+            background: #fdf5f5;               // red hint
+            &:hover { background: #fbeded; }
+            .o_vc_dot { background: #ef4444; }
+            .o_vc_status { color: #9f4a4a; }
+        }
+        &.o_card_other:hover { background: #f1f5f9; }
     }
 
-    .o_vc_name {
-        height: 1.3em;
-        line-height: 1.3em;
-        font-size: 0.85rem;
+    .o_vc_plate {
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: 0.3px;
+        color: #0f172a;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .o_vc_driver {
-        height: 22px;
-        margin-top: 0;
-        gap: 0.4rem;
+    .o_vc_sub {
+        font-size: 0.76rem;
+        color: #94a3b8;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .o_vc_avatar {
-        width: 22px;
-        height: 22px;
-        font-size: 0.6rem;
+    .o_vc_no_driver { font-style: italic; }
+
+    .o_vc_status {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: #64748b;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .o_vc_driver_name { font-size: 0.76rem; }
+    .o_vc_dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex: none;
+        background: #cbd5e1;
+    }
 }

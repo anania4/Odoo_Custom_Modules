@@ -123,4 +123,50 @@
               action="action_fleet_service_type"
               sequence="45"/>
 
+    <!-- Vehicle Statuses: the Active status is locked (used by the dashboard and the driver switch) -->
+    <record id="view_fleet_vehicle_status_list" model="ir.ui.view">
+        <field name="name">fleet.vehicle.status.list</field>
+        <field name="model">fleet.vehicle.status</field>
+        <field name="arch" type="xml">
+            <list string="Vehicle Statuses">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="color" widget="color_picker"/>
+                <field name="description" optional="show"/>
+                <field name="is_locked" widget="boolean_icon" options="{'icon': 'fa-lock'}"
+                       string="Locked" nolabel="1"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_status_form" model="ir.ui.view">
+        <field name="name">fleet.vehicle.status.form</field>
+        <field name="model">fleet.vehicle.status</field>
+        <field name="arch" type="xml">
+            <form string="Vehicle Status">
+                <sheet>
+                    <field name="is_locked" invisible="1"/>
+                    <div class="alert alert-info mb-3" role="status" invisible="not is_locked">
+                        <i class="fa fa-lock" title="Locked"/>
+                        This status is used by the fleet system (dashboard, driver switch, maintenance).
+                        It cannot be changed or deleted.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" readonly="is_locked"/>
+                            <field name="code" readonly="is_locked"/>
+                        </group>
+                        <group>
+                            <field name="color" widget="color_picker" readonly="is_locked"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                    <field name="description" readonly="is_locked" placeholder="Description..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 </odoo>

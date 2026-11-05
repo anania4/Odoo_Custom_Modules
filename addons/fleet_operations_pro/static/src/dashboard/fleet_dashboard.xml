@@ -21,21 +21,31 @@
 
             <t t-else="">
                 <t t-if="state.data">
-                    <!-- Primary Cards: Available Vehicles, Services, Vehicle Agreements, Pending Fleet Requests -->
+                    <!-- Primary Cards: Active Vehicles, Services, Vehicle Agreements, Pending Fleet Requests -->
                     <t t-set="cards" t-value="state.data.cards"/>
                     <div class="row mb-4" t-if="cards">
-                        <!-- 1. Available Vehicles -->
+                        <!-- 1. Active Vehicles (out of total, + in maintenance) -->
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <div class="card h-100 bg-primary text-white cursor-pointer" title="View Available Vehicles"
-                                 t-on-click="() =&gt; this.openAvailableVehicles()">
+                            <div class="card h-100 bg-primary text-white cursor-pointer" title="View Active Vehicles"
+                                 t-on-click="() =&gt; this.openActiveVehicles()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title text-white-50">Available Vehicles</h5>
-                                            <h2 class="mb-0"><t t-esc="cards.vehicles.available"/></h2>
+                                            <h5 class="card-title text-white-50">Active Vehicles</h5>
+                                            <h2 class="mb-0">
+                                                <t t-esc="cards.vehicles.active"/>
+                                                <small class="fs-6 text-white-50">/ <t t-esc="cards.vehicles.total"/></small>
+                                            </h2>
                                             <small class="text-white-50">
-                                                of <t t-esc="cards.vehicles.total"/> total ·
-                                                <t t-esc="cards.vehicles.in_maintenance"/> in maintenance
+                                                of <t t-esc="cards.vehicles.total"/> total
+                                                <t t-if="cards.vehicles.in_maintenance">
+                                                    ·
+                                                    <a href="#" class="text-white fw-bold"
+                                                       title="Vehicles in maintenance"
+                                                       t-on-click.prevent.stop="() =&gt; this.openMaintenanceVehicles()">
+                                                        <t t-esc="cards.vehicles.in_maintenance"/> in maintenance
+                                                    </a>
+                                                </t>
                                             </small>
                                         </div>
                                         <i class="fa fa-car fa-2x opacity-50" title="Vehicles"/>
@@ -60,7 +70,7 @@
                                                     <a href="#" class="fw-bold text-danger"
                                                        title="Vehicles that reached the km of their next service"
                                                        t-on-click.prevent.stop="() =&gt; this.openVehiclesDueByKm()">
-                                                        <t t-esc="cards.services.due_by_km"/> due by km
+                                                        <t t-esc="cards.services.due_by_km"/> vehicle<t t-if="cards.services.due_by_km != 1">s</t> due by km
                                                     </a>
                                                 </t>
                                             </small>
@@ -151,32 +161,15 @@
                                 <div t-att-class="'o_vehicle_card o_card_' + car.dot"
                                      t-att-title="car.plate + ' · ' + car.status"
                                      t-on-click="() =&gt; this.openRecord('fleet.vehicle', car.id)">
-                                    <!-- Coloured header: status pill, dot, car watermark -->
-                                    <div class="o_vc_head">
-                                        <i class="fa fa-car o_vc_watermark" title="Vehicle"/>
-                                        <span class="o_vc_pill">
-                                            <span t-att-class="'o_vehicle_dot o_dot_' + car.dot"/>
-                                            <t t-esc="car.status or 'No status'"/>
-                                        </span>
-                                        <div class="o_vc_plate">
-                                            <span class="o_vc_plate_band"/>
-                                            <span class="o_vc_plate_text"><t t-esc="car.plate"/></span>
-                                        </div>
+                                    <div class="o_vc_plate" t-esc="car.plate"/>
+                                    <div class="o_vc_sub">
+                                        <t t-esc="car.name"/>
+                                        <t t-if="car.driver"> · <t t-esc="car.driver"/></t>
+                                        <span t-else="" class="o_vc_no_driver"> · No driver</span>
                                     </div>
-                                    <!-- Body: car name and delegated driver -->
-                                    <div class="o_vc_body">
-                                        <div class="o_vc_name"><t t-esc="car.name"/></div>
-                                        <div class="o_vc_driver">
-                                            <t t-if="car.driver">
-                                                <span class="o_vc_avatar"
-                                                      t-esc="car.driver.split(' ').filter(w =&gt; w).map(w =&gt; w[0]).join('').slice(0, 2).toUpperCase()"/>
-                                                <span class="o_vc_driver_name"><t t-esc="car.driver"/></span>
-                                            </t>
-                                            <t t-else="">
-                                                <span class="o_vc_avatar o_vc_avatar_empty"><i class="fa fa-user" title="No driver"/></span>
-                                                <span class="o_vc_driver_name o_no_driver">No driver</span>
-                                            </t>
-                                        </div>
+                                    <div class="o_vc_status">
+                                        <span class="o_vc_dot"/>
+                                        <t t-esc="car.status or 'No status'"/>
                                     </div>
                                 </div>
                             </t>
@@ -270,14 +263,14 @@
                         </div>
                     </div>
 
-                    <!-- Available Vehicles list + Vehicles with their status -->
+                    <!-- Active Vehicles list + Vehicles with their status -->
                     <div class="row mb-4" t-if="cards">
                         <div class="col-lg-6 mb-3">
                             <div class="card h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0"><i class="fa fa-car" title="Available Vehicles"/> Available Vehicles</h5>
-                                    <a href="#" class="small" t-on-click.prevent="() =&gt; this.openAvailableVehicles()">
-                                        View all (<t t-esc="cards.vehicles.available"/>)
+                                    <h5 class="mb-0"><i class="fa fa-car" title="Active Vehicles"/> Active Vehicles</h5>
+                                    <a href="#" class="small" t-on-click.prevent="() =&gt; this.openActiveVehicles()">
+                                        View all (<t t-esc="cards.vehicles.active"/>)
                                     </a>
                                 </div>
                                 <div class="card-body p-0">
@@ -305,13 +298,13 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div t-if="cards.vehicles.available &gt; cards.available_list.length"
+                                        <div t-if="cards.vehicles.active &gt; cards.available_list.length"
                                              class="text-muted small text-center py-2 border-top">
                                             Showing <t t-esc="cards.available_list.length"/> of
-                                            <t t-esc="cards.vehicles.available"/>
+                                            <t t-esc="cards.vehicles.active"/>
                                         </div>
                                     </t>
-                                    <p t-else="" class="text-muted text-center my-4">No vehicles available right now</p>
+                                    <p t-else="" class="text-muted text-center my-4">No active vehicles right now</p>
                                 </div>
                             </div>
                         </div>

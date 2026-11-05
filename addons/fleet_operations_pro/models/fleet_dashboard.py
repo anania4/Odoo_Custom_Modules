@@ -112,9 +112,10 @@ class FleetDashboard(models.Model):
 
     @api.model
     def _get_card_data(self, company, today):
-        """Top row: Available Vehicles, Services, Vehicle Agreements, Pending Fleet Requests"""
-        # 1. Available vehicles
+        """Top row: Active Vehicles, Services, Vehicle Agreements, Pending Fleet Requests"""
+        # 1. Active vehicles out of the total (+ in maintenance)
         vehicles = self.env['fleet.vehicle'].search([('company_id', '=', company.id)])
+        active = vehicles.filtered(lambda v: v.status_code == 'active')
         available = vehicles.filtered(lambda v: v.status_code == 'available')
         in_maintenance = vehicles.filtered(lambda v: v.status_code == 'in_maintenance')
 
@@ -140,11 +141,15 @@ class FleetDashboard(models.Model):
 
         # 3. Vehicle Agreements needing attention: expiring, expired but still running,
         #    recurring payment due within the next week (a warning, there is no payment tracking)
-        running = self.env['fleet.contract'].search([
+        #    Expired = past the end date and not closed yet: still running, or already set to
+        #    Expired by the daily check (they stay here until renewed or closed).
+        agreements = self.env['fleet.contract'].search([
             ('company_id', '=', company.id),
-            ('state', '=', 'running'),
+            ('state', 'in', ('running', 'expired')),
         ])
-        expired = running.filtered(lambda c: c.end_date and c.end_date < today)
+        running = agreements.filtered(lambda c: c.state == 'running')
+        expired = agreements.filtered(
+            lambda c: c.state == 'expired' or (c.end_date and c.end_date < today))
         expiring = running.filtered(lambda c: c.expiring_alert)
         payment_due = running.filtered(
             lambda c: c.cost_frequency and c.next_due_date and c.days_until_due <= RECURRING_WARNING_DAYS
@@ -175,7 +180,7 @@ class FleetDashboard(models.Model):
                 'plate': v.license_plate,
                 'name': v.name,
                 'driver': v.driver_id.name or '',
-            } for v in available.sorted('license_plate')[:50]],
+            } for v in active.sorted('license_plate')[:50]],  # Active vehicles (table on the dashboard)
             'status_list': [{
                 'id': v.id,
                 'plate': v.license_plate,
@@ -185,6 +190,7 @@ class FleetDashboard(models.Model):
             } for v in vehicles.sorted(lambda v: (v.status_id.sequence, v.license_plate or ''))[:50]],
             'board': self._get_vehicle_board(vehicles),
             'vehicles': {
+                'active': len(active),
                 'available': len(available),
                 'total': len(vehicles),
                 'in_maintenance': len(in_maintenance),
@@ -192,7 +198,7 @@ class FleetDashboard(models.Model):
             'services': {
                 'open': len(open_services),
                 'running': len(open_services.filtered(lambda s: s.state == 'running')),
-                'due_by_km': len(due_by_km),
+                'due_by_km': len({s.vehicle_id.id for s in due_by_km}),  # vehicles, matches the list it opens
                 'due_by_km_vehicle_ids': list({s.vehicle_id.id for s in due_by_km}),
             },
             'contracts': {

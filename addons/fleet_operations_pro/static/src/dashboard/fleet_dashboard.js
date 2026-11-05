@@ -109,6 +109,14 @@ export class FleetDashboard extends Component {
         this.action.doAction(action);
     }
     
+    openActiveVehicles() {
+        this.openAction('fleet.vehicle', [['status_code', '=', 'active']], 'Active Vehicles');
+    }
+
+    openMaintenanceVehicles() {
+        this.openAction('fleet.vehicle', [['status_code', '=', 'in_maintenance']], 'Vehicles in Maintenance');
+    }
+
     openAvailableVehicles() {
         this.openAction('fleet.vehicle', [['status_code', '=', 'available']], 'Available Vehicles');
     }
