@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
@@ -28,9 +30,23 @@ class MefsBudgetPlan(models.Model):
     currency_id = fields.Many2one(
         'res.currency', related='company_id.currency_id', readonly=True)
 
+    project_start_date = fields.Date(string='Project Start Date', tracking=True)
+    project_end_date = fields.Date(
+        string='Project End Date', compute='_compute_project_end_date', store=True,
+        help='Latest end date in the project schedule.')
+
     estimate_line_ids = fields.One2many(
         'mefs.budget.estimate.line', 'plan_id',
         string='Project Estimated Cost', copy=True)
+    schedule_line_ids = fields.One2many(
+        'mefs.budget.schedule.line', 'plan_id',
+        string='Project Schedule', copy=True)
+
+    @api.depends('schedule_line_ids.date_end')
+    def _compute_project_end_date(self):
+        for plan in self:
+            ends = [d for d in plan.schedule_line_ids.mapped('date_end') if d]
+            plan.project_end_date = max(ends) if ends else False
 
     total_material_cost = fields.Monetary(
         string='Total Material Cost', compute='_compute_totals', store=True)
@@ -73,21 +89,45 @@ class MefsBudgetPlan(models.Model):
 
     @api.onchange('boq_id')
     def _onchange_boq_id(self):
-        """Fill the estimate with one row per work item of the selected BOQ.
+        """Fill the estimate and the schedule with one row per BOQ work item."""
+        self._sync_lines_with_boq('estimate_line_ids', 'mefs.budget.estimate.line')
+        self._sync_lines_with_boq('schedule_line_ids', 'mefs.budget.schedule.line')
 
-        Existing rows are moved to the matching item of the new BOQ (by item
-        code, then by work item name); rows with no match are removed and
-        BOQ items without a row get a new one.
+    @api.onchange('project_start_date')
+    def _onchange_project_start_date(self):
+        for line in self.schedule_line_ids:
+            if not line.date_start:
+                line.date_start = self.project_start_date
+
+    @api.onchange('schedule_line_ids')
+    def _onchange_schedule_line_ids(self):
+        """When a planned duration changes by N days, shift every following
+        task (start and end) by N days; their own durations stay the same.
+        A first-time duration (previously empty) does not shift anything.
+        """
+        rows = list(self.schedule_line_ids.sorted('sequence'))
+        for index, row in enumerate(rows):
+            delta = row.duration_days - row.applied_duration_days
+            if delta and row.applied_duration_days > 0:
+                for following in rows[index + 1:]:
+                    if following.date_start:
+                        following.date_start += timedelta(days=delta)
+            row.applied_duration_days = row.duration_days
+
+    def _sync_lines_with_boq(self, field_name, line_model):
+        """Existing rows are moved to the matching item of the new BOQ (by item
+        code, then by work item name); rows with no match are removed and BOQ
+        items without a row get a new one. Rows are kept in BOQ order.
         """
         if not self.boq_id:
-            self.estimate_line_ids = [(5, 0, 0)]
+            self[field_name] = [(5, 0, 0)]
             return
         items = self.boq_id._get_budget_work_items()
         by_code = {i.code: i for i in items if i.code}
         by_name = {}
         for item in items:
             by_name.setdefault((item.name or '').strip().lower(), item)
-        for line in self.estimate_line_ids:
+        for line in self[field_name]:
             old = line.boq_line_id
             if old.boq_id == self.boq_id:
                 continue
@@ -95,15 +135,17 @@ class MefsBudgetPlan(models.Model):
             if match:
                 line.boq_line_id = match
             else:
-                self.estimate_line_ids -= line
+                self[field_name] -= line
 
-        covered = self.estimate_line_ids.boq_line_id
-        Line = self.env['mefs.budget.estimate.line']
+        covered = self[field_name].boq_line_id
+        Line = self.env[line_model]
         for item in items - covered:
-            self.estimate_line_ids += Line.new({'boq_line_id': item.id})
-        # Keep rows in BOQ order; extra material rows stay with their item.
+            vals = {'boq_line_id': item.id}
+            if line_model == 'mefs.budget.schedule.line':
+                vals['date_start'] = self.project_start_date
+            self[field_name] += Line.new(vals)
         position = {item.id: index for index, item in enumerate(items)}
-        for line in self.estimate_line_ids:
+        for line in self[field_name]:
             line.sequence = (position.get(line.boq_line_id.id, len(items)) + 1) * 10
 
     @api.model_create_multi
@@ -121,8 +163,9 @@ class MefsBudgetPlan(models.Model):
             if plan.boq_id.state != 'locked':
                 raise ValidationError(_('Only an approved BOQ can be used for budget planning.'))
 
-    @api.constrains('estimate_line_ids', 'boq_id')
+    @api.constrains('estimate_line_ids', 'schedule_line_ids', 'boq_id')
     def _check_lines_boq(self):
         for plan in self:
-            if any(line.boq_line_id.boq_id != plan.boq_id for line in plan.estimate_line_ids):
-                raise ValidationError(_('All estimated cost lines must use items of the selected BOQ.'))
+            lines = plan.estimate_line_ids.boq_line_id | plan.schedule_line_ids.boq_line_id
+            if any(item.boq_id != plan.boq_id for item in lines):
+                raise ValidationError(_('All estimated cost and schedule lines must use items of the selected BOQ.'))

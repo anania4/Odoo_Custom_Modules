@@ -14,6 +14,8 @@
                         <group>
                             <field name="composed_by_id"/>
                             <field name="date"/>
+                            <field name="project_start_date"/>
+                            <field name="project_end_date"/>
                         </group>
                         <group>
                             <field name="project_id"/>
@@ -75,6 +77,24 @@
                                 <field name="total_subcontractor_cost"/>
                                 <field name="total_estimated_cost" class="oe_subtotal_footer_separator"/>
                             </group>
+                        </page>
+                        <page string="Project Schedule" name="schedule">
+                            <field name="schedule_line_ids"
+                                   readonly="not boq_id"
+                                   context="{'mefs_budget_item_no': True, 'default_date_start': project_start_date}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="applied_duration_days" column_invisible="1"/>
+                                    <field name="boq_line_id" options="{'no_create': True}"/>
+                                    <field name="task"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id"/>
+                                    <field name="progress" widget="progressbar" options="{'editable': true}"/>
+                                    <field name="date_start"/>
+                                    <field name="duration_days"/>
+                                    <field name="date_end"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

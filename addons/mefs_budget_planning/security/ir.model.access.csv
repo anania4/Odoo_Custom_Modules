@@ -3,3 +3,4 @@ access_mefs_budget_plan_user,mefs.budget.plan.user,model_mefs_budget_plan,group_
 access_mefs_budget_estimate_line_user,mefs.budget.estimate.line.user,model_mefs_budget_estimate_line,group_mefs_budget_user,1,1,1,1
 access_mefs_boq_budget_user,mefs.boq.budget.user,mefs_bill_of_quantity.model_mefs_boq,group_mefs_budget_user,1,0,0,0
 access_mefs_boq_line_budget_user,mefs.boq.line.budget.user,mefs_bill_of_quantity.model_mefs_boq_line,group_mefs_budget_user,1,0,0,0
+access_mefs_budget_schedule_line_user,mefs.budget.schedule.line.user,model_mefs_budget_schedule_line,group_mefs_budget_user,1,1,1,1
