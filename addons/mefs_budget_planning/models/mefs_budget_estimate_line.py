@@ -19,6 +19,10 @@ class MefsBudgetEstimateLine(models.Model):
     work_duration_days = fields.Float(string='Duration of Work (Days)')
     work_quantity = fields.Float(string='Quantity of Work')
     work_uom_id = fields.Many2one(related='boq_line_id.uom_id', string='Unit')
+    is_material_row = fields.Boolean(
+        string='Extra Material Row', copy=False,
+        help='Row added with the + button to list one more material for a work item. '
+             'Its work item cells are hidden and follow the main row.')
 
     # --- Material ---
     material_product_id = fields.Many2one('product.product', string='Material Type')
@@ -90,6 +94,7 @@ class MefsBudgetEstimateLine(models.Model):
         self.copy({
             'plan_id': self.plan_id.id,
             'sequence': self.sequence,
+            'is_material_row': True,
             'boq_line_id': self.boq_line_id.id,
             'work_duration_days': self.work_duration_days,
             'work_quantity': self.work_quantity,
@@ -111,6 +116,18 @@ class MefsBudgetEstimateLine(models.Model):
             'labour_categ_id': False,
         })
         return True
+
+    def write(self, vals):
+        res = super().write(vals)
+        # Extra material rows hide their work cells, so keep them in step with the main row.
+        synced = {k: vals[k] for k in ('work_quantity', 'work_duration_days') if k in vals}
+        if synced:
+            for line in self.filtered(lambda l: not l.is_material_row):
+                extras = line.plan_id.estimate_line_ids.filtered(
+                    lambda l: l.is_material_row and l.boq_line_id == line.boq_line_id)
+                if extras:
+                    super(MefsBudgetEstimateLine, extras).write(synced)
+        return res
 
     def _compute_display_name(self):
         for line in self:

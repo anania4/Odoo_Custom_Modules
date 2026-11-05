@@ -31,12 +31,13 @@
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="currency_id" column_invisible="1"/>
-                                    <!-- Work item (BOQ) -->
-                                    <field name="boq_line_id" options="{'no_create': True}"/>
-                                    <field name="work_item"/>
-                                    <field name="work_duration_days"/>
-                                    <field name="work_quantity"/>
-                                    <field name="work_uom_id"/>
+                                    <field name="is_material_row" column_invisible="1"/>
+                                    <!-- Work item (BOQ): blank on extra material rows -->
+                                    <field name="boq_line_id" options="{'no_create': True}" invisible="is_material_row"/>
+                                    <field name="work_item" invisible="is_material_row"/>
+                                    <field name="work_duration_days" invisible="is_material_row"/>
+                                    <field name="work_quantity" invisible="is_material_row"/>
+                                    <field name="work_uom_id" invisible="is_material_row"/>
                                     <!-- Material -->
                                     <field name="material_product_id" options="{'no_create': True}"/>
                                     <button name="action_add_material_row" type="object"
