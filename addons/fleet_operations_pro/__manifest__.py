@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Fleet Operations Pro',
-    'version': '18.0.0.0.14',
+    'version': '18.0.0.0.15',
     'category': 'Operations/Fleet',
     'summary': 'Comprehensive Fleet Management System',
     'description': """
@@ -80,6 +80,9 @@ This module is standalone and does not depend on Odoo's base fleet module.
             'fleet_operations_pro/static/src/dashboard/fleet_dashboard.scss',
             'fleet_operations_pro/static/src/dashboard/fleet_dashboard.js',
             'fleet_operations_pro/static/src/dashboard/fleet_dashboard.xml',
+            'fleet_operations_pro/static/src/driver_switch/driver_switch.scss',
+            'fleet_operations_pro/static/src/driver_switch/driver_switch.js',
+            'fleet_operations_pro/static/src/driver_switch/driver_switch.xml',
         ],
     },
 }

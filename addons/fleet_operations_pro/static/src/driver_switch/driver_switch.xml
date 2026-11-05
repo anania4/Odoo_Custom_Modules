@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="fleet_operations_pro.DriverSwitch">
+        <div class="o_systray_item o_fds" t-ref="root" t-if="state.isDriver and state.vehicles.length">
+            <button type="button" t-attf-class="o_fds_button o_fds_#{overall}"
+                    t-att-title="tooltip" t-on-click.stop="toggle">
+                <span class="o_fds_icon"><i class="fa fa-car" role="img" aria-label="My vehicle"/></span>
+                <span t-attf-class="o_fds_badge o_fds_badge_#{overall}"/>
+            </button>
+
+            <div t-if="state.open" class="o_fds_panel">
+                <t t-foreach="state.vehicles" t-as="v" t-key="v.id">
+                    <div class="o_fds_vehicle">
+                        <div class="o_fds_row">
+                            <span class="o_fds_plate" t-esc="v.plate"/>
+                            <span t-attf-class="o_fds_status o_fds_status_#{v.dot}">
+                                <span class="o_fds_dot"/>
+                                <t t-esc="v.status or 'No status'"/>
+                            </span>
+                        </div>
+                        <div class="o_fds_meta">
+                            <t t-esc="v.name"/>
+                            <t t-if="since(v)"> · <t t-esc="since(v)"/></t>
+                        </div>
+
+                        <button t-if="v.can_switch and (v.dot === 'active' or v.dot === 'in_use')" type="button"
+                                t-attf-class="o_fds_action o_fds_action_#{v.dot}" t-att-disabled="state.busy"
+                                t-on-click.stop="() => this.switchStatus(v)">
+                            <t t-if="v.dot === 'active'">In Use</t>
+                            <t t-else="">Active</t>
+                        </button>
+                        <div t-else="" class="o_fds_locked">Status set by the Fleet Manager</div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,176 @@
+// Driver switch: car icon in a rounded square with a status badge (top bar)
+// Deliberately different from the attendance dot: a square car icon, a corner badge,
+// and a pulse only while the vehicle is In Use.
+
+$fds-green-1: #059669;
+$fds-green-2: #34d399;
+$fds-red-1: #dc2626;
+$fds-red-2: #fb7185;
+$fds-grey: #94a3b8;
+$fds-ink: #0f172a;
+
+@keyframes o_fds_pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+    70%  { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.o_fds {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.o_fds_button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.o_fds_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;                       // rounded square, not a circle
+    background: linear-gradient(135deg, #334155 0%, #64748b 100%);
+    color: #fff;
+    font-size: 13px;
+    box-shadow: 0 2px 6px -2px rgba(15, 23, 42, 0.5);
+    transition: transform 0.15s ease;
+}
+.o_fds_button:hover .o_fds_icon { transform: translateY(-1px) scale(1.05); }
+.o_fds_active .o_fds_icon { background: linear-gradient(135deg, $fds-green-1 0%, $fds-green-2 100%); }
+.o_fds_in_use .o_fds_icon { background: linear-gradient(135deg, $fds-red-1 0%, $fds-red-2 100%); }
+
+.o_fds_badge {
+    position: absolute;
+    right: 4px;
+    bottom: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: $fds-grey;
+}
+.o_fds_badge_active { background: #22c55e; }
+.o_fds_badge_in_use { background: #ef4444; animation: o_fds_pulse 1.6s infinite; }
+
+
+// ---- panel: clean and minimal ----------------------------------------------
+@keyframes o_fds_panel_in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.o_fds_panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 240px;
+    max-width: 92vw;
+    margin-top: 6px;
+    padding: 4px;
+    background: #fff;
+    border: 1px solid #eef0f3;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.25);
+    z-index: 1050;
+    animation: o_fds_panel_in 0.14s ease-out;
+}
+
+.o_fds_vehicle {
+    padding: 12px 12px 12px;
+    & + & { border-top: 1px solid #f1f5f9; }
+}
+
+.o_fds_row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.o_fds_plate {
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    color: $fds-ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.o_fds_status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #64748b;
+    white-space: nowrap;
+}
+.o_fds_dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $fds-grey;
+}
+.o_fds_status_active { color: #047857; .o_fds_dot { background: #22c55e; } }
+.o_fds_status_in_use { color: #b91c1c; .o_fds_dot { background: #ef4444; } }
+
+.o_fds_meta {
+    margin-top: 2px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.o_fds_action {
+    width: 100%;
+    margin-top: 10px;
+    padding: 7px 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    &:disabled { opacity: 0.55; cursor: wait; }
+}
+// Vehicle Active -> button "In Use" (soft red); vehicle In Use -> button "Active" (soft green)
+.o_fds_action_active {
+    background: #fef2f2;
+    color: #b91c1c;
+    &:hover:not(:disabled) { background: #fee2e2; }
+}
+.o_fds_action_in_use {
+    background: #ecfdf5;
+    color: #047857;
+    &:hover:not(:disabled) { background: #d1fae5; }
+}
+
+.o_fds_locked {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+@media (max-width: 767px) {
+    .o_fds_panel {
+        position: fixed;
+        top: calc(var(--o-navbar-height, 46px) + 6px);
+        right: 8px;
+        left: auto;
+        width: 240px;
+    }
+}

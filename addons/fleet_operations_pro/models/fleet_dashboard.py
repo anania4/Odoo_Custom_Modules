@@ -20,6 +20,34 @@ class FleetDashboard(models.Model):
         return model_name in self.env and self.env[model_name].has_access('read')
 
     @api.model
+    def _get_vehicle_board(self, vehicles):
+        """Small live cards: plate, car name, delegated driver and a status dot.
+
+        Green dot = Active, red dot = In Use, grey = any other status.
+        In Use vehicles first, then Active, then the rest.
+        """
+        dot_by_code = {'active': 'active', 'in use': 'in_use', 'in_use': 'in_use'}
+        order = {'in_use': 0, 'active': 1, 'other': 2}
+        cards = []
+        for vehicle in vehicles:
+            dot = dot_by_code.get((vehicle.status_code or '').strip().lower(), 'other')
+            cards.append({
+                'id': vehicle.id,
+                'plate': vehicle.license_plate or '',
+                'name': vehicle.name or '',
+                'driver': vehicle.driver_id.name or '',
+                'status': vehicle.status_id.name or '',
+                'dot': dot,
+            })
+        cards.sort(key=lambda c: (order[c['dot']], c['plate']))
+        return {
+            'cards': cards[:60],
+            'total': len(cards),
+            'active': sum(1 for c in cards if c['dot'] == 'active'),
+            'in_use': sum(1 for c in cards if c['dot'] == 'in_use'),
+        }
+
+    @api.model
     def _get_needs_action(self, today, expired, expiring, payment_due, due_by_km):
         """One list of things to act on, most urgent first (lowest 'urgency')."""
         items = []
@@ -155,6 +183,7 @@ class FleetDashboard(models.Model):
                 'status': v.status_id.name or '',
                 'color': v.status_id.color or 0,
             } for v in vehicles.sorted(lambda v: (v.status_id.sequence, v.license_plate or ''))[:50]],
+            'board': self._get_vehicle_board(vehicles),
             'vehicles': {
                 'available': len(available),
                 'total': len(vehicles),

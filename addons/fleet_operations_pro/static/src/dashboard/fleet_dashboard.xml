@@ -131,6 +131,62 @@
                         </div>
                     </div>
 
+                    <!-- Vehicle board: one small card per vehicle with a status dot -->
+                    <div class="o_fleet_vehicle_board mb-4" t-if="cards and cards.board">
+                        <div class="o_board_header">
+                            <h5 class="mb-0"><i class="fa fa-th-large" title="Vehicles"/> Vehicles Now</h5>
+                            <div class="o_board_legend">
+                                <span class="o_board_pill o_board_pill_in_use">
+                                    <span class="o_vehicle_dot o_dot_in_use"/>
+                                    <t t-esc="cards.board.in_use"/> In Use
+                                </span>
+                                <span class="o_board_pill o_board_pill_active">
+                                    <span class="o_vehicle_dot o_dot_active"/>
+                                    <t t-esc="cards.board.active"/> Active
+                                </span>
+                            </div>
+                        </div>
+                        <div class="o_board_grid" t-if="cards.board.cards.length">
+                            <t t-foreach="cards.board.cards" t-as="car" t-key="car.id">
+                                <div t-att-class="'o_vehicle_card o_card_' + car.dot"
+                                     t-att-title="car.plate + ' · ' + car.status"
+                                     t-on-click="() =&gt; this.openRecord('fleet.vehicle', car.id)">
+                                    <!-- Coloured header: status pill, dot, car watermark -->
+                                    <div class="o_vc_head">
+                                        <i class="fa fa-car o_vc_watermark" title="Vehicle"/>
+                                        <span class="o_vc_pill">
+                                            <span t-att-class="'o_vehicle_dot o_dot_' + car.dot"/>
+                                            <t t-esc="car.status or 'No status'"/>
+                                        </span>
+                                        <div class="o_vc_plate">
+                                            <span class="o_vc_plate_band"/>
+                                            <span class="o_vc_plate_text"><t t-esc="car.plate"/></span>
+                                        </div>
+                                    </div>
+                                    <!-- Body: car name and delegated driver -->
+                                    <div class="o_vc_body">
+                                        <div class="o_vc_name"><t t-esc="car.name"/></div>
+                                        <div class="o_vc_driver">
+                                            <t t-if="car.driver">
+                                                <span class="o_vc_avatar"
+                                                      t-esc="car.driver.split(' ').filter(w =&gt; w).map(w =&gt; w[0]).join('').slice(0, 2).toUpperCase()"/>
+                                                <span class="o_vc_driver_name"><t t-esc="car.driver"/></span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="o_vc_avatar o_vc_avatar_empty"><i class="fa fa-user" title="No driver"/></span>
+                                                <span class="o_vc_driver_name o_no_driver">No driver</span>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <p t-else="" class="text-muted text-center my-3">No vehicles yet</p>
+                        <div t-if="cards.board.total &gt; cards.board.cards.length" class="text-muted small text-center mt-2">
+                            Showing <t t-esc="cards.board.cards.length"/> of <t t-esc="cards.board.total"/> vehicles
+                        </div>
+                    </div>
+
                     <!-- Needs Action list + Fuel Cost by Vehicle -->
                     <div class="row mb-4">
                         <div class="col-lg-8 mb-3">

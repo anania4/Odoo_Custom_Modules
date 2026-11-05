@@ -364,6 +364,8 @@ class FleetRequest(models.Model):
                     'Assign a vehicle to the driver first.') % request.driver_id.name)
             request.vehicle_id = vehicle
             request.state = 'assigned'
+            vehicle._set_in_use_for_assignment(
+                _('%(ref)s assigned to %(driver)s', ref=request.name, driver=request.driver_id.name))
 
     def action_complete(self):
         """The delegated driver (or a Fleet Manager) marks the trip as done"""

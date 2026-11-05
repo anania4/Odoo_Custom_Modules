@@ -21,3 +21,4 @@ from . import fleet_service
 from . import fleet_dashboard
 
 from . import fleet_bell_notifications
+from . import fleet_vehicle_driver_switch
