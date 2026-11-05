@@ -46,3 +46,4 @@ access_fleet_driver_manager,fleet.driver.manager,model_fleet_driver,group_fleet_
 access_fleet_driver_assignment_driver,fleet.driver.assignment.driver,model_fleet_driver_assignment,group_fleet_driver,1,0,0,0
 access_fleet_vehicle_driver,fleet.vehicle.driver,model_fleet_vehicle,group_fleet_driver,1,0,0,0
 access_fleet_vehicle_model_driver,fleet.vehicle.model.driver,model_fleet_vehicle_model,group_fleet_driver,1,0,0,0
+access_fleet_driver_viewer,fleet.driver.viewer,model_fleet_driver,group_fleet_viewer,1,0,0,0
