@@ -21,7 +21,7 @@
 
             <t t-else="">
                 <t t-if="state.data">
-                    <!-- Primary Cards: Available Vehicles, Services, Contracts, Pending Fleet Requests -->
+                    <!-- Primary Cards: Available Vehicles, Services, Vehicle Agreements, Pending Fleet Requests -->
                     <t t-set="cards" t-value="state.data.cards"/>
                     <div class="row mb-4" t-if="cards">
                         <!-- 1. Available Vehicles -->
@@ -71,23 +71,23 @@
                             </div>
                         </div>
 
-                        <!-- 3. Contracts needing attention -->
+                        <!-- 3. Vehicle Agreements needing attention -->
                         <div class="col-lg-3 col-md-6 mb-3">
                             <div t-att-class="'card h-100 cursor-pointer ' + (cards.contracts.expired ? 'bg-danger text-white' : cards.contracts.attention ? 'bg-warning text-dark' : 'bg-light text-dark border')"
-                                 title="View Contracts Needing Attention" t-on-click="() =&gt; this.openContractsAttention()">
+                                 title="View Vehicle Agreements Needing Attention" t-on-click="() =&gt; this.openContractsAttention()">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h5 class="card-title">Contracts</h5>
+                                            <h5 class="card-title">Vehicle Agreements</h5>
                                             <h2 class="mb-0"><t t-esc="cards.contracts.attention"/></h2>
                                             <small>
                                                 need attention:
                                                 <t t-esc="cards.contracts.expiring"/> expiring ·
                                                 <t t-esc="cards.contracts.expired"/> expired ·
-                                                <t t-esc="cards.contracts.payment_due"/> payment due
+                                                <t t-esc="cards.contracts.payment_due"/> recurring payment due
                                             </small>
                                         </div>
-                                        <i class="fa fa-file-text-o fa-2x opacity-50" title="Contracts"/>
+                                        <i class="fa fa-file-text-o fa-2x opacity-50" title="Vehicle Agreements"/>
                                     </div>
                                 </div>
                             </div>

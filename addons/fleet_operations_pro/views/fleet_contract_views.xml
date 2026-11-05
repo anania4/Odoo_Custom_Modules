@@ -2,30 +2,30 @@
 <odoo>
 
     <!-- ========================================= -->
-    <!-- Fleet Contract                            -->
+    <!-- Vehicle Agreement                            -->
     <!-- ========================================= -->
 
     <record id="action_fleet_contract" model="ir.actions.act_window">
-        <field name="name">Contracts</field>
+        <field name="name">Vehicle Agreements</field>
         <field name="res_model">fleet.contract</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a new vehicle contract
+                Create a new vehicle agreement
             </p>
             <p>
-                Manage insurance policies, leases and service contracts with
-                their payments and renewal dates.
+                Manage insurance policies, leases and service agreements with
+                their costs and renewal dates.
             </p>
         </field>
     </record>
 
-    <!-- Contract List View -->
+    <!-- Vehicle Agreement List View -->
     <record id="view_fleet_contract_list" model="ir.ui.view">
         <field name="name">fleet.contract.list</field>
         <field name="model">fleet.contract</field>
         <field name="arch" type="xml">
-            <list string="Contracts"
+            <list string="Vehicle Agreements"
                   decoration-success="state == 'running'"
                   decoration-info="state == 'draft'"
                   decoration-warning="state == 'running' and expiring_alert"
@@ -40,11 +40,9 @@
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="cost" sum="Total" optional="show"/>
-                <field name="cost_frequency" optional="show"/>
+                <field name="cost_frequency" widget="badge" optional="show"
+                       decoration-warning="cost_frequency"/>
                 <field name="next_due_date" optional="show"/>
-                <field name="payment_state" widget="badge"
-                       decoration-success="payment_state == 'paid'"
-                       decoration-warning="payment_state == 'unpaid'"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="expiring_alert" column_invisible="1"/>
                 <field name="state" widget="badge"
@@ -55,17 +53,15 @@
         </field>
     </record>
 
-    <!-- Contract Form View -->
+    <!-- Vehicle Agreement Form View -->
     <record id="view_fleet_contract_form" model="ir.ui.view">
         <field name="name">fleet.contract.form</field>
         <field name="model">fleet.contract</field>
         <field name="arch" type="xml">
-            <form string="Contract">
+            <form string="Vehicle Agreement">
                 <header>
                     <button name="action_run" string="Set to Running" type="object"
                             class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_register_payment" string="Register Payment" type="object"
-                            class="btn-primary" invisible="state != 'running' or payment_state == 'paid'"/>
                     <button name="action_set_expired" string="Mark as Expired" type="object"
                             invisible="state not in ('draft', 'running')"/>
                     <button name="action_close" string="Close" type="object"
@@ -82,10 +78,21 @@
                             <field name="service_count" widget="statinfo" string="Services"/>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Paid" bg_color="text-bg-success"
-                            invisible="payment_state != 'paid'"/>
                     <field name="active" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
+                    <field name="days_until_due" invisible="1"/>
+                    <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert"
+                         invisible="not cost_frequency or state not in ('draft', 'running')">
+                        <i class="fa fa-repeat" title="Recurring payment"/>
+                        <span>
+                            Recurring payment: <field name="cost" class="fw-bold" readonly="1"/>
+                            <field name="cost_frequency" class="fw-bold" readonly="1"/>
+                            <span invisible="not next_due_date">
+                                · next due <field name="next_due_date" class="fw-bold" readonly="1"/>
+                                (in <field name="days_until_due" readonly="1"/> days)
+                            </span>
+                        </span>
+                    </div>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
@@ -93,10 +100,10 @@
                         </h1>
                     </div>
                     <group>
-                        <group name="contract_info" string="Contract">
+                        <group name="contract_info" string="Vehicle Agreement">
                             <field name="vehicle_id" options="{'no_create': True}"/>
                             <field name="contract_type_id" options="{'no_create': True}" readonly="state != 'draft'"/>
-                            <field name="partner_id"/>
+                            <field name="partner_id" context="{'res_partner_search_mode': 'supplier'}"/>
                             <field name="reference" placeholder="Policy number, lease number..."/>
                             <field name="user_id" widget="many2one_avatar_user"/>
                             <field name="company_id" options="{'no_create': True}"
@@ -117,17 +124,14 @@
                             <field name="cost"/>
                             <field name="cost_frequency"/>
                             <field name="total_cost" invisible="not cost_frequency"/>
-                            <field name="deposit"/>
                         </group>
-                        <group name="payment_info" string="Payment">
-                            <field name="next_due_date" invisible="not cost_frequency"/>
-                            <field name="payment_state" widget="radio" options="{'horizontal': true}"/>
-                            <field name="payment_date" required="payment_state == 'paid'"/>
+                        <group name="deposit_info" string="Deposit">
+                            <field name="deposit"/>
                         </group>
                     </group>
                     <notebook>
                         <page name="notes" string="Notes">
-                            <field name="notes" placeholder="Contract terms, renewal conditions..."/>
+                            <field name="notes" placeholder="Vehicle Agreement terms, renewal conditions..."/>
                         </page>
                         <page name="attachments" string="Attachments">
                             <field name="attachment_ids" widget="many2many_binary"/>
@@ -139,29 +143,25 @@
         </field>
     </record>
 
-    <!-- Contract Search View -->
+    <!-- Vehicle Agreement Search View -->
     <record id="view_fleet_contract_search" model="ir.ui.view">
         <field name="name">fleet.contract.search</field>
         <field name="model">fleet.contract</field>
         <field name="arch" type="xml">
-            <search string="Search Contracts">
+            <search string="Search Vehicle Agreements">
                 <field name="name" string="Reference"/>
                 <field name="vehicle_id" string="Vehicle"/>
                 <field name="partner_id" string="Vendor"/>
-                <field name="contract_type_id" string="Contract Type"/>
+                <field name="contract_type_id" string="Agreement Type"/>
                 <field name="reference" string="Vendor Reference"/>
                 <field name="user_id" string="Responsible"/>
 
-                <filter name="filter_my" string="My Contracts" domain="[('user_id', '=', uid)]"/>
+                <filter name="filter_my" string="My Vehicle Agreements" domain="[('user_id', '=', uid)]"/>
                 <separator/>
                 <filter name="filter_expiring" string="Expiring in 30 Days"
                         domain="[('state', '=', 'running'), ('end_date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('end_date', '&lt;=', (context_today() + datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
                 <filter name="filter_past_end" string="Past End Date (still running)"
                         domain="[('state', '=', 'running'), ('end_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter name="filter_payment_due" string="Payment Due"
-                        domain="[('state', '=', 'running'), ('payment_state', '=', 'unpaid'), '|', ('next_due_date', '&lt;=', context_today().strftime('%Y-%m-%d')), ('cost_frequency', '=', False)]"/>
-                <filter name="filter_unpaid" string="Unpaid" domain="[('payment_state', '=', 'unpaid')]"/>
-                <filter name="filter_paid" string="Paid" domain="[('payment_state', '=', 'paid')]"/>
 
                 <separator/>
                 <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
@@ -181,12 +181,12 @@
                 <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
 
                 <group expand="0" string="Group By">
-                    <filter name="group_type" string="Contract Type" context="{'group_by': 'contract_type_id'}"/>
+                    <filter name="group_type" string="Agreement Type" context="{'group_by': 'contract_type_id'}"/>
                     <filter name="group_vehicle" string="Vehicle" context="{'group_by': 'vehicle_id'}"/>
                     <filter name="group_partner" string="Vendor" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_user" string="Responsible" context="{'group_by': 'user_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_payment" string="Payment Status" context="{'group_by': 'payment_state'}"/>
+                    <filter name="group_frequency" string="Recurring Frequency" context="{'group_by': 'cost_frequency'}"/>
                     <filter name="group_end_date" string="End Date" context="{'group_by': 'end_date:month'}"/>
                 </group>
             </search>
@@ -207,7 +207,7 @@
             </p>
             <p>
                 Track services performed on your vehicles with their vendor,
-                cost, payment and odometer reading.
+                cost, inspection center and odometer reading.
             </p>
         </field>
     </record>
@@ -225,6 +225,7 @@
                 <field name="vehicle_id"/>
                 <field name="service_type_id"/>
                 <field name="partner_id" optional="show"/>
+                <field name="inspection_center_id" optional="show"/>
                 <field name="user_id" widget="many2one_avatar_user" optional="hide"/>
                 <field name="date"/>
                 <field name="end_date" optional="show"/>
@@ -232,9 +233,6 @@
                 <field name="next_service_odometer" widget="integer" optional="hide"/>
                 <field name="contract_id" optional="hide"/>
                 <field name="cost" sum="Total" optional="show"/>
-                <field name="payment_state" widget="badge"
-                       decoration-success="payment_state == 'paid'"
-                       decoration-warning="payment_state == 'unpaid'"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'done'"
                        decoration-info="state == 'new'"
@@ -256,8 +254,6 @@
                             class="btn-primary" invisible="state != 'new'"/>
                     <button name="action_done" string="Mark as Done" type="object"
                             class="btn-primary" invisible="state not in ('new', 'running')"/>
-                    <button name="action_register_payment" string="Register Payment" type="object"
-                            invisible="state == 'cancelled' or payment_state == 'paid'"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             invisible="state in ('done', 'cancelled')"/>
                     <button name="action_reset_new" string="Reset to New" type="object"
@@ -265,8 +261,6 @@
                     <field name="state" widget="statusbar" statusbar_visible="new,running,done"/>
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Paid" bg_color="text-bg-success"
-                            invisible="payment_state != 'paid'"/>
                     <field name="active" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
                     <div class="oe_title">
@@ -279,7 +273,8 @@
                         <group name="service_info" string="Service">
                             <field name="vehicle_id" options="{'no_create': True}"/>
                             <field name="service_type_id" options="{'no_create': True}"/>
-                            <field name="partner_id"/>
+                            <field name="partner_id" context="{'res_partner_search_mode': 'supplier'}"/>
+                            <field name="inspection_center_id" context="{'res_partner_search_mode': 'supplier'}"/>
                             <field name="user_id" widget="many2one_avatar_user"/>
                             <field name="contract_id" options="{'no_create': True}"
                                    domain="[('vehicle_id', '=', vehicle_id)]"/>
@@ -298,10 +293,8 @@
                             <field name="next_service_odometer" widget="integer"
                                    invisible="not service_interval"/>
                         </group>
-                        <group name="payment_info" string="Cost &amp; Payment">
+                        <group name="cost_info" string="Cost">
                             <field name="cost"/>
-                            <field name="payment_state" widget="radio" options="{'horizontal': true}"/>
-                            <field name="payment_date" required="payment_state == 'paid'"/>
                         </group>
                     </group>
                     <notebook>
@@ -331,8 +324,9 @@
                 <field name="vehicle_id" string="Vehicle"/>
                 <field name="service_type_id" string="Service Type"/>
                 <field name="partner_id" string="Vendor"/>
+                <field name="inspection_center_id" string="Inspection Center"/>
                 <field name="user_id" string="Responsible"/>
-                <field name="contract_id" string="Contract"/>
+                <field name="contract_id" string="Vehicle Agreement"/>
 
                 <filter name="filter_my" string="My Services" domain="[('user_id', '=', uid)]"/>
                 <separator/>
@@ -343,11 +337,7 @@
                 <filter name="filter_done" string="Done" domain="[('state', '=', 'done')]"/>
                 <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
                 <separator/>
-                <filter name="filter_unpaid" string="Unpaid"
-                        domain="[('payment_state', '=', 'unpaid'), ('state', '!=', 'cancelled')]"/>
-                <filter name="filter_paid" string="Paid" domain="[('payment_state', '=', 'paid')]"/>
-                <separator/>
-                <filter name="filter_under_contract" string="Under a Contract" domain="[('contract_id', '!=', False)]"/>
+                <filter name="filter_under_contract" string="Under a Vehicle Agreement" domain="[('contract_id', '!=', False)]"/>
                 <separator/>
                 <filter name="filter_date" string="Start Date" date="date"/>
                 <filter name="filter_end_date" string="End Date" date="end_date"/>
@@ -359,9 +349,9 @@
                     <filter name="group_type" string="Service Type" context="{'group_by': 'service_type_id'}"/>
                     <filter name="group_partner" string="Vendor" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_payment" string="Payment Status" context="{'group_by': 'payment_state'}"/>
+                    <filter name="group_inspection_center" string="Inspection Center" context="{'group_by': 'inspection_center_id'}"/>
                     <filter name="group_date" string="Start Date" context="{'group_by': 'date:month'}"/>
-                    <filter name="group_contract" string="Contract" context="{'group_by': 'contract_id'}"/>
+                    <filter name="group_contract" string="Vehicle Agreement" context="{'group_by': 'contract_id'}"/>
                 </group>
             </search>
         </field>

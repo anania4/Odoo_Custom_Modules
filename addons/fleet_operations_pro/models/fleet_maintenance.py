@@ -64,6 +64,7 @@ class FleetMaintenance(models.Model):
     service_provider_partner_id = fields.Many2one(
         'res.partner',
         string='Service Provider Contact',
+        domain=lambda self: self.env['res.partner']._fleet_vendor_domain(),
         help='Link to partner/vendor record'
     )
     

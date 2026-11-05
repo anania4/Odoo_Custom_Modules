@@ -33,8 +33,16 @@ class FleetService(models.Model):
     partner_id = fields.Many2one(
         'res.partner',
         string='Vendor',
+        domain=lambda self: self.env['res.partner']._fleet_vendor_domain(),
         tracking=True,
         help='Garage, vendor or workshop performing the service'
+    )
+    inspection_center_id = fields.Many2one(
+        'res.partner',
+        string='Inspection Center',
+        tracking=True,
+        domain=lambda self: self.env['res.partner']._fleet_vendor_domain(),
+        help='Inspection center where the vehicle is inspected, chosen from your vendors'
     )
     user_id = fields.Many2one(
         'res.users',
@@ -44,11 +52,11 @@ class FleetService(models.Model):
     )
     contract_id = fields.Many2one(
         'fleet.contract',
-        string='Contract',
+        string='Vehicle Agreement',
         ondelete='set null',
         index=True,
         tracking=True,
-        help='Contract covering this service (if billed under a contract)'
+        help='Vehicle Agreement covering this service (if billed under a vehicle agreement)'
     )
 
     # Dates
@@ -65,7 +73,7 @@ class FleetService(models.Model):
         help='Date the service was completed'
     )
 
-    # Cost & Payment
+    # Cost
     currency_id = fields.Many2one(
         'res.currency',
         related='company_id.currency_id',
@@ -75,22 +83,6 @@ class FleetService(models.Model):
         string='Cost',
         currency_field='currency_id',
         tracking=True
-    )
-    payment_state = fields.Selection(
-        [
-            ('unpaid', 'Unpaid'),
-            ('paid', 'Paid'),
-        ],
-        string='Payment Status',
-        default='unpaid',
-        required=True,
-        tracking=True,
-        copy=False
-    )
-    payment_date = fields.Date(
-        string='Payment Date',
-        tracking=True,
-        copy=False
     )
 
     state = fields.Selection(
@@ -183,7 +175,7 @@ class FleetService(models.Model):
             if service.contract_id and service.vehicle_id and \
                     service.contract_id.vehicle_id != service.vehicle_id:
                 raise ValidationError(_(
-                    'The contract %s is for vehicle %s, not for vehicle %s.'
+                    'The vehicle agreement %s is for vehicle %s, not for vehicle %s.'
                 ) % (service.contract_id.name,
                      service.contract_id.vehicle_id.display_name,
                      service.vehicle_id.display_name))
@@ -193,12 +185,6 @@ class FleetService(models.Model):
         for service in self:
             if service.state == 'done' and not service.end_date:
                 raise ValidationError(_('Please set the End Date before marking service %s as done.') % service.name)
-
-    @api.constrains('payment_state', 'payment_date')
-    def _check_payment_date(self):
-        for service in self:
-            if service.payment_state == 'paid' and not service.payment_date:
-                raise ValidationError(_('Please set the Payment Date for paid service %s.') % service.name)
 
     def _update_vehicle_odometer(self):
         """A completed service gives the latest odometer reading of the vehicle"""
@@ -231,6 +217,3 @@ class FleetService(models.Model):
 
     def action_reset_new(self):
         self.write({'state': 'new'})
-
-    def action_register_payment(self):
-        self.write({'payment_state': 'paid', 'payment_date': fields.Date.today()})

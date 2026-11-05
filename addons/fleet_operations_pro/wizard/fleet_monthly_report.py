@@ -30,8 +30,8 @@ COLUMNS = [
     ('service_count', 'No. of Services', 9, 'int_total'),
     ('service_types', 'Service Types Done', 24, 'text'),
     ('service_cost', 'Service Cost', 11, 'money_total'),
-    ('contracts', 'Contracts (Paid / Due)', 30, 'text'),
-    ('contract_cost', 'Contract Cost', 11, 'money_total'),
+    ('contracts', 'Vehicle Agreements (Recurring / Next Due)', 30, 'text'),
+    ('contract_cost', 'Vehicle Agreement Cost', 11, 'money_total'),
     ('total_cost', 'Total Cost', 12, 'money_total'),
     ('remark', 'Remark', 30, 'text'),
 ]
@@ -123,15 +123,16 @@ class FleetMonthlyReport(models.TransientModel):
         return contract.cost * payments
 
     def _contract_status(self, contract, end):
-        type_name = contract.contract_type_id.name or _('Contract')
-        if contract.payment_state == 'paid':
-            status = _('Paid')
-        elif contract.cost_frequency and contract.next_due_date and contract.next_due_date > end:
-            status = _('Paid (next due %s)') % contract.next_due_date.strftime('%d/%m')
-        elif contract.next_due_date:
-            status = _('Due %s') % contract.next_due_date.strftime('%d/%m/%Y')
+        type_name = contract.contract_type_id.name or _('Vehicle Agreement')
+        if not contract.cost_frequency:
+            status = _('One-time')
         else:
-            status = _('Due')
+            frequency = dict(contract._fields['cost_frequency'].selection)[contract.cost_frequency]
+            if contract.next_due_date:
+                status = _('%(freq)s, next due %(date)s') % {
+                    'freq': frequency, 'date': contract.next_due_date.strftime('%d/%m/%Y')}
+            else:
+                status = frequency
         return f"{type_name}: {status}"
 
     def _get_report_lines(self):
@@ -165,7 +166,7 @@ class FleetMonthlyReport(models.TransientModel):
                 f"{name} x{count}" if count > 1 else name for name, count in sorted(type_counts.items()))
             service_cost = sum(services.mapped('cost'))
 
-            # Contracts running during the month
+            # Vehicle Agreements running during the month
             contracts = self.env['fleet.contract'].search(domain + [
                 ('state', 'in', ('running', 'expired')),
                 ('start_date', '<=', end),

@@ -15,7 +15,7 @@
         </record>
 
         <record id="contract_type_service" model="fleet.contract.type">
-            <field name="name">Service Contract</field>
+            <field name="name">Service Agreement</field>
             <field name="prefix">SVC</field>
             <field name="sequence">30</field>
         </record>

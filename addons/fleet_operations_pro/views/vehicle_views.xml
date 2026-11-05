@@ -162,7 +162,7 @@
 
                         <group name="ownership" string="Ownership">
                             <field name="ownership_type" widget="radio" options="{'horizontal': true}"/>
-                            <field name="rental_vendor_id"/>
+                            <field name="rental_vendor_id" context="{'res_partner_search_mode': 'supplier'}"/>
                             <field name="vendor_contact_phone" widget="phone"/>
                         </group>
                     </group>

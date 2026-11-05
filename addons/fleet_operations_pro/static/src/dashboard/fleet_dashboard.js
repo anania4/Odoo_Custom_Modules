@@ -128,7 +128,7 @@ export class FleetDashboard extends Component {
 
     openContractsAttention() {
         const ids = this.state.data?.cards?.contracts?.attention_ids || [];
-        this.openAction('fleet.contract', [['id', 'in', ids]], 'Contracts Needing Attention');
+        this.openAction('fleet.contract', [['id', 'in', ids]], 'Vehicle Agreements Needing Attention');
     }
 
     openPendingRequests() {

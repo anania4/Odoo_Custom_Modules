@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Fleet Operations Pro',
-    'version': '18.0.0.0.11',
+    'version': '18.0.0.0.13',
     'category': 'Operations/Fleet',
     'summary': 'Comprehensive Fleet Management System',
     'description': """
@@ -14,7 +14,7 @@ Features:
 - Driver Management via HR Employees with vehicle assignments
 - Fuel Management with consumption tracking
 - Maintenance Management with service history
-- Contract Management (insurance policies, leases, service contracts) with payments and expiry reminders
+- Vehicle Agreement Management (insurance policies, leases, service agreements) with payments and expiry reminders
 - Service Management
 - Toll Records
 - Trip Management

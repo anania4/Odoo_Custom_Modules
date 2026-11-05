@@ -20,7 +20,7 @@
                 </group>
                 <p class="text-muted small">
                     Excel file, one row per vehicle for the chosen dates: odometer at the start and end, km driven,
-                    trips, fuel, services done, contracts paid or due, costs and a remark.
+                    trips, fuel, services done, vehicle agreements paid or due, costs and a remark.
                     Set up to print on landscape A4, one page wide.
                 </p>
                 <footer>

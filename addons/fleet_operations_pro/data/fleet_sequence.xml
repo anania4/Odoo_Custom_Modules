@@ -2,9 +2,9 @@
 <odoo>
     <data noupdate="1">
 
-        <!-- Sequence for Fleet Contracts -->
+        <!-- Sequence for Vehicle Agreements -->
         <record id="seq_fleet_contract" model="ir.sequence">
-            <field name="name">Fleet Contract</field>
+            <field name="name">Vehicle Agreement</field>
             <field name="code">fleet.contract</field>
             <field name="prefix">%(year)s/</field>
             <field name="padding">5</field>

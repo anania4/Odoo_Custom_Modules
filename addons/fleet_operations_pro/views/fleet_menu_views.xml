@@ -103,9 +103,9 @@
     
     <!-- Maintenance Types - removed -->
     
-    <!-- Contracts Menu Item -->
+    <!-- Vehicle Agreements Menu Item -->
     <menuitem id="menu_fleet_contract"
-              name="Contracts"
+              name="Vehicle Agreements"
               parent="menu_fleet_operations"
               action="action_fleet_contract"
               sequence="60"

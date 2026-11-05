@@ -8,20 +8,20 @@ from odoo.exceptions import ValidationError
 
 class FleetContractType(models.Model):
     _name = 'fleet.contract.type'
-    _description = 'Fleet Contract Type'
+    _description = 'Vehicle Agreement Type'
     _order = 'sequence, name'
 
-    name = fields.Char(string='Contract Type', required=True, translate=True)
+    name = fields.Char(string='Agreement Type', required=True, translate=True)
     prefix = fields.Char(
         string='Reference Prefix',
         required=True,
-        help='Start of the contract reference, e.g. INS gives INS/2026/00001'
+        help='Start of the vehicle agreement reference, e.g. INS gives INS/2026/00001'
     )
     sequence = fields.Integer(string='Sequence', default=10)
     active = fields.Boolean(string='Active', default=True)
 
     _sql_constraints = [
-        ('name_unique', 'unique(name)', 'This contract type already exists!'),
+        ('name_unique', 'unique(name)', 'This vehicle agreement type already exists!'),
     ]
 
     @api.onchange('name')
@@ -32,7 +32,7 @@ class FleetContractType(models.Model):
 
 class FleetContract(models.Model):
     _name = 'fleet.contract'
-    _description = 'Fleet Contract'
+    _description = 'Vehicle Agreement'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'start_date desc, id desc'
 
@@ -41,7 +41,7 @@ class FleetContract(models.Model):
         default='New',
         readonly=True,
         copy=False,
-        help='Contract reference'
+        help='Vehicle Agreement reference'
     )
 
     # Vehicle & Type
@@ -52,22 +52,23 @@ class FleetContract(models.Model):
         ondelete='cascade',
         index=True,
         tracking=True,
-        help='Vehicle covered by this contract'
+        help='Vehicle covered by this vehicle agreement'
     )
     contract_type_id = fields.Many2one(
         'fleet.contract.type',
-        string='Contract Type',
+        string='Agreement Type',
         required=True,
         ondelete='restrict',
         tracking=True,
-        help='Configured in Configuration > Contract Types. '
+        help='Configured in Configuration > Agreement Types. '
              'Vehicle rentals are recorded on the vehicle (Ownership > Rental Terms).'
     )
     partner_id = fields.Many2one(
         'res.partner',
         string='Vendor',
+        domain=lambda self: self.env['res.partner']._fleet_vendor_domain(),
         tracking=True,
-        help='Insurance company, lessor or service provider of this contract'
+        help='Insurance company, lessor or service provider of this vehicle agreement'
     )
     reference = fields.Char(
         string='Vendor Reference / Policy No',
@@ -79,7 +80,7 @@ class FleetContract(models.Model):
         string='Responsible',
         default=lambda self: self.env.user,
         tracking=True,
-        help='Person responsible for this contract; receives the expiry reminder'
+        help='Person responsible for this vehicle agreement; receives the expiry reminder'
     )
 
     # Dates
@@ -106,12 +107,12 @@ class FleetContract(models.Model):
     days_until_expiry = fields.Integer(
         string='Days Until Expiry',
         compute='_compute_expiry',
-        help='Days remaining before the contract end date (negative if past)'
+        help='Days remaining before the vehicle agreement end date (negative if past)'
     )
     expiring_alert = fields.Boolean(
         string='Expiring Soon',
         compute='_compute_expiry',
-        help='True if the contract ends within its reminder period'
+        help='True if the vehicle agreement ends within its reminder period'
     )
 
     # Cost & Payment
@@ -148,27 +149,13 @@ class FleetContract(models.Model):
     )
     next_due_date = fields.Date(
         string='Next Due Date',
-        tracking=True,
-        copy=False,
-        help='Date the next payment is due'
+        compute='_compute_next_due_date',
+        help='Next recurring payment date: the start date repeated every month/year, '
+             'from today until the end date'
     )
-    payment_state = fields.Selection(
-        [
-            ('unpaid', 'Unpaid'),
-            ('paid', 'Paid'),
-        ],
-        string='Payment Status',
-        default='unpaid',
-        required=True,
-        tracking=True,
-        copy=False,
-        help='For recurring contracts this is the status of the current period'
-    )
-    payment_date = fields.Date(
-        string='Payment Date',
-        tracking=True,
-        copy=False,
-        help='Date of the last payment'
+    days_until_due = fields.Integer(
+        string='Days Until Next Payment',
+        compute='_compute_next_due_date',
     )
 
     # State
@@ -191,7 +178,7 @@ class FleetContract(models.Model):
         'fleet.service',
         'contract_id',
         string='Services',
-        help='Services billed under this contract'
+        help='Services billed under this vehicle agreement'
     )
     service_count = fields.Integer(
         string='Service Count',
@@ -271,74 +258,47 @@ class FleetContract(models.Model):
         for contract in self:
             contract.service_count = len(contract.service_ids)
 
-    @api.onchange('cost_frequency', 'start_date')
-    def _onchange_next_due_date(self):
-        if self.cost_frequency and not self.next_due_date:
-            self.next_due_date = self.start_date
-
-    @api.constrains('payment_state', 'payment_date')
-    def _check_payment_date(self):
-        for contract in self:
-            if contract.payment_state == 'paid' and not contract.payment_date:
-                raise ValidationError(_('Please set the Payment Date for paid contract %s.') % contract.name)
-
     def _period_delta(self):
         self.ensure_one()
         return relativedelta(years=1) if self.cost_frequency == 'yearly' else relativedelta(months=1)
+
+    @api.depends('cost_frequency', 'start_date', 'end_date', 'state')
+    def _compute_next_due_date(self):
+        today = fields.Date.context_today(self)
+        for contract in self:
+            due = False
+            if contract.cost_frequency and contract.start_date and contract.state in ('draft', 'running'):
+                step, n = contract._period_delta(), 0
+                candidate = contract.start_date
+                while candidate < today:
+                    n += 1
+                    candidate = contract.start_date + step * n
+                if not contract.end_date or candidate <= contract.end_date:
+                    due = candidate
+            contract.next_due_date = due
+            contract.days_until_due = (due - today).days if due else 0
 
     # Actions
     def action_run(self):
         for contract in self:
             if contract.state != 'draft':
-                raise ValidationError(_('Only draft contracts can be set to running.'))
-            vals = {'state': 'running'}
-            if contract.cost_frequency and not contract.next_due_date:
-                vals['next_due_date'] = contract.start_date
-            contract.write(vals)
+                raise ValidationError(_('Only draft vehicle agreements can be set to running.'))
+            contract.state = 'running'
 
     def action_close(self):
         for contract in self:
             if contract.state == 'closed':
-                raise ValidationError(_('This contract is already closed.'))
+                raise ValidationError(_('This vehicle agreement is already closed.'))
             contract.state = 'closed'
 
     def action_set_expired(self):
         for contract in self:
             if contract.state not in ('draft', 'running'):
-                raise ValidationError(_('Only draft or running contracts can be expired.'))
+                raise ValidationError(_('Only draft or running vehicle agreements can be expired.'))
             contract.state = 'expired'
 
     def action_reset_draft(self):
         self.write({'state': 'draft'})
-
-    def action_register_payment(self):
-        """Pay the current period.
-
-        One-time contracts become Paid. Recurring contracts move the next due
-        date forward one period and stay Unpaid for that new period, unless it
-        falls after the end date (then the contract is fully paid).
-        """
-        today = fields.Date.today()
-        for contract in self:
-            if contract.payment_state == 'paid':
-                raise ValidationError(_('Contract %s is already fully paid.') % contract.name)
-            if not contract.cost_frequency:
-                contract.write({'payment_state': 'paid', 'payment_date': today})
-                continue
-            paid_period = contract.next_due_date or contract.start_date
-            next_due = paid_period + contract._period_delta()
-            fully_paid = bool(contract.end_date and next_due > contract.end_date)
-            contract.write({
-                'payment_date': today,
-                'next_due_date': False if fully_paid else next_due,
-                'payment_state': 'paid' if fully_paid else 'unpaid',
-            })
-            contract.message_post(body=_(
-                'Payment of %(amount)s %(currency)s registered for the period due %(due)s.',
-                amount=contract.cost,
-                currency=contract.currency_id.symbol or '',
-                due=paid_period,
-            ))
 
     def action_view_services(self):
         self.ensure_one()
@@ -370,8 +330,8 @@ class FleetContract(models.Model):
             contract.activity_schedule(
                 activity_type_id=activity_type.id if activity_type else False,
                 date_deadline=contract.end_date,
-                summary=_('Contract %s expires on %s') % (contract.name, contract.end_date),
-                note=_('Contract %(name)s for vehicle %(vehicle)s ends on %(date)s. Renew or close it.',
+                summary=_('Vehicle Agreement %s expires on %s') % (contract.name, contract.end_date),
+                note=_('Vehicle Agreement %(name)s for vehicle %(vehicle)s ends on %(date)s. Renew or close it.',
                        name=contract.name, vehicle=contract.vehicle_id.display_name, date=contract.end_date),
                 user_id=(contract.user_id or self.env.user).id,
             )

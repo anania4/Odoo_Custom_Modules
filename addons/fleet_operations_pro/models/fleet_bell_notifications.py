@@ -45,8 +45,8 @@ class FleetContract(models.Model):
 
     def _bell_responsible_assigned(self):
         self._bell_notify(
-            self.user_id, _('Contract assigned to you'),
-            _('You are responsible for contract %(ref)s (%(type)s) of %(vehicle)s, ending %(end)s.',
+            self.user_id, _('Vehicle Agreement assigned to you'),
+            _('You are responsible for vehicle agreement %(ref)s (%(type)s) of %(vehicle)s, ending %(end)s.',
               ref=self.name, type=self.contract_type_id.name or '-',
               vehicle=self.vehicle_id.display_name, end=self.end_date),
             icon='fa-file-text-o')
@@ -61,26 +61,25 @@ class FleetContract(models.Model):
 
         for contract in not_reminded.filtered(lambda c: c.reminder_sent):
             contract._bell_notify(
-                contract.user_id, _('Contract expiring soon'),
+                contract.user_id, _('Vehicle Agreement expiring soon'),
                 _('%(ref)s (%(type)s) of %(vehicle)s ends on %(end)s.',
                   ref=contract.name, type=contract.contract_type_id.name or '-',
                   vehicle=contract.vehicle_id.display_name, end=contract.end_date),
                 notif_type='warning', icon='fa-file-text-o')
         for contract in running.filtered(lambda c: c.state == 'expired'):
             contract._bell_notify(
-                contract.user_id, _('Contract expired'),
+                contract.user_id, _('Vehicle Agreement expired'),
                 _('%(ref)s (%(type)s) of %(vehicle)s expired on %(end)s.',
                   ref=contract.name, type=contract.contract_type_id.name or '-',
                   vehicle=contract.vehicle_id.display_name, end=contract.end_date),
                 notif_type='danger', icon='fa-file-text-o')
         due_today = self.search([
             ('state', '=', 'running'),
-            ('payment_state', '=', 'unpaid'),
-            ('next_due_date', '=', today),
-        ])
+            ('cost_frequency', '!=', False),
+        ]).filtered(lambda c: c.next_due_date == today)
         for contract in due_today:
             contract._bell_notify(
-                contract.user_id, _('Contract payment due today'),
+                contract.user_id, _('Recurring payment due today'),
                 _('%(ref)s of %(vehicle)s: %(amount)s %(currency)s is due today.',
                   ref=contract.name, vehicle=contract.vehicle_id.display_name,
                   amount=contract.cost, currency=contract.currency_id.symbol or ''),

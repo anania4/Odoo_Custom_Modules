@@ -237,6 +237,7 @@ class FleetVehicle(models.Model):
     rental_vendor_id = fields.Many2one(
         'res.partner',
         string='Rental Vendor / Owner',
+        domain=lambda self: self.env['res.partner']._fleet_vendor_domain(),
         tracking=True,
         help='Company or person the vehicle is rented from'
     )
@@ -271,7 +272,7 @@ class FleetVehicle(models.Model):
         tracking=True
     )
     rental_contract_ref = fields.Char(
-        string='Rental Contract Reference',
+        string='Rental Agreement Reference',
         tracking=True
     )
 

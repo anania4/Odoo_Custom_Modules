@@ -9,6 +9,7 @@ from . import fleet_fuel_type
 from . import fleet_driver_assignment
 from . import fleet_driver
 from . import hr_employee
+from . import res_partner
 from . import fleet_fuel_log
 from . import fleet_maintenance
 from . import fleet_maintenance_type
