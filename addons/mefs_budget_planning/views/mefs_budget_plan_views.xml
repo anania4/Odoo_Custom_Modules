@@ -79,7 +79,7 @@
                             </group>
                         </page>
                         <page string="Project Schedule" name="schedule">
-                            <field name="schedule_line_ids"
+                            <field name="schedule_line_ids" widget="budget_schedule_gantt"
                                    readonly="not boq_id"
                                    context="{'mefs_budget_item_no': True, 'default_date_start': project_start_date}">
                                 <list editable="bottom">

@@ -27,6 +27,8 @@
         'web.assets_backend': [
             'mefs_budget_planning/static/src/scss/budget_planning.scss',
             'mefs_budget_planning/static/src/xml/budget_list_footer.xml',
+            'mefs_budget_planning/static/src/js/schedule_gantt.js',
+            'mefs_budget_planning/static/src/xml/schedule_gantt.xml',
         ],
     },
     'installable': True,

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="mefs_budget_planning.ScheduleGanttListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('o_list_renderer')]" position="attributes">
+            <attribute name="class" add="o_budget_schedule_gantt" separator=" "/>
+        </xpath>
+        <!-- Header lines 1 and 2: Monday date of each week, then its day range -->
+        <xpath expr="//thead/tr" position="before">
+            <tr t-if="gantt.weeks.length" class="o_gantt_head o_gantt_head_week">
+                <th t-att-colspan="ganttLeadColspan" class="o_gantt_lead"/>
+                <th t-foreach="gantt.weeks" t-as="week" t-key="week.key" colspan="7"
+                    class="o_gantt_week" t-esc="week.label"/>
+                <th t-if="hasOpenFormViewColumn"/>
+                <th t-if="hasActionsColumn"/>
+            </tr>
+            <tr t-if="gantt.weeks.length" class="o_gantt_head o_gantt_head_range">
+                <th t-att-colspan="ganttLeadColspan" class="o_gantt_lead"/>
+                <th t-foreach="gantt.days" t-as="day" t-key="day.key"
+                    t-attf-class="o_gantt_day {{ day.weekend ? 'o_gantt_weekend' : '' }} {{ day.weekStart ? 'o_gantt_week_start' : '' }}"
+                    t-esc="day.number"/>
+                <th t-if="hasOpenFormViewColumn"/>
+                <th t-if="hasActionsColumn"/>
+            </tr>
+        </xpath>
+        <!-- Header line 3: day letters, on the same row as the column titles -->
+        <xpath expr="//thead/tr/t[@t-foreach='columns']" position="after">
+            <th t-foreach="gantt.days" t-as="day" t-key="day.key"
+                t-att-title="day.key"
+                t-attf-class="o_gantt_day {{ day.weekend ? 'o_gantt_weekend' : '' }} {{ day.weekStart ? 'o_gantt_week_start' : '' }}"
+                t-esc="day.letter"/>
+        </xpath>
+        <xpath expr="//tfoot/tr/t[@t-foreach='columns']" position="after">
+            <td t-foreach="gantt.days" t-as="day" t-key="day.key" class="o_gantt_foot"/>
+        </xpath>
+    </t>
+
+    <t t-name="mefs_budget_planning.ScheduleGanttListRenderer.RecordRow" t-inherit="web.ListRenderer.RecordRow" t-inherit-mode="primary">
+        <xpath expr="//t[@t-foreach='getColumns(record)']" position="after">
+            <td t-foreach="gantt.days" t-as="day" t-key="day.key"
+                t-att-class="getGanttCellClass(record, day)"/>
+        </xpath>
+    </t>
+
+</templates>
