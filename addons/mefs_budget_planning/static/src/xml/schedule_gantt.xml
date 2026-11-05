@@ -5,7 +5,23 @@
         <xpath expr="//div[hasclass('o_list_renderer')]" position="attributes">
             <attribute name="class" add="o_budget_schedule_gantt" separator=" "/>
         </xpath>
-        <!-- Header lines 1 and 2: Monday date of each week, then its day range -->
+        <!-- Column widths (Odoo's automatic widths are off for this table) -->
+        <xpath expr="//table[@t-ref='table']" position="attributes">
+            <attribute name="t-attf-style">width: {{ ganttTableWidth }}px;</attribute>
+        </xpath>
+        <xpath expr="//table[@t-ref='table']/thead" position="before">
+            <colgroup>
+                <col t-if="hasSelectors" style="width: 40px;"/>
+                <t t-foreach="columns" t-as="column" t-key="column.id">
+                    <col t-att-data-name="column.type === 'field' ? column.name : column.id"
+                         t-attf-style="width: {{ getColumnWidth(column) }}px;"/>
+                </t>
+                <col t-foreach="gantt.days" t-as="day" t-key="day.key" style="width: 24px;"/>
+                <col t-if="hasOpenFormViewColumn" style="width: 60px;"/>
+                <col t-if="hasActionsColumn" style="width: 40px;"/>
+            </colgroup>
+        </xpath>
+        <!-- Header line 1: Monday date of each week; line 2: day numbers -->
         <xpath expr="//thead/tr" position="before">
             <tr t-if="gantt.weeks.length" class="o_gantt_head o_gantt_head_week">
                 <th t-att-colspan="ganttLeadColspan" class="o_gantt_lead"/>

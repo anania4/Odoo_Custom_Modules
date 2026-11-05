@@ -34,8 +34,8 @@ $budget-class-bg: #dbe9f6;
     overflow-x: auto;
 
     table.o_list_table {
-        table-layout: auto;
-        width: auto;
+        table-layout: fixed;
+        max-width: none;
         min-width: 100%;
     }
     thead tr.o_gantt_head th {
@@ -61,9 +61,6 @@ $budget-class-bg: #dbe9f6;
     th.o_gantt_day,
     td.o_gantt_cell,
     td.o_gantt_foot {
-        min-width: 22px;
-        width: 22px;
-        max-width: 22px;
         padding: 2px 0 !important;
         border-left: 1px solid #e3e3e3;
     }
@@ -79,10 +76,9 @@ $budget-class-bg: #dbe9f6;
     td.o_gantt_bar_end {
         border-right: 2px solid #1f4e8c !important;
     }
-    // keep schedule data columns readable without magic widths
-    th[data-name="boq_line_id"] { min-width: 70px; }
-    th[data-name="task"] { min-width: 160px; }
-    th[data-name="progress"] { min-width: 110px; }
-    th[data-name="date_start"],
-    th[data-name="date_end"] { min-width: 110px; }
+    td.o_data_cell {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }

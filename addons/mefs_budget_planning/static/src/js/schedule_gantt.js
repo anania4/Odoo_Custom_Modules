@@ -7,6 +7,18 @@ import { X2ManyField, x2ManyField } from "@web/views/fields/x2many/x2many_field"
 
 const DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 const MAX_DAYS = 366 * 5; // safety cap on chart width
+const DAY_WIDTH = 24;
+const MIN_WIDTH = 30;
+const DEFAULT_WIDTHS = {
+    boq_line_id: 70,
+    task: 220,
+    quantity: 80,
+    uom_id: 70,
+    progress: 120,
+    date_start: 110,
+    duration_days: 90,
+    date_end: 110,
+};
 
 /**
  * Project Schedule list with Gantt day columns appended to the same rows.
@@ -24,6 +36,78 @@ export class ScheduleGanttListRenderer extends ListRenderer {
         onWillRender(() => {
             this.gantt = this.computeGantt();
         });
+        // Odoo's automatic widths are off (they cannot handle the extra header
+        // rows), so this table sizes its columns with a <colgroup> and has its
+        // own drag-to-resize on the column titles.
+        this.ganttWidths = {};
+        this.ganttResizing = false;
+        const renderer = this;
+        this.columnWidths = {
+            onStartResize: (ev) => this.onGanttStartResize(ev),
+            get resizing() {
+                return renderer.ganttResizing;
+            },
+        };
+    }
+
+    getColumnWidth(column) {
+        if (column.type !== "field") {
+            return this.ganttWidths[column.id] || 40;
+        }
+        if (this.ganttWidths[column.name]) {
+            return this.ganttWidths[column.name];
+        }
+        if (column.widget === "handle") {
+            return 30;
+        }
+        return DEFAULT_WIDTHS[column.name] || 100;
+    }
+
+    get ganttTableWidth() {
+        let width = this.columns.reduce((sum, column) => sum + this.getColumnWidth(column), 0);
+        width += this.gantt.days.length * DAY_WIDTH;
+        width += (this.hasSelectors ? 40 : 0) + (this.hasOpenFormViewColumn ? 60 : 0);
+        width += this.hasActionsColumn ? 40 : 0;
+        return width;
+    }
+
+    onGanttStartResize(ev) {
+        const th = ev.target.closest("th");
+        const name = th && th.dataset.name;
+        const table = this.tableRef.el;
+        const col = name && table.querySelector(`col[data-name="${name}"]`);
+        if (!col) {
+            return;
+        }
+        this.ganttResizing = true;
+        const startX = ev.clientX;
+        const startWidth = col.getBoundingClientRect().width || parseInt(col.style.width) || 100;
+        const startTableWidth = table.getBoundingClientRect().width;
+        let newWidth = startWidth;
+        table.classList.add("o_resizing");
+
+        const onMove = (moveEv) => {
+            moveEv.preventDefault();
+            newWidth = Math.max(MIN_WIDTH, Math.round(startWidth + moveEv.clientX - startX));
+            col.style.width = `${newWidth}px`;
+            table.style.width = `${Math.round(startTableWidth + newWidth - startWidth)}px`;
+        };
+        const onStop = (stopEv) => {
+            if (stopEv.type === "pointerdown" && stopEv.button === 0) {
+                return;
+            }
+            window.removeEventListener("pointermove", onMove);
+            for (const type of ["pointerup", "pointerdown", "keydown"]) {
+                window.removeEventListener(type, onStop);
+            }
+            this.ganttWidths[name] = newWidth;
+            table.classList.remove("o_resizing");
+            this.ganttResizing = false;
+        };
+        window.addEventListener("pointermove", onMove);
+        for (const type of ["pointerup", "pointerdown", "keydown"]) {
+            window.addEventListener(type, onStop);
+        }
     }
 
     get nbCols() {
