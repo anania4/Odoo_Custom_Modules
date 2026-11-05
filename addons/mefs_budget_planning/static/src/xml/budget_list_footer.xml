@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <!-- Carry budget column highlight classes onto the footer total cells -->
+    <t t-inherit="web.ListRenderer" t-inherit-mode="extension">
+        <xpath expr="//tfoot//td[@t-if='aggregate']" position="attributes">
+            <attribute name="t-att-class">(column.attrs and column.attrs.class and column.attrs.class.includes('o_budget_')) ? column.attrs.class : ''</attribute>
+        </xpath>
+    </t>
+</templates>

@@ -1,12 +1,30 @@
-// Darkened total columns in the Project Estimated Cost table
-.o_list_renderer {
+// Project Estimated Cost table highlighting
+$budget-total-bg: #d9d9d9;
+$budget-total-foot-bg: #bfbfbf;
+$budget-class-bg: #dbe9f6;
+
+.o_budget_estimate {
+    // Total columns: darkened + bold
     td.o_budget_total_col,
-    th.o_budget_total_col {
-        background-color: #d9d9d9 !important;
+    th[data-name="total_material_cost"],
+    th[data-name="total_equipment_cost"],
+    th[data-name="total_manpower_cost"],
+    th[data-name="total_subcontractor_cost"] {
+        background-color: $budget-total-bg !important;
         font-weight: bold;
     }
-    tfoot td.o_budget_total_col,
-    .o_list_footer td.o_budget_total_col {
-        background-color: #bfbfbf !important;
+    tfoot td.o_budget_total_col {
+        background-color: $budget-total-foot-bg !important;
+        font-weight: bold;
+    }
+
+    // Class (product category) columns: light blue
+    td.o_budget_class_col,
+    th[data-name="material_categ_id"],
+    th[data-name="equipment_categ_id"],
+    th[data-name="labour_categ_id"],
+    th[data-name="subcontract_categ_id"] {
+        background-color: $budget-class-bg !important;
+        font-weight: 600;
     }
 }

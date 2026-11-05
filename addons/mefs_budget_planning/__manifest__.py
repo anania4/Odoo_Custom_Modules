@@ -26,6 +26,7 @@
     'assets': {
         'web.assets_backend': [
             'mefs_budget_planning/static/src/scss/budget_planning.scss',
+            'mefs_budget_planning/static/src/xml/budget_list_footer.xml',
         ],
     },
     'installable': True,

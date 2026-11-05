@@ -25,7 +25,7 @@
                     </group>
                     <notebook>
                         <page string="Project Estimated Cost" name="estimated_cost">
-                            <field name="estimate_line_ids"
+                            <field name="estimate_line_ids" class="o_budget_estimate"
                                    readonly="not boq_id"
                                    context="{'mefs_budget_item_no': True}">
                                 <list editable="bottom">
@@ -46,7 +46,7 @@
                                     <field name="material_unit_price"/>
                                     <field name="material_price_per_work_unit"/>
                                     <field name="total_material_cost" class="o_budget_total_col" sum="Total Material Cost"/>
-                                    <field name="material_categ_id" options="{'no_create': True}"/>
+                                    <field name="material_categ_id" class="o_budget_class_col" options="{'no_create': True}"/>
                                     <!-- Equipment -->
                                     <field name="equipment_product_id" options="{'no_create': True}"/>
                                     <field name="equipment_count"/>
@@ -54,17 +54,17 @@
                                     <field name="equipment_rate_hour"/>
                                     <field name="equipment_rental_hours"/>
                                     <field name="total_equipment_cost" class="o_budget_total_col" sum="Total Equipment Cost"/>
-                                    <field name="equipment_categ_id" options="{'no_create': True}"/>
+                                    <field name="equipment_categ_id" class="o_budget_class_col" options="{'no_create': True}"/>
                                     <!-- Manpower -->
                                     <field name="manpower_product_id" options="{'no_create': True}"/>
                                     <field name="manpower_count"/>
                                     <field name="manpower_price_day"/>
                                     <field name="total_manpower_cost" class="o_budget_total_col" sum="Total Manpower Cost"/>
-                                    <field name="labour_categ_id" options="{'no_create': True}"/>
+                                    <field name="labour_categ_id" class="o_budget_class_col" options="{'no_create': True}"/>
                                     <!-- Subcontractor -->
                                     <field name="subcontract_cost_unit"/>
                                     <field name="total_subcontractor_cost" class="o_budget_total_col" sum="Total Subcontractor Cost"/>
-                                    <field name="subcontract_categ_id" options="{'no_create': True}"/>
+                                    <field name="subcontract_categ_id" class="o_budget_class_col" options="{'no_create': True}"/>
                                 </list>
                             </field>
                             <group class="oe_subtotal_footer">
