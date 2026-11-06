@@ -152,10 +152,10 @@ class FleetRequest(models.Model):
     driver_id = fields.Many2one(
         'hr.employee',
         string='Driver',
-        domain="[('company_id', '=', company_id), ('is_fleet_driver', '=', True)]",
+        domain="[('company_id', '=', company_id), ('is_fleet_driver', '=', True), ('has_active_vehicle', '=', True)]",
         tracking=True,
         copy=False,
-        help='Driver assigned by the Fleet Manager, chosen from the Fleet > Drivers list'
+        help='Driver assigned by the Fleet Manager: only drivers whose current vehicle is Active are listed'
     )
 
     vehicle_id = fields.Many2one(
@@ -362,6 +362,12 @@ class FleetRequest(models.Model):
                 raise UserError(_(
                     'The driver %s has no current active vehicle assignment. '
                     'Assign a vehicle to the driver first.') % request.driver_id.name)
+            if (vehicle.status_code or '').strip().lower() != 'active':
+                raise UserError(_(
+                    'The vehicle %(plate)s of %(driver)s is "%(status)s". '
+                    'Only drivers whose vehicle is Active can be assigned.',
+                    plate=vehicle.license_plate or vehicle.name, driver=request.driver_id.name,
+                    status=vehicle.status_id.name or _('No status')))
             request.vehicle_id = vehicle
             request.state = 'assigned'
             vehicle._set_in_use_for_assignment(
