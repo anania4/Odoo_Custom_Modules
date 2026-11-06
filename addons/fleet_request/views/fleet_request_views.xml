@@ -60,13 +60,10 @@
                             class="btn-primary" invisible="state != 'fleet_approved'"
                             groups="fleet_operations_pro.group_fleet_manager"/>
                     <field name="is_delegated_driver" invisible="1"/>
-                    <button name="action_complete" string="Mark as Completed" type="object"
-                            class="btn-primary"
-                            invisible="state != 'assigned' or not is_delegated_driver"
-                            confirm="Mark this trip as completed?"/>
+                    <!-- The delegated driver completes the trip from the car icon (driver switch) -->
                     <button name="action_complete" string="Mark as Completed" type="object"
                             class="btn-secondary"
-                            invisible="state != 'assigned' or is_delegated_driver"
+                            invisible="state != 'assigned'"
                             groups="fleet_operations_pro.group_fleet_manager"
                             confirm="Mark this trip as completed on behalf of the driver?"/>
                     <field name="state" widget="statusbar"

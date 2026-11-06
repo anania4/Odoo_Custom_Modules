@@ -84,7 +84,11 @@ export class FleetDriverSwitch extends Component {
             const data = await this.orm.call("fleet.vehicle", "driver_switch_status", [vehicle.id]);
             this.state.vehicles = data.vehicles;
             const updated = data.vehicles.find((v) => v.id === vehicle.id);
-            if (updated) {
+            if (vehicle.task && vehicle.dot === "in_use") {
+                this.notification.add(`Trip ${vehicle.task.name} completed. ${vehicle.plate} is Active again.`, {
+                    type: "success",
+                });
+            } else if (updated) {
                 this.notification.add(`${updated.plate} is now ${updated.status}`, {
                     type: updated.dot === "in_use" ? "warning" : "success",
                 });

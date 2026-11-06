@@ -22,11 +22,17 @@
                             <t t-esc="v.name"/>
                             <t t-if="since(v)"> · <t t-esc="since(v)"/></t>
                         </div>
+                        <div t-if="v.task" class="o_fds_meta o_fds_task">
+                            <i class="fa fa-map-marker me-1"/>
+                            <t t-esc="v.task.name"/>
+                            <t t-if="v.task.destination"> → <t t-esc="v.task.destination"/></t>
+                        </div>
 
                         <button t-if="v.can_switch and (v.dot === 'active' or v.dot === 'in_use')" type="button"
                                 t-attf-class="o_fds_action o_fds_action_#{v.dot}" t-att-disabled="state.busy"
                                 t-on-click.stop="() => this.switchStatus(v)">
                             <t t-if="v.dot === 'active'">In Use</t>
+                            <t t-elif="v.task"><i class="fa fa-check me-1"/>Complete trip</t>
                             <t t-else="">Active</t>
                         </button>
                         <div t-else="" class="o_fds_locked">Status set by the Fleet Manager</div>
