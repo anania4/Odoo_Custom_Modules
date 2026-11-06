@@ -104,8 +104,22 @@ class FleetService(models.Model):
         string='Odometer at Service (km)',
         tracking=True
     )
+    interval_type = fields.Selection(
+        [
+            ('one_time', 'One-time'),
+            ('recurring', 'Recurring'),
+        ],
+        string='Service Interval Type',
+        default='one_time',
+        required=True,
+        tracking=True,
+        help='One-time: the interval only sets the next due km of this service.\n'
+             'Recurring: every next service of this type on this vehicle takes the same '
+             'interval automatically, so it is due again every interval, until set back to One-time.'
+    )
     service_interval = fields.Float(
         string='Service Interval (km)',
+        tracking=True,
         help='Distance until this service is due again'
     )
     next_service_odometer = fields.Float(
@@ -146,6 +160,11 @@ class FleetService(models.Model):
         for vals in vals_list:
             if not vals.get('name') or vals['name'] == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('fleet.service') or 'New'
+            # Recurring interval carried forward even when the form onchange did not run (imports, code)
+            if 'interval_type' not in vals and not vals.get('service_interval'):
+                previous = self._last_recurring_service(vals.get('vehicle_id'), vals.get('service_type_id'))
+                if previous:
+                    vals.update(interval_type='recurring', service_interval=previous.service_interval)
         services = super().create(vals_list)
         services.filtered(lambda s: s.state == 'done')._update_vehicle_odometer()
         return services
@@ -167,6 +186,37 @@ class FleetService(models.Model):
     def _onchange_vehicle_id(self):
         if self.vehicle_id and not self.odometer:
             self.odometer = self.vehicle_id.odometer
+
+    @api.onchange('vehicle_id', 'service_type_id')
+    def _onchange_recurring_interval(self):
+        """Take the interval of the last recurring service of this type on this vehicle"""
+        if self.state != 'new' or self.service_interval:
+            return
+        previous = self._last_recurring_service(self.vehicle_id.id, self.service_type_id.id)
+        if previous:
+            self.interval_type = 'recurring'
+            self.service_interval = previous.service_interval
+
+    @api.model
+    def _last_recurring_service(self, vehicle_id, service_type_id):
+        """Latest done service of this vehicle and type, if it is recurring"""
+        if not (vehicle_id and service_type_id):
+            return self.browse()
+        last = self.search([
+            ('vehicle_id', '=', vehicle_id),
+            ('service_type_id', '=', service_type_id),
+            ('state', '=', 'done'),
+        ], order='end_date desc, odometer desc, id desc', limit=1)
+        if last.interval_type == 'recurring' and last.service_interval:
+            return last
+        return self.browse()
+
+    @api.constrains('interval_type', 'service_interval')
+    def _check_recurring_interval(self):
+        for service in self:
+            if service.interval_type == 'recurring' and service.service_interval <= 0:
+                raise ValidationError(_(
+                    'Service %s is recurring: please set its Service Interval (km).') % service.name)
 
     @api.constrains('contract_id', 'vehicle_id')
     def _check_contract_vehicle(self):

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from dateutil.relativedelta import relativedelta
-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -122,40 +120,10 @@ class FleetContract(models.Model):
         string='Currency'
     )
     cost = fields.Monetary(
-        string='Recurring Cost',
+        string='Cost',
         currency_field='currency_id',
         tracking=True,
-        help='Amount due each period (or the full amount when there is no recurring frequency)'
-    )
-    cost_frequency = fields.Selection(
-        [
-            ('monthly', 'Monthly'),
-            ('yearly', 'Yearly'),
-        ],
-        string='Recurring Cost Frequency',
-        tracking=True,
-        help='Leave empty for a one-time payment'
-    )
-    total_cost = fields.Monetary(
-        string='Estimated Total Cost',
-        currency_field='currency_id',
-        compute='_compute_total_cost',
-        help='Recurring cost multiplied by the number of periods between start and end date'
-    )
-    deposit = fields.Monetary(
-        string='Deposit',
-        currency_field='currency_id',
-        tracking=True
-    )
-    next_due_date = fields.Date(
-        string='Next Due Date',
-        compute='_compute_next_due_date',
-        help='Next recurring payment date: the start date repeated every month/year, '
-             'from today until the end date'
-    )
-    days_until_due = fields.Integer(
-        string='Days Until Next Payment',
-        compute='_compute_next_due_date',
+        help='Cost of the vehicle agreement, due on its start date'
     )
 
     # State
@@ -238,45 +206,10 @@ class FleetContract(models.Model):
                 contract.days_until_expiry = 0
                 contract.expiring_alert = False
 
-    @api.depends('cost', 'cost_frequency', 'start_date', 'end_date')
-    def _compute_total_cost(self):
-        for contract in self:
-            if not contract.cost_frequency or not (contract.start_date and contract.end_date):
-                contract.total_cost = contract.cost
-                continue
-            # Count the periods started between start and end date (inclusive)
-            delta = relativedelta(contract.end_date + relativedelta(days=1), contract.start_date)
-            months = delta.years * 12 + delta.months + (1 if delta.days else 0)
-            if contract.cost_frequency == 'yearly':
-                periods = -(-months // 12)
-            else:
-                periods = months
-            contract.total_cost = contract.cost * max(periods, 1)
-
     @api.depends('service_ids')
     def _compute_service_count(self):
         for contract in self:
             contract.service_count = len(contract.service_ids)
-
-    def _period_delta(self):
-        self.ensure_one()
-        return relativedelta(years=1) if self.cost_frequency == 'yearly' else relativedelta(months=1)
-
-    @api.depends('cost_frequency', 'start_date', 'end_date', 'state')
-    def _compute_next_due_date(self):
-        today = fields.Date.context_today(self)
-        for contract in self:
-            due = False
-            if contract.cost_frequency and contract.start_date and contract.state in ('draft', 'running'):
-                step, n = contract._period_delta(), 0
-                candidate = contract.start_date
-                while candidate < today:
-                    n += 1
-                    candidate = contract.start_date + step * n
-                if not contract.end_date or candidate <= contract.end_date:
-                    due = candidate
-            contract.next_due_date = due
-            contract.days_until_due = (due - today).days if due else 0
 
     # Actions
     def action_run(self):

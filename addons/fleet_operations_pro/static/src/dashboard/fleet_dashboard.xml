@@ -93,8 +93,7 @@
                                             <small>
                                                 need attention:
                                                 <t t-esc="cards.contracts.expiring"/> expiring ·
-                                                <t t-esc="cards.contracts.expired"/> expired ·
-                                                <t t-esc="cards.contracts.payment_due"/> recurring payment due
+                                                <t t-esc="cards.contracts.expired"/> expired
                                             </small>
                                         </div>
                                         <i class="fa fa-file-text-o fa-2x opacity-50" title="Vehicle Agreements"/>

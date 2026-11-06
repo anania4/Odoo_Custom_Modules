@@ -6,8 +6,6 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-# Recurring vehicle agreement payments show as a warning this many days before they are due
-RECURRING_WARNING_DAYS = 7
 
 
 class FleetDashboard(models.Model):
@@ -48,7 +46,7 @@ class FleetDashboard(models.Model):
         }
 
     @api.model
-    def _get_needs_action(self, today, expired, expiring, payment_due, due_by_km):
+    def _get_needs_action(self, today, expired, expiring, due_by_km):
         """One list of things to act on, most urgent first (lowest 'urgency')."""
         items = []
         for contract in expired:
@@ -72,22 +70,6 @@ class FleetDashboard(models.Model):
                 'title': f"{contract.name} · {contract.vehicle_id.display_name} · {contract.contract_type_id.name or ''}",
                 'detail': f"Ends {contract.end_date}",
                 'badge': 'Ends today' if days == 0 else f"Ends in {days} day{'s' if days != 1 else ''}",
-                'badge_class': 'warning',
-                'res_model': 'fleet.contract',
-                'res_id': contract.id,
-                'urgency': days,
-            })
-        for contract in payment_due:
-            due = contract.next_due_date
-            days = contract.days_until_due
-            frequency = dict(contract._fields['cost_frequency'].selection).get(contract.cost_frequency, '')
-            items.append({
-                'key': f'payment-{contract.id}',
-                'kind': 'Recurring payment',
-                'title': f"{contract.name} · {contract.vehicle_id.display_name}",
-                'detail': f"{frequency.lower()}, due {due}",
-                'amount': contract.cost,
-                'badge': 'Due today' if days == 0 else f"Due in {days} day{'s' if days != 1 else ''}",
                 'badge_class': 'warning',
                 'res_model': 'fleet.contract',
                 'res_id': contract.id,
@@ -139,8 +121,7 @@ class FleetDashboard(models.Model):
             if key not in open_keys and s.vehicle_id.odometer >= s.next_service_odometer
         ]
 
-        # 3. Vehicle Agreements needing attention: expiring, expired but still running,
-        #    recurring payment due within the next week (a warning, there is no payment tracking)
+        # 3. Vehicle Agreements needing attention: expiring or expired.
         #    Expired = past the end date and not closed yet: still running, or already set to
         #    Expired by the daily check (they stay here until renewed or closed).
         agreements = self.env['fleet.contract'].search([
@@ -151,10 +132,7 @@ class FleetDashboard(models.Model):
         expired = agreements.filtered(
             lambda c: c.state == 'expired' or (c.end_date and c.end_date < today))
         expiring = running.filtered(lambda c: c.expiring_alert)
-        payment_due = running.filtered(
-            lambda c: c.cost_frequency and c.next_due_date and c.days_until_due <= RECURRING_WARNING_DAYS
-        )
-        attention = expired | expiring | payment_due
+        attention = expired | expiring
 
         # 4. Pending fleet requests (optional Fleet Requests module)
         pending = {'submitted': 0, 'dept_approved': 0, 'fleet_approved': 0}
@@ -170,7 +148,7 @@ class FleetDashboard(models.Model):
                     [('state', 'in', list(fuel_pending))], ['state'], ['__count']):
                 fuel_pending[state] = count
 
-        needs_action = self._get_needs_action(today, expired, expiring, payment_due, due_by_km)
+        needs_action = self._get_needs_action(today, expired, expiring, due_by_km)
 
         return {
             'needs_action': needs_action[:10],
@@ -206,7 +184,6 @@ class FleetDashboard(models.Model):
                 'attention_ids': attention.ids,
                 'expiring': len(expiring),
                 'expired': len(expired),
-                'payment_due': len(payment_due),
                 'running': len(running),
             },
             'requests': {

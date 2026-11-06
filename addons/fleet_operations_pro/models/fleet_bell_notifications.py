@@ -53,8 +53,7 @@ class FleetContract(models.Model):
 
     @api.model
     def _cron_check_contracts(self):
-        """Also ring the responsible user: reminder sent, contract expired, payment due today"""
-        today = fields.Date.today()
+        """Also ring the responsible user: reminder sent, contract expired"""
         not_reminded = self.search([('state', '=', 'running'), ('reminder_sent', '=', False)])
         running = self.search([('state', '=', 'running')])
         result = super()._cron_check_contracts()
@@ -73,17 +72,6 @@ class FleetContract(models.Model):
                   ref=contract.name, type=contract.contract_type_id.name or '-',
                   vehicle=contract.vehicle_id.display_name, end=contract.end_date),
                 notif_type='danger', icon='fa-file-text-o')
-        due_today = self.search([
-            ('state', '=', 'running'),
-            ('cost_frequency', '!=', False),
-        ]).filtered(lambda c: c.next_due_date == today)
-        for contract in due_today:
-            contract._bell_notify(
-                contract.user_id, _('Recurring payment due today'),
-                _('%(ref)s of %(vehicle)s: %(amount)s %(currency)s is due today.',
-                  ref=contract.name, vehicle=contract.vehicle_id.display_name,
-                  amount=contract.cost, currency=contract.currency_id.symbol or ''),
-                notif_type='warning', icon='fa-money')
         return result
 
 

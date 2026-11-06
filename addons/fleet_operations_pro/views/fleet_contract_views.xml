@@ -40,9 +40,6 @@
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="cost" sum="Total" optional="show"/>
-                <field name="cost_frequency" widget="badge" optional="show"
-                       decoration-warning="cost_frequency"/>
-                <field name="next_due_date" optional="show"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="expiring_alert" column_invisible="1"/>
                 <field name="state" widget="badge"
@@ -80,19 +77,6 @@
                     </div>
                     <field name="active" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
-                    <field name="days_until_due" invisible="1"/>
-                    <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert"
-                         invisible="not cost_frequency or state not in ('draft', 'running')">
-                        <i class="fa fa-repeat" title="Recurring payment"/>
-                        <span>
-                            Recurring payment: <field name="cost" class="fw-bold" readonly="1"/>
-                            <field name="cost_frequency" class="fw-bold" readonly="1"/>
-                            <span invisible="not next_due_date">
-                                · next due <field name="next_due_date" class="fw-bold" readonly="1"/>
-                                (in <field name="days_until_due" readonly="1"/> days)
-                            </span>
-                        </span>
-                    </div>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
@@ -122,11 +106,6 @@
                     <group>
                         <group name="cost_info" string="Cost">
                             <field name="cost"/>
-                            <field name="cost_frequency"/>
-                            <field name="total_cost" invisible="not cost_frequency"/>
-                        </group>
-                        <group name="deposit_info" string="Deposit">
-                            <field name="deposit"/>
                         </group>
                     </group>
                     <notebook>
@@ -169,9 +148,6 @@
                 <filter name="filter_state_expired" string="Expired" domain="[('state', '=', 'expired')]"/>
                 <filter name="filter_closed" string="Closed" domain="[('state', '=', 'closed')]"/>
 
-                <separator/>
-                <filter name="filter_recurring" string="Recurring" domain="[('cost_frequency', '!=', False)]"/>
-                <filter name="filter_one_time" string="One-time" domain="[('cost_frequency', '=', False)]"/>
 
                 <separator/>
                 <filter name="filter_start_date" string="Start Date" date="start_date"/>
@@ -186,7 +162,6 @@
                     <filter name="group_partner" string="Vendor" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_user" string="Responsible" context="{'group_by': 'user_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_frequency" string="Recurring Frequency" context="{'group_by': 'cost_frequency'}"/>
                     <filter name="group_end_date" string="End Date" context="{'group_by': 'end_date:month'}"/>
                 </group>
             </search>
@@ -230,6 +205,8 @@
                 <field name="date"/>
                 <field name="end_date" optional="show"/>
                 <field name="odometer" widget="integer" optional="show"/>
+                <field name="interval_type" widget="badge" optional="show"
+                       decoration-info="interval_type == 'recurring'"/>
                 <field name="next_service_odometer" widget="integer" optional="hide"/>
                 <field name="contract_id" optional="hide"/>
                 <field name="cost" sum="Total" optional="show"/>
@@ -289,7 +266,9 @@
                     <group>
                         <group name="odometer_info" string="Odometer">
                             <field name="odometer" widget="integer"/>
-                            <field name="service_interval" widget="integer"/>
+                            <field name="interval_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="service_interval" widget="integer"
+                                   required="interval_type == 'recurring'"/>
                             <field name="next_service_odometer" widget="integer"
                                    invisible="not service_interval"/>
                         </group>

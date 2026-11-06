@@ -4,7 +4,6 @@ import base64
 
 import io
 from collections import Counter
-from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -30,7 +29,7 @@ COLUMNS = [
     ('service_count', 'No. of Services', 9, 'int_total'),
     ('service_types', 'Service Types Done', 24, 'text'),
     ('service_cost', 'Service Cost', 11, 'money_total'),
-    ('contracts', 'Vehicle Agreements (Recurring / Next Due)', 30, 'text'),
+    ('contracts', 'Vehicle Agreements', 30, 'text'),
     ('contract_cost', 'Vehicle Agreement Cost', 11, 'money_total'),
     ('total_cost', 'Total Cost', 12, 'money_total'),
     ('remark', 'Remark', 30, 'text'),
@@ -105,35 +104,12 @@ class FleetMonthlyReport(models.TransientModel):
         return sorted(readings)
 
     def _contract_period_cost(self, contract, start, end):
-        """Payments of the contract falling due between start and end.
-
-        Recurring contracts are due on the start date and then every month/year;
-        one-time contracts are due on their start date.
-        """
-        if not contract.cost_frequency:
-            return contract.cost if start <= contract.start_date <= end else 0.0
-        step = relativedelta(years=1) if contract.cost_frequency == 'yearly' else relativedelta(months=1)
-        last = min(end, contract.end_date)
-        due, payments, n = contract.start_date, 0, 0
-        while due <= last:
-            if due >= start:
-                payments += 1
-            n += 1
-            due = contract.start_date + step * n
-        return contract.cost * payments
+        """The contract cost counts in the period containing its start date"""
+        return contract.cost if start <= contract.start_date <= end else 0.0
 
     def _contract_status(self, contract, end):
         type_name = contract.contract_type_id.name or _('Vehicle Agreement')
-        if not contract.cost_frequency:
-            status = _('One-time')
-        else:
-            frequency = dict(contract._fields['cost_frequency'].selection)[contract.cost_frequency]
-            if contract.next_due_date:
-                status = _('%(freq)s, next due %(date)s') % {
-                    'freq': frequency, 'date': contract.next_due_date.strftime('%d/%m/%Y')}
-            else:
-                status = frequency
-        return f"{type_name}: {status}"
+        return f"{type_name}: {contract.name}"
 
     def _get_report_lines(self):
         """One dict per vehicle with all report columns, plus a totals dict"""
