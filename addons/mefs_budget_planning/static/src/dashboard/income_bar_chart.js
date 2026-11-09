@@ -11,7 +11,7 @@ const BAR_FROM = "#7fb0dc";
 const BAR_TO = "#2e6da4";
 const BAR_TOP = "#1d4f7c"; // largest bar
 const TRACK = "rgba(46, 109, 164, 0.07)";
-const ROW_HEIGHT = 46;
+const ROW_HEIGHT = 34;
 const LABEL_MAX = 28;
 
 /**
@@ -137,7 +137,7 @@ export class IncomeBarChart extends Component {
     }
 
     get chartHeight() {
-        return Math.max(380, this.rows.length * ROW_HEIGHT + 70);
+        return Math.max(300, this.rows.length * ROW_HEIGHT + 70);
     }
 
     formatAmount(value) {
@@ -202,16 +202,16 @@ export class IncomeBarChart extends Component {
                     hoverBackgroundColor: barColor,
                     borderRadius: 999,
                     borderSkipped: false,
-                    barPercentage: 0.7,
+                    barPercentage: 0.8,
                     categoryPercentage: 0.9,
-                    maxBarThickness: 22,
+                    maxBarThickness: 20,
                 }],
             },
             options: {
                 indexAxis: "y",
                 maintainAspectRatio: false,
                 animation: { duration: 300 },
-                layout: { padding: { right: 8 } },
+                layout: { padding: { right: 4, left: 0 } },
                 interaction: { mode: "index", axis: "y", intersect: false },
                 onHover: (_ev, elements) => {
                     this.setActive(elements.length ? elements[0].index : -1);
@@ -264,7 +264,7 @@ export class IncomeBarChart extends Component {
                             color: muted,
                             font: { size: 11, weight: "600" },
                         },
-                        ticks: { color: ink, autoSkip: false, padding: 8, font: { size: 13 } },
+                        ticks: { color: ink, autoSkip: false, padding: 4, font: { size: 13 } },
                         grid: { display: false },
                         border: { display: false },
                     },

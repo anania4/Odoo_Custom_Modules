@@ -98,20 +98,45 @@ $bd-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
     }
     .o_bd_card_body {
         padding: 1rem 1.25rem 1.25rem;
+
+        // Chart widgets fill the whole card (field wrappers shrink-to-fit by default)
+        > .o_field_widget {
+            display: block;
+            width: 100%;
+        }
     }
 
     // ---- Title pickers: project (title) and budget plan (subtitle) ----
+    // Title, then the project, then the budget plan: stacked
     .o_bd_page_heading {
+        display: flex;
         flex: 1;
+        flex-direction: column;
+        align-items: flex-start;
         min-width: 0;
     }
     .o_bd_page_eyebrow {
-        margin: 0 0 0.35rem;
-        color: $bd-ink;
-        font-size: 1.6rem;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        line-height: 1.2;
+        position: relative;
+        display: inline-block;
+        margin: 0 0 1.1rem;
+        padding-bottom: 0.55rem;
+        color: #0f2747;
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.1;
+
+        // Accent bar under the title
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 3.5rem;
+            height: 4px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, $bd-accent, #7fb0dc);
+        }
     }
 
     // Many2one rendered as plain title text; a soft box + caret on hover/focus
@@ -340,45 +365,39 @@ $bd-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
         }
     }
 
-    // ---- Planned Income (bar chart) summary strip ----
-    .o_mefs_chart_stats {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-    }
-    .o_mefs_chart_stat {
-        display: flex;
-        flex-direction: column;
-        padding: 0.45rem 0.8rem;
-        border: 1px solid $bd-line;
-        border-radius: 8px;
-        background: #f8fafc;
-    }
-    .o_mefs_chart_stat_wide {
-        flex: 1 1 12rem;
-        min-width: 0;
-    }
-    .o_mefs_chart_stat_label {
-        color: $bd-muted;
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-    }
-    .o_mefs_chart_stat_value {
-        overflow: hidden;
-        color: $bd-ink;
-        font-size: 0.95rem;
-        font-weight: 650;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    // Download icon of the cumulative graph: in the card header, level with
+    // the "Planned Cumulative Income" title
+    .o_bd_card:has(.o_mefs_download_btn) {
+        position: relative;
 
-        small {
-            margin-left: 0.4rem;
+        .o_bd_card_head {
+            padding-right: 4rem;
+        }
+        // nothing between the card and the button may be positioned
+        .o_bd_card_body,
+        .o_bd_card_body > .o_field_widget,
+        .o_mefs_income_cumulative_chart {
+            position: static !important;
+        }
+    }
+    .o_mefs_download_btn {
+        position: absolute;
+        top: 0.8rem;
+        right: 1.25rem;
+        z-index: 1;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: 1px solid $bd-border;
+        border-radius: 8px;
+        background: #fff;
+        color: $bd-muted;
+        opacity: 0.8;
+
+        &:hover {
             color: $bd-accent;
-            font-size: 0.8rem;
-            font-weight: 650;
+            border-color: $bd-accent;
+            opacity: 1;
         }
     }
 

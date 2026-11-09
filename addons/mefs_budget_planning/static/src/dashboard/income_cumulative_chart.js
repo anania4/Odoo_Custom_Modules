@@ -253,6 +253,253 @@ export class IncomeCumulativeChart extends Component {
         return ticks;
     }
 
+    // ------------------------------------------------------------------
+    // Download: the graph drawn like the "Budget Schedule" sheet (straight
+    // line, green callouts, daily date ticks) saved as an A4 landscape PDF.
+    // ------------------------------------------------------------------
+    buildExportCanvas() {
+        const points = this.series.points;
+        const project = this.props.record.data.project_id;
+        const projectName = project ? project.display_name ?? project[1] ?? "" : "";
+        const W = 2400;
+        const H = 1500;
+        const canvas = document.createElement("canvas");
+        canvas.width = W;
+        canvas.height = H;
+        canvas.style.width = `${W}px`;
+        canvas.style.height = `${H}px`;
+        // Chart.js needs the canvas in the DOM: render it off-screen
+        const holder = document.createElement("div");
+        holder.style.cssText = `position:fixed;left:-99999px;top:0;width:${W}px;height:${H}px;`;
+        holder.appendChild(canvas);
+        document.body.appendChild(holder);
+
+        const LINE = "#4472c4";
+        const gridColor = "#d9d9d9";
+        const text = "#404040";
+        const font = "Calibri, 'Segoe UI', Arial, sans-serif";
+        const formatAmount = (v) => this.formatAmount(v);
+
+        // Daily ticks, thinned so at most ~45 labels fit
+        const first = DateTime.fromMillis(points[0].x).startOf("day");
+        const last = DateTime.fromMillis(points[points.length - 1].x).startOf("day");
+        const days = Math.max(1, Math.round((last - first) / DAY_MS));
+        const every = Math.max(1, Math.ceil(days / 45));
+        const xTicks = [];
+        for (let d = first; d <= last.plus({ days: every - 1 }); d = d.plus({ days: every })) {
+            xTicks.push(d.toMillis());
+        }
+        const yAxis = niceAxis(Math.max(...points.map((p) => p.amount)) * 1.08, 6);
+
+        const whiteBackground = {
+            id: "mefsExportBackground",
+            beforeDraw(chart) {
+                const { ctx } = chart;
+                ctx.save();
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            },
+        };
+
+        // Green callout per point ("Work item," / running total), alternating
+        // above and below the line at two heights, with a leader line.
+        const callouts = {
+            id: "mefsExportCallouts",
+            afterDatasetsDraw(chart) {
+                const { ctx, chartArea } = chart;
+                const meta = chart.getDatasetMeta(0);
+                ctx.save();
+                ctx.font = `21px ${font}`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                let k = 0;
+                meta.data.forEach((pt, i) => {
+                    const p = points[i];
+                    if (!p.step) {
+                        return;
+                    }
+                    const lines = [`${p.name},`, formatAmount(p.amount)];
+                    const w = Math.max(...lines.map((t) => ctx.measureText(t).width)) + 22;
+                    const h = 56;
+                    const above = k % 2 === 0;
+                    const offset = 48 + (k % 4 < 2 ? 0 : 38);
+                    k++;
+                    const cx = Math.min(Math.max(pt.x, chartArea.left + w / 2 + 2), chartArea.right - w / 2 - 2);
+                    let cy = above ? pt.y - offset - h / 2 : pt.y + offset + h / 2;
+                    cy = Math.min(Math.max(cy, chartArea.top + h / 2 + 2), chartArea.bottom - h / 2 - 2);
+                    ctx.strokeStyle = "#a6a6a6";
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(pt.x, pt.y);
+                    ctx.lineTo(cx, above ? cy + h / 2 : cy - h / 2);
+                    ctx.stroke();
+                    ctx.fillStyle = "#e2efda";
+                    ctx.strokeStyle = "#a9d08e";
+                    ctx.fillRect(cx - w / 2, cy - h / 2, w, h);
+                    ctx.strokeRect(cx - w / 2, cy - h / 2, w, h);
+                    ctx.fillStyle = text;
+                    ctx.fillText(lines[0], cx, cy - 13);
+                    ctx.fillText(lines[1], cx, cy + 13);
+                });
+                ctx.restore();
+            },
+        };
+
+        const chart = new Chart(canvas, {
+            type: "line",
+            data: {
+                datasets: [{
+                    label: "Cumulative Income",
+                    data: points.map((p) => ({ x: p.x, y: p.amount })),
+                    borderColor: LINE,
+                    backgroundColor: LINE,
+                    borderWidth: 4,
+                    tension: 0,
+                    pointRadius: 0,
+                    fill: false,
+                }],
+            },
+            options: {
+                responsive: false,
+                animation: false,
+                devicePixelRatio: 1,
+                layout: { padding: { top: 20, right: 50, bottom: 20, left: 30 } },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Planned Cumulative Income Throughout the Project Timeline",
+                        color: "#262626",
+                        font: { size: 34, weight: "bold", family: font },
+                        padding: { top: 10, bottom: 6 },
+                    },
+                    subtitle: {
+                        display: Boolean(projectName),
+                        text: projectName,
+                        color: "#595959",
+                        font: { size: 24, family: font },
+                        padding: { bottom: 10 },
+                    },
+                    legend: {
+                        display: true,
+                        position: "top",
+                        align: "end",
+                        labels: { color: text, font: { size: 21, family: font }, boxWidth: 44, boxHeight: 3 },
+                    },
+                    tooltip: { enabled: false },
+                },
+                scales: {
+                    x: {
+                        type: "linear",
+                        min: xTicks[0],
+                        max: xTicks.at(-1),
+                        afterBuildTicks: (scale) => {
+                            scale.ticks = xTicks.map((value) => ({ value }));
+                        },
+                        title: { display: true, text: "Project Timeline", color: text, font: { size: 24, family: font } },
+                        ticks: {
+                            color: text,
+                            autoSkip: false,
+                            minRotation: 90,
+                            maxRotation: 90,
+                            font: { size: 18, family: font },
+                            callback: (v) => DateTime.fromMillis(v).toFormat("d-LLL"),
+                        },
+                        grid: { color: gridColor },
+                        border: { color: "#bfbfbf" },
+                    },
+                    y: {
+                        min: 0,
+                        max: yAxis.max,
+                        title: { display: true, text: "Cumulative Income", color: text, font: { size: 24, family: font } },
+                        ticks: {
+                            color: text,
+                            stepSize: yAxis.step,
+                            font: { size: 19, family: font },
+                            callback: (v) => formatAmount(v),
+                        },
+                        grid: { color: gridColor },
+                        border: { display: false },
+                    },
+                },
+            },
+            plugins: [whiteBackground, callouts],
+        });
+        const jpeg = canvas.toDataURL("image/jpeg", 0.95);
+        chart.destroy();
+        holder.remove();
+        return { jpeg, width: W, height: H, projectName };
+    }
+
+    /**
+     * Minimal one-page PDF (A4 landscape) holding a JPEG image, built by hand
+     * so no PDF library is needed.
+     */
+    makePdf(jpegDataUrl, imgW, imgH) {
+        const binary = atob(jpegDataUrl.split(",")[1]);
+        const jpg = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            jpg[i] = binary.charCodeAt(i);
+        }
+        const pageW = 842;
+        const pageH = 595;
+        const margin = 24;
+        const scale = Math.min((pageW - 2 * margin) / imgW, (pageH - 2 * margin) / imgH);
+        const drawW = (imgW * scale).toFixed(2);
+        const drawH = (imgH * scale).toFixed(2);
+        const x = ((pageW - imgW * scale) / 2).toFixed(2);
+        const y = ((pageH - imgH * scale) / 2).toFixed(2);
+        const content = `q ${drawW} 0 0 ${drawH} ${x} ${y} cm /Im0 Do Q`;
+
+        const enc = new TextEncoder();
+        const parts = [];
+        const offsets = [];
+        let length = 0;
+        const push = (chunk) => {
+            const bytes = typeof chunk === "string" ? enc.encode(chunk) : chunk;
+            parts.push(bytes);
+            length += bytes.length;
+        };
+        const obj = (n, body) => {
+            offsets[n] = length;
+            push(`${n} 0 obj\n${body}\nendobj\n`);
+        };
+        push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+        obj(1, "<< /Type /Catalog /Pages 2 0 R >>");
+        obj(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+        obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] ` +
+            "/Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>");
+        offsets[4] = length;
+        push(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} ` +
+            `/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`);
+        push(jpg);
+        push("\nendstream\nendobj\n");
+        obj(5, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+        const xref = length;
+        let table = "xref\n0 6\n0000000000 65535 f \n";
+        for (let n = 1; n <= 5; n++) {
+            table += `${String(offsets[n]).padStart(10, "0")} 00000 n \n`;
+        }
+        push(`${table}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+        return new Blob(parts, { type: "application/pdf" });
+    }
+
+    onDownload() {
+        if (!this.series.points.length) {
+            return;
+        }
+        const { jpeg, width, height, projectName } = this.buildExportCanvas();
+        const blob = this.makePdf(jpeg, width, height);
+        const safe = (projectName || "Project").replace(/[\\/:*?"<>|]+/g, " ").trim();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Planned Cumulative Income - ${safe}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
     renderChart() {
         const { points, start, end } = this.series;
         this.chart?.destroy();
@@ -288,7 +535,8 @@ export class IncomeCumulativeChart extends Component {
                     backgroundColor: areaFill,
                     fill: "origin",
                     borderWidth: 2.5,
-                    cubicInterpolationMode: "monotone",
+                    tension: 0, // straight segments with sharp corners, as in the sheet
+                    borderJoinStyle: "miter",
                     pointRadius: (ctx) => (points[ctx.dataIndex]?.step ? 4.5 : 3),
                     pointHoverRadius: 7,
                     pointBackgroundColor: "#fff",

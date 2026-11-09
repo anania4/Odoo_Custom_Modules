@@ -6,26 +6,13 @@
                 Add planned income lines with a date to see the timeline.
             </div>
             <t t-else="">
-                <!-- Summary strip -->
-                <div class="o_mefs_chart_stats">
-                    <div class="o_mefs_chart_stat">
-                        <span class="o_mefs_chart_stat_label">Total</span>
-                        <span class="o_mefs_chart_stat_value" t-esc="formatMillions(total)"/>
-                    </div>
-                    <div class="o_mefs_chart_stat">
-                        <span class="o_mefs_chart_stat_label">Payments</span>
-                        <span class="o_mefs_chart_stat_value" t-esc="series.payments"/>
-                    </div>
-                    <div class="o_mefs_chart_stat">
-                        <span class="o_mefs_chart_stat_label">Period</span>
-                        <span class="o_mefs_chart_stat_value" t-esc="periodLabel"/>
-                    </div>
-                    <div class="o_mefs_chart_stat">
-                        <span class="o_mefs_chart_stat_label">50% reached</span>
-                        <span class="o_mefs_chart_stat_value" t-esc="halfwayLabel"/>
-                    </div>
-                </div>
-                <div class="position-relative" style="height: 400px;">
+                <!-- Positioned against the card, level with its title -->
+                <button type="button" class="btn btn-light btn-sm o_mefs_download_btn"
+                        title="Download as PDF" aria-label="Download as PDF"
+                        t-on-click="onDownload">
+                    <i class="fa fa-download"/>
+                </button>
+                <div class="position-relative" style="height: 420px;">
                     <canvas t-ref="canvas"/>
                 </div>
             </t>
