@@ -96,7 +96,7 @@ class FleetDashboard(models.Model):
     def _get_card_data(self, company, today):
         """Top row: Active Vehicles, Services, Vehicle Agreements, Pending Fleet Requests"""
         # 1. Active vehicles out of the total (+ in maintenance)
-        vehicles = self.env['fleet.vehicle'].search([('company_id', '=', company.id)])
+        vehicles = self.env['fleet.vehicle'].search([('company_id', 'in', self.env.companies.ids)])
         active = vehicles.filtered(lambda v: v.status_code == 'active')
         available = vehicles.filtered(lambda v: v.status_code == 'available')
         in_maintenance = vehicles.filtered(lambda v: v.status_code == 'in_maintenance')
@@ -104,11 +104,11 @@ class FleetDashboard(models.Model):
         # 2. Services: open ones, plus vehicles that reached the km of their next service
         Service = self.env['fleet.service']
         open_services = Service.search([
-            ('company_id', '=', company.id),
+            ('company_id', 'in', self.env.companies.ids),
             ('state', 'in', ('new', 'running')),
         ])
         done_services = Service.search([
-            ('company_id', '=', company.id),
+            ('company_id', 'in', self.env.companies.ids),
             ('state', '=', 'done'),
             ('next_service_odometer', '>', 0),
         ], order='end_date desc, odometer desc, id desc')
@@ -125,7 +125,7 @@ class FleetDashboard(models.Model):
         #    Expired = past the end date and not closed yet: still running, or already set to
         #    Expired by the daily check (they stay here until renewed or closed).
         agreements = self.env['fleet.contract'].search([
-            ('company_id', '=', company.id),
+            ('company_id', 'in', self.env.companies.ids),
             ('state', 'in', ('running', 'expired')),
         ])
         running = agreements.filtered(lambda c: c.state == 'running')
@@ -138,14 +138,16 @@ class FleetDashboard(models.Model):
         pending = {'submitted': 0, 'dept_approved': 0, 'fleet_approved': 0}
         if self._can_read('fleet.request'):
             for state, count in self.env['fleet.request']._read_group(
-                    [('state', 'in', list(pending))], ['state'], ['__count']):
+                    [('state', 'in', list(pending)), ('company_id', 'in', self.env.companies.ids)],
+                    ['state'], ['__count']):
                 pending[state] = count
 
         # 4b. Pending fuel requests: waiting for approval or for filling
         fuel_pending = {'submitted': 0, 'approved': 0}
         if self._can_read('fleet.fuel.request'):
             for state, count in self.env['fleet.fuel.request']._read_group(
-                    [('state', 'in', list(fuel_pending))], ['state'], ['__count']):
+                    [('state', 'in', list(fuel_pending)), ('company_id', 'in', self.env.companies.ids)],
+                    ['state'], ['__count']):
                 fuel_pending[state] = count
 
         needs_action = self._get_needs_action(today, expired, expiring, due_by_km)
@@ -207,7 +209,7 @@ class FleetDashboard(models.Model):
             today = fields.Date.today()
             thirty_days_ago = today - timedelta(days=30)
 
-            vehicles = self.env['fleet.vehicle'].search([('company_id', '=', company.id)])
+            vehicles = self.env['fleet.vehicle'].search([('company_id', 'in', self.env.companies.ids)])
             total_vehicles = len(vehicles)
             available_vehicles = len(vehicles.filtered(lambda v: v.status_code == 'available'))
             in_maintenance_vehicles = len(vehicles.filtered(lambda v: v.status_code == 'in_maintenance'))
@@ -232,7 +234,7 @@ class FleetDashboard(models.Model):
                 category_entry['plates'].append(plate)
 
             fuel_logs = self.env['fleet.fuel.log'].search([
-                ('company_id', '=', company.id),
+                ('company_id', 'in', self.env.companies.ids),
                 ('date', '>=', thirty_days_ago),
             ])
             total_fuel_cost = sum(fuel_logs.mapped('total_cost'))
@@ -253,7 +255,7 @@ class FleetDashboard(models.Model):
             # Services
             service_model = self.env['fleet.service']
             service_domain = [
-                ('company_id', '=', company.id),
+                ('company_id', 'in', self.env.companies.ids),
                 ('active', '=', True),
             ]
             total_services = service_model.search_count(service_domain)
@@ -291,24 +293,24 @@ class FleetDashboard(models.Model):
             # Vehicle Agreement Statistics
             contract_model = self.env['fleet.contract']
             running_contracts = contract_model.search_count([
-                ('company_id', '=', company.id),
+                ('company_id', 'in', self.env.companies.ids),
                 ('active', '=', True),
                 ('state', '=', 'running'),
             ])
             total_contracts = contract_model.search_count([
-                ('company_id', '=', company.id),
+                ('company_id', 'in', self.env.companies.ids),
                 ('active', '=', True),
             ])
 
             expiring_contracts = contract_model.search([
-                ('company_id', '=', company.id),
+                ('company_id', 'in', self.env.companies.ids),
                 ('active', '=', True),
                 ('state', '=', 'running'),
                 ('end_date', '>=', today),
                 ('end_date', '<=', today + timedelta(days=30)),
             ], order='end_date asc')
             expired_contracts = contract_model.search([
-                ('company_id', '=', company.id),
+                ('company_id', 'in', self.env.companies.ids),
                 ('active', '=', True),
                 ('state', '=', 'running'),
                 ('end_date', '<', today),

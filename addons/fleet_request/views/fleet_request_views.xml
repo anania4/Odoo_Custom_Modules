@@ -143,6 +143,11 @@
                   decoration-info="state in ('dept_approved', 'fleet_approved')"
                   decoration-warning="state == 'submitted'"
                   decoration-danger="state == 'rejected'">
+                <header>
+                    <button name="action_complete" string="Mark as Completed" type="object"
+                            groups="fleet_operations_pro.group_fleet_manager"
+                            confirm="Mark the selected assigned trips as completed on behalf of their drivers?"/>
+                </header>
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="request_date"/>

@@ -9,6 +9,7 @@ class FleetRequest(models.Model):
     _description = 'Fleet Request'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'request_date desc, id desc'
+    _check_company_auto = True
 
     # =========================================
     # Basic Information
@@ -151,6 +152,7 @@ class FleetRequest(models.Model):
 
     driver_id = fields.Many2one(
         'hr.employee',
+        check_company=True,
         string='Driver',
         domain="[('company_id', '=', company_id), ('is_fleet_driver', '=', True), ('has_active_vehicle', '=', True)]",
         tracking=True,
@@ -162,6 +164,7 @@ class FleetRequest(models.Model):
         'fleet.vehicle',
         string='Vehicle',
         readonly=True,
+        check_company=True,
         tracking=True,
         copy=False,
         help='Vehicle currently driven by the assigned driver (automatic)'
@@ -387,3 +390,25 @@ class FleetRequest(models.Model):
                 'state': 'completed',
                 'completed_date': fields.Datetime.now(),
             })
+            if not request.is_delegated_driver:
+                request.message_post(body=_(
+                    '%(user)s marked the trip as completed on behalf of %(driver)s.',
+                    user=self.env.user.name, driver=request.driver_id.name))
+        self._release_vehicles()
+
+    def _release_vehicles(self):
+        """Trip done: an In Use vehicle with no other assigned trip goes back to Active"""
+        Vehicle = self.env['fleet.vehicle'].sudo()
+        active = Vehicle._status_by_codes(('active',))
+        if not active:
+            return
+        for vehicle in self.sudo().mapped('vehicle_id'):
+            if vehicle._driver_switch_dot() != 'in_use':
+                continue
+            if self.sudo().search_count([('vehicle_id', '=', vehicle.id), ('state', '=', 'assigned')]):
+                continue
+            old_status = vehicle.status_id.name
+            vehicle.write({'status_id': active.id})
+            vehicle.message_post(body=_(
+                'Status changed from %(old)s to %(new)s automatically: trip completed.',
+                old=old_status, new=active.name))

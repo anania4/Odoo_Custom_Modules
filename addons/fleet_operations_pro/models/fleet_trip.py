@@ -9,6 +9,7 @@ class FleetTrip(models.Model):
     _description = 'Fleet Trip'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'date desc, id desc'
+    _check_company_auto = True
     
     name = fields.Char(
         string='Reference',
@@ -20,6 +21,7 @@ class FleetTrip(models.Model):
     # Vehicle & Driver
     vehicle_id = fields.Many2one(
         'fleet.vehicle',
+        check_company=True,
         string='Vehicle',
         required=True,
         ondelete='cascade',
@@ -162,9 +164,18 @@ class FleetTrip(models.Model):
         'res.company',
         string='Company',
         required=True,
-        default=lambda self: self.env.company,
+        compute='_compute_company_id',
+        store=True,
+        readonly=False,
+        precompute=True,
         help='Company this trip belongs to'
     )
+
+    @api.depends('vehicle_id')
+    def _compute_company_id(self):
+        """The record belongs to the company of its vehicle"""
+        for record in self:
+            record.company_id = record.vehicle_id.company_id or record.company_id or self.env.company
     
     active = fields.Boolean(
         string='Active',

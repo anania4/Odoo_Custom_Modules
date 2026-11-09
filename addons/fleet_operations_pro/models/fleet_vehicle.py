@@ -350,6 +350,17 @@ class FleetVehicle(models.Model):
         store=False,
         help='Number of toll records'
     )
+    # Vehicle Agreements & Services (smart buttons)
+    contract_count = fields.Integer(
+        string='Vehicle Agreements',
+        compute='_compute_contract_service_count',
+        help='Number of vehicle agreements of this vehicle'
+    )
+    service_count = fields.Integer(
+        string='Services',
+        compute='_compute_contract_service_count',
+        help='Number of services of this vehicle'
+    )
     # Trip Management (Phase 2D)
     trip_ids = fields.One2many(
         'fleet.trip',
@@ -565,6 +576,43 @@ class FleetVehicle(models.Model):
         for vehicle in self:
             vehicle.toll_count = len(vehicle.toll_record_ids)
     
+    # Vehicle Agreements & Services (smart buttons)
+    def _compute_contract_service_count(self):
+        counts = {}
+        for model in ('fleet.contract', 'fleet.service'):
+            # users who may open vehicles but not this model (e.g. drivers) just see 0
+            if not self.env[model].has_access('read'):
+                counts[model] = {}
+                continue
+            groups = self.env[model]._read_group(
+                [('vehicle_id', 'in', self.ids)], ['vehicle_id'], ['__count'])
+            counts[model] = {vehicle.id: count for vehicle, count in groups}
+        for vehicle in self:
+            vehicle.contract_count = counts['fleet.contract'].get(vehicle.id, 0)
+            vehicle.service_count = counts['fleet.service'].get(vehicle.id, 0)
+
+    def action_view_contracts(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Vehicle Agreements'),
+            'res_model': 'fleet.contract',
+            'view_mode': 'list,form',
+            'domain': [('vehicle_id', '=', self.id)],
+            'context': {'default_vehicle_id': self.id},
+        }
+
+    def action_view_services(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Services'),
+            'res_model': 'fleet.service',
+            'view_mode': 'list,form',
+            'domain': [('vehicle_id', '=', self.id)],
+            'context': {'default_vehicle_id': self.id},
+        }
+
     # Trip Compute Methods (Phase 2D)
     @api.depends('trip_ids')
     def _compute_trip_count(self):

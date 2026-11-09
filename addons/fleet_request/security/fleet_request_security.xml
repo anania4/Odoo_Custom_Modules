@@ -20,6 +20,28 @@
 
     <data noupdate="1">
 
+        <!-- Multi-company (global rules, combined with the group rules below) -->
+        <record id="fleet_request_company_rule" model="ir.rule">
+            <field name="name">Fleet Request: multi-company</field>
+            <field name="model_id" ref="model_fleet_request"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_fuel_request_company_rule" model="ir.rule">
+            <field name="name">Fuel Request: multi-company</field>
+            <field name="model_id" ref="model_fleet_fuel_request"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_fuel_request_line_company_rule" model="ir.rule">
+            <field name="name">Fuel Request Line: multi-company</field>
+            <field name="model_id" ref="model_fleet_fuel_request_line"/>
+            <field name="domain_force">['|', ('request_id.company_id', '=', False), ('request_id.company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
         <!-- Fleet requests -->
         <record id="fleet_request_rule_user" model="ir.rule">
             <field name="name">Fleet Request: own, assigned as driver, or my team's</field>

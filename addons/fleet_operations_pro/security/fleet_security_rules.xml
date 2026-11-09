@@ -18,5 +18,55 @@
             <field name="global" eval="True"/>
         </record>
 
+        <!-- Multi-company: records of the user's allowed (switcher-selected) companies only -->
+        <record id="fleet_driver_assignment_company_rule" model="ir.rule">
+            <field name="name">Driver Assignment: multi-company</field>
+            <field name="model_id" ref="model_fleet_driver_assignment"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_contract_company_rule" model="ir.rule">
+            <field name="name">Vehicle Agreement: multi-company</field>
+            <field name="model_id" ref="model_fleet_contract"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_service_company_rule" model="ir.rule">
+            <field name="name">Service: multi-company</field>
+            <field name="model_id" ref="model_fleet_service"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_maintenance_company_rule" model="ir.rule">
+            <field name="name">Maintenance: multi-company</field>
+            <field name="model_id" ref="model_fleet_maintenance"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_fuel_log_company_rule" model="ir.rule">
+            <field name="name">Fuel Log: multi-company</field>
+            <field name="model_id" ref="model_fleet_fuel_log"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_toll_record_company_rule" model="ir.rule">
+            <field name="name">Toll Record: multi-company</field>
+            <field name="model_id" ref="model_fleet_toll_record"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="fleet_trip_company_rule" model="ir.rule">
+            <field name="name">Trip: multi-company</field>
+            <field name="model_id" ref="model_fleet_trip"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
     </data>
 </odoo>

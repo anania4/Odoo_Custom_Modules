@@ -9,6 +9,7 @@ class FleetService(models.Model):
     _description = 'Fleet Service'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'date desc, id desc'
+    _check_company_auto = True
 
     name = fields.Char(
         string='Reference',
@@ -18,6 +19,7 @@ class FleetService(models.Model):
     )
     vehicle_id = fields.Many2one(
         'fleet.vehicle',
+        check_company=True,
         string='Vehicle',
         required=True,
         ondelete='cascade',
@@ -52,6 +54,7 @@ class FleetService(models.Model):
     )
     contract_id = fields.Many2one(
         'fleet.contract',
+        check_company=True,
         string='Vehicle Agreement',
         ondelete='set null',
         index=True,
@@ -142,8 +145,17 @@ class FleetService(models.Model):
         'res.company',
         string='Company',
         required=True,
-        default=lambda self: self.env.company
+        compute='_compute_company_id',
+        store=True,
+        readonly=False,
+        precompute=True,
     )
+
+    @api.depends('vehicle_id')
+    def _compute_company_id(self):
+        """The record belongs to the company of its vehicle"""
+        for record in self:
+            record.company_id = record.vehicle_id.company_id or record.company_id or self.env.company
     active = fields.Boolean(
         string='Active',
         default=True

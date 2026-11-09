@@ -82,6 +82,18 @@
                                 icon="fa-road">
                             <field name="toll_count" widget="statinfo" string="Tolls"/>
                         </button>
+                        <button name="action_view_contracts"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o">
+                            <field name="contract_count" widget="statinfo" string="Agreements"/>
+                        </button>
+                        <button name="action_view_services"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-cogs">
+                            <field name="service_count" widget="statinfo" string="Services"/>
+                        </button>
                     </div>
 
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"

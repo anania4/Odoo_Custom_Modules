@@ -5,7 +5,7 @@
     <menuitem id="menu_fleet_root"
               name="Fleet"
               web_icon="fleet_operations_pro,static/description/icon.png"
-              groups="group_fleet_driver,group_fleet_viewer"
+              groups="-group_fleet_driver,group_fleet_viewer"
               sequence="50"/>
     
     <!-- Operations Menu -->
@@ -30,12 +30,12 @@
               sequence="10"
               groups="group_fleet_viewer"/>
     
-    <!-- Drivers Menu Item (Fleet Driver group and above) -->
+    <!-- Drivers Menu Item (Fleet Viewer and above; drivers only use the car icon) -->
     <menuitem id="menu_fleet_driver"
               name="Drivers"
               parent="menu_fleet_operations"
               action="action_fleet_driver"
-              groups="group_fleet_driver,group_fleet_viewer"
+              groups="-group_fleet_driver,group_fleet_viewer"
               sequence="20"/>
 
     <!-- Driver Assignments Menu Item -->

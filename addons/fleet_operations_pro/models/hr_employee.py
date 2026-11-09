@@ -13,7 +13,7 @@ class HrEmployee(models.Model):
         string='Is a Fleet Driver',
         compute='_compute_is_fleet_driver',
         search='_search_is_fleet_driver',
-        help='Employee whose user has the Fleet Driver access right (shown on the Fleet > Drivers list)',
+        help='Employee whose user has the Fleet Driver access right and who is shown (not archived) on the Fleet > Drivers list',
     )
 
     def _driver_employee_ids(self):
@@ -38,12 +38,19 @@ class HrEmployee(models.Model):
             self.env['fleet.driver']._sync_with_access_rights()
         return result
 
+    def _listed_driver_employee_ids(self):
+        """Drivers that can be picked: Fleet Driver access right AND shown (not archived)
+        in the Fleet > Drivers section"""
+        access_ids = set(self._driver_employee_ids())
+        listed = self.env['fleet.driver'].sudo().search([('employee_id', 'in', list(access_ids))])
+        return listed.employee_id.ids
+
     def _compute_is_fleet_driver(self):
-        driver_ids = set(self._driver_employee_ids())
+        driver_ids = set(self._listed_driver_employee_ids())
         for employee in self:
             employee.is_fleet_driver = employee.id in driver_ids
 
     @api.model
     def _search_is_fleet_driver(self, operator, value):
         positive = (operator == '=') == bool(value)
-        return [('id', 'in' if positive else 'not in', self._driver_employee_ids())]
+        return [('id', 'in' if positive else 'not in', self._listed_driver_employee_ids())]

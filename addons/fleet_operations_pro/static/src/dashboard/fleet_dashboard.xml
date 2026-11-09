@@ -36,16 +36,13 @@
                                                 <t t-esc="cards.vehicles.active"/>
                                                 <small class="fs-6 text-white-50">/ <t t-esc="cards.vehicles.total"/></small>
                                             </h2>
-                                            <small class="text-white-50">
-                                                of <t t-esc="cards.vehicles.total"/> total
-                                                <t t-if="cards.vehicles.in_maintenance">
-                                                    ·
-                                                    <a href="#" class="text-white fw-bold"
-                                                       title="Vehicles in maintenance"
-                                                       t-on-click.prevent.stop="() =&gt; this.openMaintenanceVehicles()">
-                                                        <t t-esc="cards.vehicles.in_maintenance"/> in maintenance
-                                                    </a>
-                                                </t>
+                                            <small>
+                                                <a href="#" class="text-white fw-bold"
+                                                   title="Vehicles in maintenance"
+                                                   t-on-click.prevent.stop="() =&gt; this.openMaintenanceVehicles()">
+                                                    <t t-esc="cards.vehicles.in_maintenance"/>
+                                                    car<t t-if="cards.vehicles.in_maintenance != 1">s</t> in maintenance
+                                                </a>
                                             </small>
                                         </div>
                                         <i class="fa fa-car fa-2x opacity-50" title="Vehicles"/>
