@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Small show/hide toggle in the title of each group's total column -->
+    <t t-name="mefs_budget_planning.EstimateGroupsListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="primary">
+        <xpath expr="//thead//span[@t-esc='column.label']" position="before">
+            <t t-set="totalGroup" t-value="totalGroupOf(column)"/>
+            <button t-if="totalGroup" type="button" class="btn btn-link p-0 me-1 o_eg_toggle"
+                    t-att-title="(groupState[totalGroup.key] ? 'Hide ' : 'Show ') + totalGroup.label + ' details'"
+                    t-on-click.stop="() => this.toggleGroup(totalGroup.key)">
+                <i t-attf-class="fa {{ groupState[totalGroup.key] ? 'fa-caret-down' : 'fa-caret-right' }}"/>
+            </button>
+        </xpath>
+    </t>
+
+</templates>

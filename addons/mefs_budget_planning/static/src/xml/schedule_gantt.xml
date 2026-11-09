@@ -33,7 +33,7 @@
             <tr t-if="gantt.weeks.length" class="o_gantt_head o_gantt_head_range">
                 <th t-att-colspan="ganttLeadColspan" class="o_gantt_lead"/>
                 <th t-foreach="gantt.days" t-as="day" t-key="day.key"
-                    t-attf-class="o_gantt_day {{ day.weekend ? 'o_gantt_weekend' : '' }} {{ day.weekStart ? 'o_gantt_week_start' : '' }}"
+                    t-attf-class="o_gantt_day {{ day.weekend ? 'o_gantt_weekend' : '' }} {{ day.weekStart ? 'o_gantt_week_start' : '' }} {{ day.today ? 'o_gantt_today' : '' }}"
                     t-esc="day.number"/>
                 <th t-if="hasOpenFormViewColumn"/>
                 <th t-if="hasActionsColumn"/>
@@ -43,7 +43,7 @@
         <xpath expr="//thead/tr/t[@t-foreach='columns']" position="after">
             <th t-foreach="gantt.days" t-as="day" t-key="day.key"
                 t-att-title="day.key"
-                t-attf-class="o_gantt_day {{ day.weekend ? 'o_gantt_weekend' : '' }} {{ day.weekStart ? 'o_gantt_week_start' : '' }}"
+                t-attf-class="o_gantt_day {{ day.weekend ? 'o_gantt_weekend' : '' }} {{ day.weekStart ? 'o_gantt_week_start' : '' }} {{ day.today ? 'o_gantt_today' : '' }}"
                 t-esc="day.letter"/>
         </xpath>
         <xpath expr="//tfoot/tr/t[@t-foreach='columns']" position="after">

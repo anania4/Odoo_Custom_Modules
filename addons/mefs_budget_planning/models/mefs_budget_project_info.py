@@ -1,13 +1,12 @@
-from datetime import timedelta
-
-from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
 
 
 class MefsBudgetProjectInfo(models.Model):
-    """Budget Dashboard data of a project (one per project)."""
+    """Budget Schedule dashboard data of a project (one record per project):
+    the selected budget plan and the planned income / expense lines.
+    """
     _name = 'mefs.budget.project.info'
-    _description = 'Budget Dashboard Project Information'
+    _description = 'Budget Dashboard Project Data'
     _rec_name = 'project_id'
 
     project_id = fields.Many2one(
@@ -16,22 +15,6 @@ class MefsBudgetProjectInfo(models.Model):
         'res.company', default=lambda self: self.env.company, required=True)
     currency_id = fields.Many2one(
         'res.currency', related='company_id.currency_id', readonly=True)
-
-    location = fields.Char(string='Location')
-    partner_id = fields.Many2one('res.partner', string='Client')
-    consultant_id = fields.Many2one('res.partner', string='Consultant')
-    contractor_id = fields.Many2one(
-        'res.partner', string='Contractor',
-        default=lambda self: self.env.company.partner_id)
-    contract_signing_date = fields.Date(string='Contract Signing Date')
-    site_handover_date = fields.Date(string='Site Handover Date')
-    project_start_date = fields.Date(string='Project Start Date')
-    contract_period_days = fields.Integer(string='Contract Period')
-    completion_date = fields.Date(
-        string='Date of Completion', compute='_compute_completion_date',
-        help='Project start date plus the contract period.')
-
-    description = fields.Text(string='Project Information')
     budget_plan_id = fields.Many2one(
         'mefs.budget.plan', string='Budget Plan', ondelete='set null',
         domain="[('project_id', '=', project_id)]",
@@ -41,33 +24,11 @@ class MefsBudgetProjectInfo(models.Model):
         'mefs.budget.income.line', 'info_id', string='Planned Income Summary')
     expense_line_ids = fields.One2many(
         'mefs.budget.expense.line', 'info_id', string='Total Planned Expenses Summary')
-    expense_total = fields.Monetary(
-        string='Total Cost', compute='_compute_expense_total')
-
-    @api.depends('expense_line_ids.amount')
-    def _compute_expense_total(self):
-        for info in self:
-            info.expense_total = sum(info.expense_line_ids.mapped('amount'))
 
     _sql_constraints = [
         ('project_uniq', 'unique(project_id)',
-         'Project information already exists for this project.'),
+         'Dashboard data already exists for this project.'),
     ]
-
-    @api.depends('project_start_date', 'contract_period_days')
-    def _compute_completion_date(self):
-        for info in self:
-            if info.project_start_date and info.contract_period_days > 0:
-                info.completion_date = info.project_start_date + timedelta(
-                    days=info.contract_period_days)
-            else:
-                info.completion_date = False
-
-    @api.constrains('contract_period_days')
-    def _check_contract_period(self):
-        for info in self:
-            if info.contract_period_days < 0:
-                raise ValidationError(_('The contract period cannot be negative.'))
 
     # Estimate cost blocks: (class field, total field)
     _ESTIMATE_BLOCKS = [
@@ -127,7 +88,6 @@ class MefsBudgetProjectInfo(models.Model):
         if missing:
             self.create([{
                 'project_id': project.id,
-                'partner_id': project.partner_id.id,
                 'budget_plan_id': self._latest_plan(project).id,
                 'company_id': (project.company_id or self.env.company).id,
             } for project in missing])

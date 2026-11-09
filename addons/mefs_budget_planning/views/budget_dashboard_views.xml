@@ -84,10 +84,13 @@
                                         <span class="o_bd_kpi_icon o_bd_icon_violet"><i class="fa fa-calendar" title="Contract Period"/></span>
                                     </div>
                                     <div class="o_bd_kpi_value">
-                                        <field name="contract_period_days" readonly="1" class="oe_inline"/> days
+                                        <field name="contract_period_days" class="oe_inline"/> days
                                     </div>
                                     <div class="o_bd_kpi_sub">
-                                        Completion <field name="completion_date" readonly="1" class="oe_inline"/>
+                                        <field name="project_start_date" class="oe_inline"/>
+                                        <span invisible="not project_start_date or not project_end_date"> → </span>
+                                        <field name="project_end_date" class="oe_inline"/>
+                                        <span invisible="project_start_date or project_end_date">From the budget plan's start date and schedule</span>
                                     </div>
                                 </div>
                             </div>
@@ -176,7 +179,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Further sections go below -->
                     </div>
                 </sheet>
             </form>

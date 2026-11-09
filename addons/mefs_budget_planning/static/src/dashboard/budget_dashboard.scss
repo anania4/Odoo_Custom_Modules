@@ -47,27 +47,6 @@ $bd-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
         padding-bottom: 1.25rem;
         border-bottom: 1px solid $bd-border;
     }
-    .o_bd_page_icon {
-        display: inline-flex;
-        flex: none;
-        align-items: center;
-        justify-content: center;
-        width: 3.25rem;
-        height: 3.25rem;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #3a7fbf, $bd-accent);
-        box-shadow: 0 4px 12px rgba(46, 109, 164, 0.25);
-        color: #fff;
-        font-size: 1.4rem;
-    }
-    .o_bd_page_title {
-        margin: 0;
-        color: $bd-ink;
-        font-size: 2rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        line-height: 1.15;
-    }
     .o_bd_page_subtitle {
         margin-top: 0.3rem;
         color: $bd-muted;
@@ -214,10 +193,6 @@ $bd-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
     .o_bd_subtitle_label {
         color: $bd-muted;
     }
-    .o_bd_subtitle_sep {
-        color: $bd-faint;
-    }
-
     // ---- KPI tiles ----
     .o_bd_kpis {
         margin-bottom: 0.5rem;

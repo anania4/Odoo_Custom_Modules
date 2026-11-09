@@ -27,7 +27,7 @@
                     </group>
                     <notebook>
                         <page string="Project Estimated Cost" name="estimated_cost">
-                            <field name="estimate_line_ids" class="o_budget_estimate"
+                            <field name="estimate_line_ids" class="o_budget_estimate" widget="budget_estimate_groups"
                                    readonly="not boq_id"
                                    context="{'mefs_budget_item_no': True}">
                                 <list editable="bottom">
@@ -79,6 +79,13 @@
                             </group>
                         </page>
                         <page string="Project Schedule" name="schedule">
+                            <div class="o_budget_gantt_legend">
+                                <span><i class="o_lg_planned"/>Not started</span>
+                                <span><i class="o_lg_active"/>In progress (dark part = done)</span>
+                                <span><i class="o_lg_done"/>Completed</span>
+                                <span><i class="o_lg_late"/>Late</span>
+                                <span><i class="o_lg_today"/>Today</span>
+                            </div>
                             <field name="schedule_line_ids" widget="budget_schedule_gantt"
                                    readonly="not boq_id"
                                    context="{'mefs_budget_item_no': True, 'default_date_start': project_start_date}">

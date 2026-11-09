@@ -141,14 +141,17 @@ export class ScheduleGanttListRenderer extends ListRenderer {
             .startOf("day");
         const end = last.endOf("week").startOf("day");
 
+        const today = luxon.DateTime.local().toISODate();
         const days = [];
         for (let d = begin; d <= end && days.length < MAX_DAYS; d = d.plus({ days: 1 })) {
+            const key = d.toISODate();
             days.push({
-                key: d.toISODate(),
+                key,
                 letter: DAY_LETTERS[d.weekday - 1],
                 number: d.day,
                 weekend: d.weekday >= 6,
                 weekStart: d.weekday === 1,
+                today: key === today,
             });
         }
         const weeks = [];
@@ -159,7 +162,26 @@ export class ScheduleGanttListRenderer extends ListRenderer {
                 label: monday.setLocale("en").toFormat("LLL d, yyyy"),
             });
         }
-        return { days, weeks };
+        return { days, weeks, today };
+    }
+
+    /**
+     * Status of a task, used to colour its bar:
+     * done (100%), late (end passed, not done), active (started), planned.
+     */
+    getGanttStatus(record, start, end) {
+        const progress = record.data.progress || 0;
+        const today = this.gantt.today;
+        if (progress >= 100) {
+            return "done";
+        }
+        if (end < today) {
+            return "late";
+        }
+        if (start <= today || progress > 0) {
+            return "active";
+        }
+        return "planned";
     }
 
     getGanttCellClass(record, day) {
@@ -170,15 +192,25 @@ export class ScheduleGanttListRenderer extends ListRenderer {
         if (day.weekStart) {
             classes.push("o_gantt_week_start");
         }
+        if (day.today) {
+            classes.push("o_gantt_today");
+        }
         const start = record.data.date_start && record.data.date_start.toISODate();
         const end = record.data.date_end && record.data.date_end.toISODate();
         if (start && end && start <= day.key && day.key <= end) {
-            classes.push("o_gantt_bar");
+            classes.push("o_gantt_bar", `o_gantt_status_${this.getGanttStatus(record, start, end)}`);
             if (day.key === start) {
                 classes.push("o_gantt_bar_start");
             }
             if (day.key === end) {
                 classes.push("o_gantt_bar_end");
+            }
+            // Completed part of the bar (from the start, by Progress %)
+            const total = record.data.date_end.diff(record.data.date_start, "days").days + 1;
+            const index = luxon.DateTime.fromISO(day.key).diff(record.data.date_start.startOf("day"), "days").days;
+            const doneDays = Math.round((total * (record.data.progress || 0)) / 100);
+            if (index < doneDays) {
+                classes.push("o_gantt_bar_done");
             }
         }
         return classes.join(" ");

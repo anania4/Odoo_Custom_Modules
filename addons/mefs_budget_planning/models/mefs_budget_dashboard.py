@@ -18,29 +18,25 @@ class MefsBudgetDashboard(models.Model):
         'mefs.budget.project.info', compute='_compute_info_id')
     currency_id = fields.Many2one(related='info_id.currency_id')
 
-    location = fields.Char(related='info_id.location', readonly=False)
-    partner_id = fields.Many2one(related='info_id.partner_id', readonly=False)
-    consultant_id = fields.Many2one(related='info_id.consultant_id', readonly=False)
-    contractor_id = fields.Many2one(related='info_id.contractor_id', readonly=False)
-    contract_signing_date = fields.Date(related='info_id.contract_signing_date', readonly=False)
-    site_handover_date = fields.Date(related='info_id.site_handover_date', readonly=False)
-    project_start_date = fields.Date(related='info_id.project_start_date', readonly=False)
-    contract_period_days = fields.Integer(related='info_id.contract_period_days', readonly=False)
-    completion_date = fields.Date(related='info_id.completion_date')
-    description = fields.Text(related='info_id.description', readonly=False)
     budget_plan_id = fields.Many2one(related='info_id.budget_plan_id', readonly=False)
     income_line_ids = fields.One2many(related='info_id.income_line_ids', readonly=False)
     expense_line_ids = fields.One2many(related='info_id.expense_line_ids', readonly=False)
+    # Contract period, from the selected budget plan
+    project_start_date = fields.Date(related='budget_plan_id.project_start_date')
+    project_end_date = fields.Date(related='budget_plan_id.project_end_date')
+    contract_period_days = fields.Integer(
+        string='Contract Period', compute='_compute_contract_period_days',
+        help='Days from the project start date to the end of the project schedule.')
     # Headline figures (computed from the live lines, so they follow edits)
     income_total = fields.Monetary(string='Planned Income', compute='_compute_kpis')
     expense_total = fields.Monetary(string='Planned Expenses', compute='_compute_kpis')
     margin_total = fields.Monetary(string='Planned Margin', compute='_compute_kpis')
     margin_percent = fields.Float(string='Margin %', compute='_compute_kpis')
-    expense_chart = fields.Char(string='Planned Expenses Chart', compute='_compute_income_chart')
-    # Placeholder that hosts the income bar chart widget (reads income_line_ids)
-    income_chart = fields.Char(string='Planned Income Chart', compute='_compute_income_chart')
+    # Placeholders that host the chart widgets (they read the line fields)
+    income_chart = fields.Char(string='Planned Income Chart', compute='_compute_chart_placeholders')
     income_cumulative_chart = fields.Char(
-        string='Planned Cumulative Income Chart', compute='_compute_income_chart')
+        string='Planned Cumulative Income Chart', compute='_compute_chart_placeholders')
+    expense_chart = fields.Char(string='Planned Expenses Chart', compute='_compute_chart_placeholders')
 
     _sql_constraints = [
         ('user_uniq', 'unique(user_id)', 'Each user has a single budget dashboard.'),
@@ -50,10 +46,16 @@ class MefsBudgetDashboard(models.Model):
         for dashboard in self:
             dashboard.display_name = _('Budget Schedule')
 
-    def _compute_income_chart(self):
+    def _compute_chart_placeholders(self):
         self.income_chart = False
         self.income_cumulative_chart = False
         self.expense_chart = False
+
+    @api.depends('project_start_date', 'project_end_date')
+    def _compute_contract_period_days(self):
+        for dashboard in self:
+            start, end = dashboard.project_start_date, dashboard.project_end_date
+            dashboard.contract_period_days = (end - start).days if start and end and end > start else 0
 
     @api.depends('income_line_ids.amount', 'expense_line_ids.amount')
     def _compute_kpis(self):
