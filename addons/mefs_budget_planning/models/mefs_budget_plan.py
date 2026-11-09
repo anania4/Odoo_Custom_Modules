@@ -155,6 +155,22 @@ class MefsBudgetPlan(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('mefs.budget.plan') or _('New')
         return super().create(vals_list)
 
+    def _dashboard_infos(self):
+        return self.env['mefs.budget.project.info'].sudo().search(
+            [('budget_plan_id', 'in', self.ids)])
+
+    def write(self, vals):
+        res = super().write(vals)
+        # Keep the dashboards' Planned Expense Summary in line with the estimate
+        self._dashboard_infos()._sync_expense_lines()
+        return res
+
+    def unlink(self):
+        infos = self._dashboard_infos()
+        res = super().unlink()
+        infos._sync_expense_lines()  # plan is gone: drop its fetched rows
+        return res
+
     @api.constrains('boq_id', 'project_id')
     def _check_boq(self):
         for plan in self:

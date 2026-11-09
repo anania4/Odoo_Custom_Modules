@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mefs_budget_dashboard_form" model="ir.ui.view">
+        <field name="name">mefs.budget.dashboard.form</field>
+        <field name="model">mefs.budget.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Budget Schedule" create="false" delete="false" duplicate="false"
+                  class="o_budget_schedule">
+                <sheet>
+                    <field name="info_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+
+                    <!-- Page title: the project is the title, the budget plan the subtitle -->
+                    <div class="o_bd_page_head">
+                        <div class="o_bd_page_heading">
+                            <h2 class="o_bd_page_eyebrow">Budget Schedule</h2>
+                            <field name="project_id" class="o_bd_title_field" nolabel="1"
+                                   placeholder="Select a project..."
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <div class="o_bd_page_subtitle" invisible="not project_id">
+                                <span class="o_bd_subtitle_label">Budget plan</span>
+                                <field name="budget_plan_id" class="o_bd_subtitle_field" nolabel="1"
+                                       placeholder="Select a budget plan..."
+                                       domain="[('project_id', '=', project_id)]"
+                                       options="{'no_create': True, 'no_open': True}"/>
+                            </div>
+                        </div>
+                        <div class="o_bd_page_actions">
+                            <button name="action_refresh_dashboard" type="object" string="Refresh"
+                                    class="btn btn-secondary" icon="fa-refresh"
+                                    help="Reload the figures from the budget plan"/>
+                            <button name="action_save_dashboard" type="object" string="Save"
+                                    class="btn btn-primary" icon="fa-check"/>
+                        </div>
+                    </div>
+
+                    <div invisible="not project_id">
+                        <!-- Headline figures -->
+                        <div class="row g-3 o_bd_kpis">
+                            <div class="col-sm-6 col-xl-3">
+                                <div class="o_bd_card o_bd_kpi">
+                                    <div class="o_bd_kpi_top">
+                                        <div class="o_bd_kpi_label">Planned Income</div>
+                                        <span class="o_bd_kpi_icon o_bd_icon_blue"><i class="fa fa-money" title="Planned Income"/></span>
+                                    </div>
+                                    <field name="income_total" class="o_bd_kpi_value"/>
+                                    <div class="o_bd_kpi_sub">Contract value before VAT</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xl-3">
+                                <div class="o_bd_card o_bd_kpi">
+                                    <div class="o_bd_kpi_top">
+                                        <div class="o_bd_kpi_label">Planned Expenses</div>
+                                        <span class="o_bd_kpi_icon o_bd_icon_amber"><i class="fa fa-credit-card" title="Planned Expenses"/></span>
+                                    </div>
+                                    <field name="expense_total" class="o_bd_kpi_value"/>
+                                    <div class="o_bd_kpi_sub">Total planned cost</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xl-3">
+                                <div class="o_bd_card o_bd_kpi">
+                                    <div class="o_bd_kpi_top">
+                                        <div class="o_bd_kpi_label">Planned Margin</div>
+                                        <span class="o_bd_kpi_icon o_bd_icon_green"><i class="fa fa-line-chart" title="Planned Margin"/></span>
+                                    </div>
+                                    <field name="margin_total" class="o_bd_kpi_value"/>
+                                    <div class="o_bd_kpi_sub">
+                                        <span class="o_bd_pill o_bd_pill_good" invisible="margin_total &lt; 0">
+                                            <i class="fa fa-arrow-up" title="Positive margin"/>
+                                            <field name="margin_percent" widget="percentage" class="oe_inline"/>
+                                        </span>
+                                        <span class="o_bd_pill o_bd_pill_bad" invisible="margin_total &gt;= 0">
+                                            <i class="fa fa-arrow-down" title="Negative margin"/>
+                                            <field name="margin_percent" widget="percentage" class="oe_inline"/>
+                                        </span>
+                                        of planned income
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xl-3">
+                                <div class="o_bd_card o_bd_kpi">
+                                    <div class="o_bd_kpi_top">
+                                        <div class="o_bd_kpi_label">Contract Period</div>
+                                        <span class="o_bd_kpi_icon o_bd_icon_violet"><i class="fa fa-calendar" title="Contract Period"/></span>
+                                    </div>
+                                    <div class="o_bd_kpi_value">
+                                        <field name="contract_period_days" readonly="1" class="oe_inline"/> days
+                                    </div>
+                                    <div class="o_bd_kpi_sub">
+                                        Completion <field name="completion_date" readonly="1" class="oe_inline"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===================== PLANNED INCOME SUMMARY ===================== -->
+                        <div class="o_bd_section">Planned Income Summary</div>
+                        <div class="row g-3">
+                            <div class="col-xl-6">
+                                <div class="o_bd_card h-100">
+                                    <div class="o_bd_card_head">
+                                        <div class="o_bd_card_title">Planned Income Summary</div>
+                                        <div class="o_bd_card_sub">Income per work type and its planned date</div>
+                                    </div>
+                                    <field name="income_line_ids" nolabel="1" class="o_bd_table">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="currency_id" column_invisible="1"/>
+                                            <field name="work_type_id" options="{'no_create': True}"/>
+                                            <field name="amount" sum="Total"/>
+                                            <field name="cumulative_income"/>
+                                            <field name="date"/>
+                                        </list>
+                                    </field>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="o_bd_card h-100">
+                                    <div class="o_bd_card_head">
+                                        <div class="o_bd_card_title">Planned Income</div>
+                                        <div class="o_bd_card_sub">Per work item, in millions</div>
+                                    </div>
+                                    <div class="o_bd_card_body">
+                                        <field name="income_chart" widget="mefs_income_bar_chart" nolabel="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="o_bd_card">
+                                    <div class="o_bd_card_head">
+                                        <div class="o_bd_card_title">Planned Cumulative Income</div>
+                                        <div class="o_bd_card_sub">Throughout the project timeline, in millions</div>
+                                    </div>
+                                    <div class="o_bd_card_body">
+                                        <field name="income_cumulative_chart" widget="mefs_income_cumulative_chart" nolabel="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===================== PLANNED EXPENSE SUMMARY ===================== -->
+                        <div class="o_bd_section">Planned Expense Summary</div>
+                        <div class="row g-3">
+                            <div class="col-xl-6">
+                                <div class="o_bd_card h-100">
+                                    <div class="o_bd_card_head">
+                                        <div class="o_bd_card_title">Total Planned Expenses Summary</div>
+                                        <div class="o_bd_card_sub">Fetched from the budget plan per cost class; add a line for other costs</div>
+                                    </div>
+                                    <field name="expense_line_ids" nolabel="1" class="o_bd_table">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="currency_id" column_invisible="1"/>
+                                            <field name="is_auto" column_invisible="1" force_save="1"/>
+                                            <field name="cost_type_id" options="{'no_create': True}"
+                                                   readonly="is_auto" force_save="1"/>
+                                            <field name="amount" readonly="is_auto" force_save="1"/>
+                                            <field name="cost_percent" widget="percentage"/>
+                                        </list>
+                                    </field>
+                                    <div class="o_bd_total_row">
+                                        <span>Total Cost</span>
+                                        <field name="expense_total"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="o_bd_card h-100">
+                                    <div class="o_bd_card_head">
+                                        <div class="o_bd_card_title">Planned Expenses %</div>
+                                        <div class="o_bd_card_sub">Share of each cost type in the total cost</div>
+                                    </div>
+                                    <div class="o_bd_card_body">
+                                        <field name="expense_chart" widget="mefs_expense_pie_chart" nolabel="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Further sections go below -->
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mefs_budget_dashboard_open" model="ir.actions.server">
+        <field name="name">Budget Schedule</field>
+        <field name="model_id" ref="model_mefs_budget_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_dashboard()</field>
+    </record>
+
+    <!-- Each user only sees their own dashboard record -->
+    <record id="rule_mefs_budget_dashboard_own" model="ir.rule">
+        <field name="name">Budget Dashboard: own record</field>
+        <field name="model_id" ref="model_mefs_budget_dashboard"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+    </record>
+</odoo>

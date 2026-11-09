@@ -4,3 +4,9 @@ access_mefs_budget_estimate_line_user,mefs.budget.estimate.line.user,model_mefs_
 access_mefs_boq_budget_user,mefs.boq.budget.user,mefs_bill_of_quantity.model_mefs_boq,group_mefs_budget_user,1,0,0,0
 access_mefs_boq_line_budget_user,mefs.boq.line.budget.user,mefs_bill_of_quantity.model_mefs_boq_line,group_mefs_budget_user,1,0,0,0
 access_mefs_budget_schedule_line_user,mefs.budget.schedule.line.user,model_mefs_budget_schedule_line,group_mefs_budget_user,1,1,1,1
+access_mefs_budget_project_info_user,mefs.budget.project.info.user,model_mefs_budget_project_info,group_mefs_budget_user,1,1,1,1
+access_mefs_budget_dashboard_user,mefs.budget.dashboard.user,model_mefs_budget_dashboard,group_mefs_budget_user,1,1,1,0
+access_mefs_budget_income_line_user,mefs.budget.income.line.user,model_mefs_budget_income_line,group_mefs_budget_user,1,1,1,1
+access_mefs_boq_work_type_budget_user,mefs.boq.work.type.budget.user,mefs_bill_of_quantity.model_mefs_boq_work_type,group_mefs_budget_user,1,0,0,0
+access_mefs_budget_expense_line_user,mefs.budget.expense.line.user,model_mefs_budget_expense_line,group_mefs_budget_user,1,1,1,1
+access_product_category_budget_user,product.category.budget.user,product.model_product_category,group_mefs_budget_user,1,0,0,0

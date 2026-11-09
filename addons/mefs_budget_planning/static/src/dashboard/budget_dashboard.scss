@@ -1,0 +1,524 @@
+// Budget Dashboard: calm, professional look. Neutral surface, white cards,
+// one blue accent, clear type hierarchy, tabular figures.
+
+$bd-bg: #f4f6f9;
+$bd-card: #ffffff;
+$bd-ink: #111827;
+$bd-ink-2: #374151;
+$bd-muted: #6b7280;
+$bd-faint: #9ca3af;
+$bd-border: #e5e7eb;
+$bd-line: #f0f2f5;
+$bd-accent: #2e6da4;
+$bd-radius: 10px;
+$bd-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+
+.o_budget_schedule {
+    font-variant-numeric: tabular-nums;
+
+    // No breadcrumb / pager bar: the page has its own header and Save button
+    .o_control_panel {
+        display: none !important;
+    }
+    .o_bd_page_actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+        align-self: center;
+    }
+
+    // ---- Page ----
+    .o_form_sheet_bg {
+        background: linear-gradient(180deg, #eef1f8 0, $bd-bg 320px);
+    }
+    .o_form_sheet {
+        max-width: 1440px;
+        padding: 1.75rem 2rem 3rem !important;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .o_bd_page_head {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid $bd-border;
+    }
+    .o_bd_page_icon {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 3.25rem;
+        height: 3.25rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #3a7fbf, $bd-accent);
+        box-shadow: 0 4px 12px rgba(46, 109, 164, 0.25);
+        color: #fff;
+        font-size: 1.4rem;
+    }
+    .o_bd_page_title {
+        margin: 0;
+        color: $bd-ink;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+    }
+    .o_bd_page_subtitle {
+        margin-top: 0.3rem;
+        color: $bd-muted;
+        font-size: 0.95rem;
+    }
+
+    // ---- Cards ----
+    .o_bd_card {
+        background: $bd-card;
+        border: 1px solid $bd-border;
+        border-radius: $bd-radius;
+        box-shadow: $bd-shadow;
+        overflow: hidden;
+    }
+    .o_bd_card_head {
+        padding: 1rem 1.25rem 0.75rem;
+        border-bottom: 1px solid $bd-line;
+    }
+    .o_bd_card_title {
+        color: $bd-ink;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    .o_bd_card_sub {
+        margin-top: 0.15rem;
+        color: $bd-muted;
+        font-size: 0.8rem;
+    }
+    .o_bd_card_body {
+        padding: 1rem 1.25rem 1.25rem;
+    }
+
+    // ---- Title pickers: project (title) and budget plan (subtitle) ----
+    .o_bd_page_heading {
+        flex: 1;
+        min-width: 0;
+    }
+    .o_bd_page_eyebrow {
+        margin: 0 0 0.35rem;
+        color: $bd-ink;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+    }
+
+    // Many2one rendered as plain title text; a soft box + caret on hover/focus
+    @mixin bd-title-input($size, $weight, $color) {
+        display: inline-block;
+        width: auto;
+        max-width: 100%;
+
+        .o_input_dropdown,
+        .o-autocomplete {
+            width: 100%;
+        }
+        input {
+            width: 100%;
+            min-width: 14ch;
+            padding: 0.1rem 2rem 0.1rem 0.4rem;
+            margin-left: -0.4rem;
+            border: 1px solid transparent !important;
+            border-radius: 8px;
+            background: transparent;
+            box-shadow: none !important;
+            color: $color;
+            font-size: $size;
+            font-weight: $weight;
+            letter-spacing: -0.01em;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+
+            &::placeholder {
+                color: $bd-faint;
+                font-weight: 500;
+            }
+        }
+        .o_dropdown_button {
+            right: 0.6rem;
+            opacity: 0.35;
+            transition: opacity 0.15s ease;
+        }
+        &:hover input {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: $bd-border !important;
+        }
+        &:hover .o_dropdown_button,
+        &:focus-within .o_dropdown_button {
+            opacity: 1;
+        }
+        &:focus-within input {
+            background: #fff;
+            border-color: $bd-accent !important;
+            box-shadow: 0 0 0 3px rgba(46, 109, 164, 0.15) !important;
+            cursor: text;
+        }
+    }
+    .o_bd_title_field {
+        @include bd-title-input(1.25rem, 600, $bd-ink-2);
+        margin-top: 0.1rem;
+        width: 44rem;
+        max-width: 100%;
+    }
+    .o_bd_subtitle_field {
+        @include bd-title-input(0.95rem, 600, $bd-ink-2);
+        width: 16rem;
+
+        input {
+            min-width: 10ch;
+        }
+    }
+    .o_bd_page_subtitle {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 0.6rem;
+    }
+    .o_bd_subtitle_label {
+        color: $bd-muted;
+    }
+    .o_bd_subtitle_sep {
+        color: $bd-faint;
+    }
+
+    // ---- KPI tiles ----
+    .o_bd_kpis {
+        margin-bottom: 0.5rem;
+    }
+    .o_bd_kpi {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 1.1rem 1.25rem 1rem;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+        &:hover {
+            box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
+            transform: translateY(-1px);
+        }
+    }
+    .o_bd_kpi_top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+    .o_bd_kpi_label {
+        padding-top: 0.15rem;
+        color: $bd-muted;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    .o_bd_kpi_icon {
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    .o_bd_icon_blue   { background: #eaf1f8; color: #2e6da4; }
+    .o_bd_icon_amber  { background: #fdf3e3; color: #b26a00; }
+    .o_bd_icon_green  { background: #e8f5ed; color: #1f7a45; }
+    .o_bd_icon_violet { background: #efedfa; color: #5b4bb7; }
+
+    .o_bd_kpi_value {
+        display: block;
+        margin-top: 0.4rem;
+        color: $bd-ink;
+        font-size: 1.6rem;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+        white-space: nowrap;
+
+        span,
+        .o_field_widget {
+            color: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+        }
+    }
+    .o_bd_kpi_sub {
+        margin-top: auto;
+        padding-top: 0.75rem;
+        border-top: 1px solid $bd-line;
+        color: $bd-muted;
+        font-size: 0.8rem;
+
+        .o_field_widget {
+            color: $bd-ink-2;
+            font-weight: 600;
+        }
+    }
+    .o_bd_kpi_value + .o_bd_kpi_sub {
+        margin-top: 0.85rem;
+    }
+    .o_bd_pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        margin-right: 0.25rem;
+        padding: 0.05rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+
+        .o_field_widget {
+            color: inherit !important;
+        }
+    }
+    .o_bd_pill_good { background: #e8f5ed; color: #1f7a45; }
+    .o_bd_pill_bad  { background: #fdecec; color: #b42318; }
+
+    // ---- Section headings ----
+    .o_bd_section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 2rem 0 0.9rem;
+        color: $bd-ink-2;
+        font-size: 0.78rem;
+        font-weight: 650;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        &::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: $bd-border;
+        }
+    }
+
+    // ---- Tables ----
+    .o_bd_table {
+        margin: 0;
+
+        .o_list_renderer {
+            background: transparent;
+        }
+        .o_list_table {
+            margin: 0;
+
+            thead th {
+                background: #fafbfc !important;
+                border-bottom: 1px solid $bd-border;
+                color: $bd-muted;
+                font-size: 0.72rem;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+            tbody td {
+                border-color: $bd-line;
+                color: $bd-ink;
+            }
+            tbody tr:hover td {
+                background: #f8fafc;
+            }
+            tfoot td {
+                background: #fafbfc;
+                border-top: 1px solid $bd-border;
+                color: $bd-ink;
+                font-weight: 600;
+            }
+        }
+    }
+
+    // ---- Planned Income (bar chart) summary strip ----
+    .o_mefs_chart_stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .o_mefs_chart_stat {
+        display: flex;
+        flex-direction: column;
+        padding: 0.45rem 0.8rem;
+        border: 1px solid $bd-line;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+    .o_mefs_chart_stat_wide {
+        flex: 1 1 12rem;
+        min-width: 0;
+    }
+    .o_mefs_chart_stat_label {
+        color: $bd-muted;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .o_mefs_chart_stat_value {
+        overflow: hidden;
+        color: $bd-ink;
+        font-size: 0.95rem;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        small {
+            margin-left: 0.4rem;
+            color: $bd-accent;
+            font-size: 0.8rem;
+            font-weight: 650;
+        }
+    }
+
+    // ---- Planned Expenses % (doughnut + legend) ----
+    .o_mefs_expense_chart_body {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.5rem 2rem;
+    }
+    .o_mefs_donut {
+        position: relative;
+        flex: 0 0 300px;
+        height: 300px;
+        margin: 0 auto;
+    }
+    .o_mefs_donut_center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 3.5rem;
+        pointer-events: none;
+        text-align: center;
+    }
+    .o_mefs_donut_caption {
+        max-width: 100%;
+        overflow: hidden;
+        color: $bd-muted;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .o_mefs_donut_value {
+        margin: 0.15rem 0;
+        color: $bd-ink;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+
+        small {
+            margin-left: 0.1rem;
+            color: $bd-muted;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+    }
+    .o_mefs_donut_unit {
+        color: $bd-faint;
+        font-size: 0.78rem;
+    }
+
+    .o_mefs_legend {
+        flex: 1 1 260px;
+        min-width: 0;
+        max-height: 340px;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        list-style: none;
+    }
+    .o_mefs_legend_row {
+        display: flex;
+        gap: 0.7rem;
+        padding: 0.5rem 0.6rem;
+        border-radius: 8px;
+        cursor: default;
+        transition: background-color 0.15s ease, opacity 0.15s ease;
+
+        & + & {
+            margin-top: 0.15rem;
+        }
+        &.is-active {
+            background: #f3f6fa;
+        }
+        &.is-dim {
+            opacity: 0.45;
+        }
+    }
+    .o_mefs_legend_dot {
+        flex: none;
+        width: 0.7rem;
+        height: 0.7rem;
+        margin-top: 0.3rem;
+        border-radius: 3px;
+    }
+    .o_mefs_legend_main {
+        flex: 1;
+        min-width: 0;
+    }
+    .o_mefs_legend_top {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+    .o_mefs_legend_name {
+        overflow: hidden;
+        color: $bd-ink;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .o_mefs_legend_pct {
+        flex: none;
+        color: $bd-ink;
+        font-size: 0.85rem;
+        font-weight: 650;
+    }
+    .o_mefs_legend_bar {
+        height: 4px;
+        margin: 0.35rem 0 0.25rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: $bd-line;
+
+        span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+        }
+    }
+    .o_mefs_legend_amount {
+        color: $bd-muted;
+        font-size: 0.75rem;
+    }
+
+    .o_bd_total_row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
+        background: #fafbfc;
+        border-top: 1px solid $bd-border;
+        color: $bd-ink;
+        font-weight: 650;
+    }
+}

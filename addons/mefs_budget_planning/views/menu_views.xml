@@ -6,6 +6,13 @@
               sequence="51"
               groups="group_mefs_budget_user"/>
 
+    <menuitem id="menu_mefs_budget_dashboard"
+              name="Dashboard"
+              parent="menu_mefs_budget_root"
+              sequence="5"
+              action="action_mefs_budget_dashboard_open"
+              groups="group_mefs_budget_user"/>
+
     <menuitem id="menu_mefs_budget_plan"
               name="Budget Plans"
               parent="menu_mefs_budget_root"

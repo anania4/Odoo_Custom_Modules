@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mefs_budget_planning.IncomeBarChart">
+        <div class="o_mefs_income_chart w-100">
+            <div t-if="!rows.length" class="text-muted text-center py-5">
+                Add planned income lines to see the chart.
+            </div>
+            <div t-else="" class="position-relative" t-attf-style="height: {{ chartHeight }}px;"
+                 t-on-mouseleave="() => this.setActive(-1)">
+                <canvas t-ref="canvas"/>
+            </div>
+        </div>
+    </t>
+</templates>

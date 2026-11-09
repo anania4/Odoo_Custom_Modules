@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mefs_budget_planning.IncomeCumulativeChart">
+        <div class="o_mefs_income_cumulative_chart w-100">
+            <div t-if="!series.points.length" class="text-muted text-center py-5">
+                Add planned income lines with a date to see the timeline.
+            </div>
+            <t t-else="">
+                <!-- Summary strip -->
+                <div class="o_mefs_chart_stats">
+                    <div class="o_mefs_chart_stat">
+                        <span class="o_mefs_chart_stat_label">Total</span>
+                        <span class="o_mefs_chart_stat_value" t-esc="formatMillions(total)"/>
+                    </div>
+                    <div class="o_mefs_chart_stat">
+                        <span class="o_mefs_chart_stat_label">Payments</span>
+                        <span class="o_mefs_chart_stat_value" t-esc="series.payments"/>
+                    </div>
+                    <div class="o_mefs_chart_stat">
+                        <span class="o_mefs_chart_stat_label">Period</span>
+                        <span class="o_mefs_chart_stat_value" t-esc="periodLabel"/>
+                    </div>
+                    <div class="o_mefs_chart_stat">
+                        <span class="o_mefs_chart_stat_label">50% reached</span>
+                        <span class="o_mefs_chart_stat_value" t-esc="halfwayLabel"/>
+                    </div>
+                </div>
+                <div class="position-relative" style="height: 400px;">
+                    <canvas t-ref="canvas"/>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mefs_budget_planning.ExpensePieChart">
+        <div class="o_mefs_expense_chart w-100">
+            <div t-if="!slices.length" class="text-muted text-center py-5">
+                Add planned expense lines to see the chart.
+            </div>
+            <div t-else="" class="o_mefs_expense_chart_body">
+                <!-- Doughnut with the total in the centre -->
+                <div class="o_mefs_donut">
+                    <canvas t-ref="canvas"/>
+                    <div class="o_mefs_donut_center">
+                        <t t-if="state.active &gt;= 0 and slices[state.active]">
+                            <div class="o_mefs_donut_caption" t-esc="slices[state.active].label"/>
+                            <div class="o_mefs_donut_value" t-esc="formatShare(slices[state.active].share)"/>
+                            <div class="o_mefs_donut_unit">of total cost</div>
+                        </t>
+                        <t t-else="">
+                            <div class="o_mefs_donut_caption">Total Cost</div>
+                            <div class="o_mefs_donut_value"><t t-esc="totalMillions"/><small>M</small></div>
+                            <div class="o_mefs_donut_unit"><t t-esc="slices.length"/> cost types</div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Legend: colour, cost type, amount, share bar, % -->
+                <ul class="o_mefs_legend">
+                    <t t-foreach="slices" t-as="slice" t-key="slice_index">
+                        <li t-att-class="{'o_mefs_legend_row': true, 'is-active': state.active === slice_index, 'is-dim': state.active &gt;= 0 and state.active !== slice_index}"
+                            t-on-mouseenter="() => this.highlight(slice_index)"
+                            t-on-mouseleave="() => this.highlight(-1)">
+                            <span class="o_mefs_legend_dot" t-attf-style="background: {{ slice.color }};"/>
+                            <div class="o_mefs_legend_main">
+                                <div class="o_mefs_legend_top">
+                                    <span class="o_mefs_legend_name" t-esc="slice.label" t-att-title="slice.label"/>
+                                    <span class="o_mefs_legend_pct" t-esc="formatShare(slice.share)"/>
+                                </div>
+                                <div class="o_mefs_legend_bar">
+                                    <span t-attf-style="width: {{ (slice.share * 100).toFixed(2) }}%; background: {{ slice.color }};"/>
+                                </div>
+                                <div class="o_mefs_legend_amount" t-esc="formatAmount(slice.amount)"/>
+                            </div>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </div>
+    </t>
+</templates>
