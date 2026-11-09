@@ -29,8 +29,6 @@ access_fleet_contract_type_viewer,fleet.contract.type.viewer,model_fleet_contrac
 access_fleet_contract_type_manager,fleet.contract.type.manager,model_fleet_contract_type,group_fleet_manager,1,1,1,1
 access_fleet_service_viewer,fleet.service.viewer,model_fleet_service,group_fleet_viewer,1,0,0,0
 access_fleet_service_manager,fleet.service.manager,model_fleet_service,group_fleet_manager,1,1,1,1
-access_fleet_vehicle_report_viewer,fleet.vehicle.report.viewer,model_fleet_vehicle_report,group_fleet_viewer,1,0,0,0
-access_fleet_vehicle_report_manager,fleet.vehicle.report.manager,model_fleet_vehicle_report,group_fleet_manager,1,0,0,0
 access_fleet_dashboard_viewer,fleet.dashboard.viewer,model_fleet_dashboard,group_fleet_viewer,1,1,1,0
 access_fleet_vehicle_user,fleet.vehicle.user,model_fleet_vehicle,group_fleet_user,1,0,0,0
 access_fleet_vehicle_category_user,fleet.vehicle.category.user,model_fleet_vehicle_category,group_fleet_user,1,0,0,0
