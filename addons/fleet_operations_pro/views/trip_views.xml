@@ -73,7 +73,7 @@
                         <label for="departure_location" string="Trip Route"/>
                         <h1>
                             <field name="departure_location" placeholder="Starting location..." class="oe_inline"/> 
-                            <span class="fa fa-arrow-right oe_inline" style="margin: 0 10px;"/> 
+                            <span class="fa fa-arrow-right oe_inline" style="margin: 0 10px;" title="to"/>
                             <field name="destination" placeholder="Destination..." class="oe_inline"/>
                         </h1>
                     </div>

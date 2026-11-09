@@ -367,8 +367,8 @@ class FleetDashboard(models.Model):
                     'upcoming_services': upcoming_service_details,
                 },
             }
-        except Exception as e:
-            _logger.error(f"Error in get_dashboard_data: {str(e)}", exc_info=True)
+        except Exception:
+            _logger.exception("Error in get_dashboard_data")
             return {
                 'kpis': {
                     'total_vehicles': 0,

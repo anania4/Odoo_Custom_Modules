@@ -5,7 +5,7 @@ import base64
 import io
 from collections import Counter
 
-from odoo import api, fields, models, _
+from odoo import fields, models, _
 from odoo.exceptions import UserError
 
 try:

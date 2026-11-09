@@ -127,16 +127,16 @@
                             
                             <div class="o_kanban_record_body">
                                 <div>
-                                    <i class="fa fa-tint"/> <field name="quantity"/> L
+                                    <i class="fa fa-tint" title="Quantity"/> <field name="quantity"/> L
                                 </div>
                                 <div>
-                                    <i class="fa fa-money"/> <field name="total_cost" widget="monetary"/>
+                                    <i class="fa fa-money" title="Total cost"/> <field name="total_cost" widget="monetary"/>
                                 </div>
                                 <div>
-                                    <i class="fa fa-tachometer"/> <field name="odometer"/> km
+                                    <i class="fa fa-tachometer" title="Odometer"/> <field name="odometer"/> km
                                 </div>
                                 <div t-if="record.fuel_efficiency.raw_value &gt; 0">
-                                    <i class="fa fa-line-chart"/> 
+                                    <i class="fa fa-line-chart" title="Fuel efficiency"/>
                                     <field name="fuel_efficiency"/> km/L
                                 </div>
                             </div>

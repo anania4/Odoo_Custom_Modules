@@ -12,7 +12,7 @@
                         groups="fleet_operations_pro.group_fleet_user"
                         type="action"
                         class="oe_stat_button"
-                        icon="fa-clipboard-list">
+                        icon="fa-clipboard">
                     <field name="accepted_request_count" widget="statinfo" string="Accepted Requests"/>
                 </button>
             </xpath>

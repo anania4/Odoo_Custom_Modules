@@ -153,7 +153,7 @@ class FleetTrip(models.Model):
     )
     
     attachment_count = fields.Integer(
-        string='Attachments',
+        string='Number of Attachments',
         compute='_compute_attachment_count',
         store=False,
         help='Number of attachments'

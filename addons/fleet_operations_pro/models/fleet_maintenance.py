@@ -100,24 +100,6 @@ class FleetMaintenance(models.Model):
         help='Date when maintenance was completed'
     )
     
-    # Warranty
-    under_warranty = fields.Boolean(
-        string='Under Warranty',
-        default=False,
-        help='Whether this maintenance was covered under warranty'
-    )
-    
-    warranty_details = fields.Text(
-        string='Warranty Details',
-        help='Details about warranty coverage'
-    )
-    
-    # Parts Used (simple text for Phase 1, will be enhanced with inventory in Phase 4)
-    parts_used = fields.Text(
-        string='Parts Used',
-        help='List of parts used during maintenance'
-    )
-    
     # Company
     company_id = fields.Many2one(
         'res.company',

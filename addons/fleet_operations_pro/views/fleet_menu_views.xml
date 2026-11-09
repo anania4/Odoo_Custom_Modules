@@ -126,5 +126,12 @@
               action="action_fleet_toll_record"
               sequence="90"
               groups="group_fleet_viewer"/>
-    
+
+    <!-- Reporting Menu (holds the Fleet Report, see wizard/fleet_monthly_report_views.xml) -->
+    <menuitem id="menu_fleet_reporting"
+              name="Reporting"
+              parent="menu_fleet_root"
+              sequence="90"
+              groups="group_fleet_viewer"/>
+
 </odoo>

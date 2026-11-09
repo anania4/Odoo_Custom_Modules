@@ -6,12 +6,6 @@ from odoo import _, api, fields, models
 class FleetVehicle(models.Model):
     _inherit = 'fleet.vehicle'
 
-    request_ids = fields.One2many(
-        'fleet.request',
-        'vehicle_id',
-        string='Accepted Fleet Requests',
-        help='Fleet requests this vehicle accepted (driver assigned)'
-    )
     accepted_request_count = fields.Integer(
         string='Accepted Requests',
         compute='_compute_accepted_request_count',

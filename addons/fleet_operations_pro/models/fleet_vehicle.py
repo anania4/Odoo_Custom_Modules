@@ -281,7 +281,7 @@ class FleetVehicle(models.Model):
         help='Additional information about the vehicle'
     )
     
-    # Driver Assignment (Phase 1B)
+    # Driver Assignment
     driver_assignment_ids = fields.One2many(
         'fleet.driver.assignment',
         'vehicle_id',
@@ -299,7 +299,7 @@ class FleetVehicle(models.Model):
         help='Currently assigned driver (employee)'
     )
     
-    # Fuel Logs (Phase 1C)
+    # Fuel Logs
     fuel_log_ids = fields.One2many(
         'fleet.fuel.log',
         'vehicle_id',
@@ -319,7 +319,7 @@ class FleetVehicle(models.Model):
         help='Average fuel efficiency across all fuel logs'
     )
     
-    # Maintenance (Phase 1D)
+    # Maintenance
     maintenance_ids = fields.One2many(
         'fleet.maintenance',
         'vehicle_id',
@@ -337,7 +337,7 @@ class FleetVehicle(models.Model):
         store=False,
         help='Date of last maintenance'
     )
-    # Toll Management (Phase 2C)
+    # Toll Management
     toll_record_ids = fields.One2many(
         'fleet.toll.record',
         'vehicle_id',
@@ -361,7 +361,7 @@ class FleetVehicle(models.Model):
         compute='_compute_contract_service_count',
         help='Number of services of this vehicle'
     )
-    # Trip Management (Phase 2D)
+    # Trip Management
     trip_ids = fields.One2many(
         'fleet.trip',
         'vehicle_id',
@@ -569,7 +569,7 @@ class FleetVehicle(models.Model):
             ], limit=1, order='date desc')
             vehicle.last_maintenance_date = last_maintenance.date if last_maintenance else False
     
-    # Toll Compute Methods (Phase 2C)
+    # Toll Compute Methods
     @api.depends('toll_record_ids')
     def _compute_toll_count(self):
         """Count toll records"""
@@ -613,7 +613,7 @@ class FleetVehicle(models.Model):
             'context': {'default_vehicle_id': self.id},
         }
 
-    # Trip Compute Methods (Phase 2D)
+    # Trip Compute Methods
     @api.depends('trip_ids')
     def _compute_trip_count(self):
         """Count trips"""
