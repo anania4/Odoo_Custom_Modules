@@ -1,10 +1,9 @@
 /* ========================================================
-   EQUIPMENT TIMESHEET STYLESHEET (DESKTOP & MOBILE RESPONSIVE)
-   Website-style vertical form layout matching Daily Report.
-
-   Only layout is customised here: colours, borders, focus
-   states and controls are left to Odoo/Bootstrap so the
-   backend keeps its native look.
+   EQUIPMENT TIMESHEET – LAYOUT ONLY
+   Colours, fonts, inputs and buttons are left to Odoo so the
+   form keeps the native backend look. On mobile Odoo itself
+   shows the equipment lines as cards (kanban subview). The only
+   rule here stacks the line popup: label above input.
    ======================================================== */
 
 /* Active tab pane safety */
@@ -12,362 +11,18 @@
     opacity: 1 !important;
 }
 
-/* ========================================================
-   1. DESKTOP VIEW (min-width: 768px)
-   ======================================================== */
-@media (min-width: 768px) {
-    .o_equipment_timesheet_form {
-        .o_equipment_timesheet_mobile_bottom_bar {
-            display: none !important;
-        }
-    }
-}
-
-/* ========================================================
-   2. MOBILE VIEW (max-width: 767.98px)
-   - Vertical website-style layout (Label on top, input box below)
-   - Unrolled notebook sections (single continuous page)
-   - Equipment lines formatted as stacked cards
-   - Big touch-friendly "+ Add Equipment Line"
-   - Prominent Save and Submit buttons at the bottom of the form
-   ======================================================== */
-@media (max-width: 767.98px) {
-    .o_equipment_timesheet_form {
-        /* Form sheet spacing */
-        .o_form_sheet {
-            padding: 1.25rem 0.85rem !important;
-            max-width: 100% !important;
-            overflow-x: hidden !important;
-        }
-
-        /* Top Title & Reference */
-        .oe_title {
-            margin-bottom: 1.25rem !important;
-
-            h1 {
-                font-size: 1.5rem !important;
-                font-weight: 700 !important;
-            }
-        }
-
-        /* Section Separator on Mobile (native Odoo separator styling) */
-        .o_horizontal_separator {
-            font-size: 1.05rem !important;
-            font-weight: 700 !important;
-            letter-spacing: 0.02em !important;
-            padding-bottom: 0.4rem !important;
-            margin-top: 1.5rem !important;
-            margin-bottom: 1rem !important;
-            display: block !important;
-            width: 100% !important;
-        }
-
-        /* All groups & inputs stacked vertically (website style) */
-        .o_group {
-            display: flex !important;
-            flex-direction: column !important;
-            width: 100% !important;
-            margin: 0 !important;
-
-            .o_inner_group, .o_inner_group.grid, .o_group_col_6, .o_group_col_12 {
-                display: flex !important;
-                flex-direction: column !important;
-                grid-template-columns: 1fr !important;
-                width: 100% !important;
-                padding: 0 !important;
-            }
-
-            .o_wrap_field, .o_wrap_field_boolean, .o_cell {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: stretch !important;
-                width: 100% !important;
-                margin-bottom: 1rem !important;
-                padding: 0 !important;
-
-                &.o_wrap_label, .o_form_label {
-                    display: block !important;
-                    margin-bottom: 0.35rem !important;
-                    font-weight: 600 !important;
-                    font-size: 0.925rem !important;
-                    width: 100% !important;
-                    text-align: left !important;
-                }
-
-                &.o_wrap_input, .o_field_widget {
-                    width: 100% !important;
-                    display: block !important;
-
-                    /* Sizing only: borders/background/focus come from Odoo */
-                    input.o_input, select.o_input, textarea.o_input, .o_input {
-                        width: 100% !important;
-                        min-height: 46px !important;
-                        font-size: 1rem !important;
-                        padding: 10px 14px !important;
-                        box-sizing: border-box !important;
-                    }
-                }
-            }
-        }
-
-        /* Unroll notebook on mobile for continuous website flow */
-        .o_notebook {
-            border: none !important;
-
-            .o_notebook_headers {
-                display: none !important;
-            }
-
-            .o_notebook_content {
-                padding: 0 !important;
-                border: none !important;
-            }
-        }
-
-        /* One2many Equipment Lines: Vertical Website-Style Card Layout */
-        .o_field_x2many_list, .o_field_one2many {
-            width: 100% !important;
-
-            .table-responsive {
-                overflow: visible !important;
-                overflow-x: visible !important;
-            }
-
-            table.o_list_table {
-                display: block !important;
-                width: 100% !important;
-                table-layout: auto !important;
-                border: none !important;
-
-                colgroup, col {
-                    display: none !important;
-                }
-
-                thead {
-                    display: none !important;
-                }
-
-                tbody {
-                    display: block !important;
-                    width: 100% !important;
-
-                    > tr {
-                        display: block !important;
-                        width: 100% !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                    }
-
-                    /* Each equipment line formatted as a card */
-                    > tr.o_data_row {
-                        display: flex !important;
-                        flex-direction: column !important;
-                        width: 100% !important;
-                        border: 1px solid #dee2e6 !important;
-                        border-radius: 6px !important;
-                        padding: 16px 14px !important;
-                        margin-bottom: 16px !important;
-                        box-sizing: border-box !important;
-
-                        &:hover, &:focus-within {
-                            border-color: #adb5bd !important;
-                        }
-
-                        /* Each cell is a vertical field (Label on top, input box below) */
-                        td.o_data_cell {
-                            display: flex !important;
-                            flex-direction: column !important;
-                            width: 100% !important;
-                            min-width: 0 !important;
-                            max-width: 100% !important;
-                            padding: 6px 0 !important;
-                            border: none !important;
-                            text-align: left !important;
-                            box-sizing: border-box !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
-
-                            /* Label pseudo-element */
-                            &::before {
-                                display: block !important;
-                                font-size: 0.875rem !important;
-                                font-weight: 600 !important;
-                                margin-bottom: 4px !important;
-                            }
-
-                            /* Inputs inside cells: Touch-Friendly 44px+ height */
-                            .o_field_widget {
-                                width: 100% !important;
-                                border: none !important;
-                                padding: 0 !important;
-                                background: transparent !important;
-                            }
-
-                            input.o_input, select.o_input, textarea.o_input, .o_input {
-                                width: 100% !important;
-                                min-height: 44px !important;
-                                font-size: 1rem !important;
-                                padding: 8px 12px !important;
-                                box-sizing: border-box !important;
-                            }
-
-                            /* Field Labels for Equipment Timesheet Lines */
-                            &[name="equipment_id"]::before { content: "🚜 Equipment"; }
-                            &[name="shift_type"]::before { content: "Shift (Day / Night)"; }
-                            &[name="day_start_time"]::before { content: "Morning Start"; }
-                            &[name="day_end_time"]::before { content: "Morning End"; }
-                            &[name="night_start_time"]::before { content: "Afternoon Start"; }
-                            &[name="night_end_time"]::before { content: "Afternoon End"; }
-                            &[name="total_hours"]::before { content: "⏱ Total Hours"; }
-                            &[name="idle_time"]::before { content: "⏸ Idle Time"; }
-                            &[name="idle_reason"]::before { content: "Idle Reason"; }
-                            &[name="fuel_opening"]::before { content: "Starting Fuel (L)"; }
-                            &[name="fuel_refueled"]::before { content: "Fuel Refueled (L)"; }
-                            &[name="fuel_left"]::before { content: "Fuel Left (Closing) (L)"; }
-                            &[name="fuel_consumed"]::before { content: "⛽ Fuel Consumed (L)"; }
-                            &[name="description"]::before { content: "Remarks / Notes"; }
-                        }
-
-                        /* Remove Line Button on Mobile */
-                        td.o_list_record_remove {
-                            display: flex !important;
-                            justify-content: flex-end !important;
-                            width: 100% !important;
-                            padding: 10px 0 2px 0 !important;
-                            border: none !important;
-
-                            button {
-                                padding: 8px 16px !important;
-                                font-size: 0.875rem !important;
-                                font-weight: 600 !important;
-                                cursor: pointer !important;
-
-                                &::after {
-                                    content: " Remove Equipment";
-                                }
-                            }
-                        }
-                    }
-                }
-
-                /* Add an Equipment Line button: Touch Friendly */
-                td.o_field_x2many_list_row_add {
-                    display: block !important;
-                    width: 100% !important;
-                    padding: 8px 0 !important;
-                    border: none !important;
-
-                    a[role="button"] {
-                        display: flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        width: 100% !important;
-                        min-height: 48px !important;
-                        font-weight: 600 !important;
-                        font-size: 1rem !important;
-                        text-decoration: none !important;
-
-                        &::before {
-                            content: "+ " !important;
-                            font-size: 1.25rem !important;
-                            font-weight: 700 !important;
-                            margin-right: 6px !important;
-                        }
-                    }
-                }
-
-                /* Table footer */
-                tfoot.o_list_footer {
-                    display: block !important;
-                    width: 100% !important;
-
-                    tr {
-                        display: flex !important;
-                        justify-content: flex-end !important;
-                        padding: 6px 0 !important;
-
-                        td {
-                            border: none !important;
-                            font-weight: 700 !important;
-                        }
-                    }
-                }
-            }
-        }
-
-        /* Grand Summary & Notes on Mobile */
-        .oe_invoice_lines_tab {
-            display: flex !important;
-            flex-direction: column !important;
-            width: 100% !important;
-
-            .oe_subtotal_footer {
-                display: flex !important;
-                flex-direction: column !important;
-                width: 100% !important;
-                margin-top: 1rem !important;
-            }
-        }
-
-        /* Mobile Bottom Action Bar (Save & Submit) */
-        .o_equipment_timesheet_mobile_bottom_bar {
-            display: block !important;
-            margin-top: 2rem !important;
-            padding-top: 1.5rem !important;
-            padding-bottom: 2.5rem !important;
-            border-top: 1px solid #dee2e6 !important;
-
-            /* Sizing only: button colours come from btn-secondary / btn-primary */
-            .btn {
-                min-height: 50px !important;
-                font-size: 1.05rem !important;
-                font-weight: 700 !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 10px !important;
-                width: 100% !important;
-            }
-        }
-    }
-}
-
-/* ========================================================
-   3. WEBSITE-STYLE VERTICAL MODAL FORMS (.o_mobile_vertical_form)
-   Stacked inputs: Label above input, 100% width
-   ======================================================== */
-.o_mobile_vertical_form {
-    .o_form_sheet {
-        max-width: 100% !important;
-        padding: 1.25rem 1rem !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-    }
-
-    .o_horizontal_separator {
-        font-size: 1.05rem !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.02em !important;
-        padding-bottom: 0.4rem !important;
-        margin-top: 1.25rem !important;
-        margin-bottom: 1rem !important;
-        display: block !important;
-        width: 100% !important;
-    }
-
+/* Shared: stack a form group into one column, label above input */
+@mixin et-vertical-groups {
     .o_group {
         display: flex !important;
         flex-direction: column !important;
         width: 100% !important;
-        margin: 0 0 1rem 0 !important;
 
         .o_inner_group, .o_inner_group.grid, .o_group_col_6, .o_group_col_12 {
             display: flex !important;
             flex-direction: column !important;
             grid-template-columns: 1fr !important;
             width: 100% !important;
-            padding: 0 !important;
         }
 
         .o_wrap_field, .o_wrap_field_boolean, .o_cell {
@@ -375,43 +30,30 @@
             flex-direction: column !important;
             align-items: stretch !important;
             width: 100% !important;
-            margin-bottom: 1.1rem !important;
+            margin-bottom: 0.75rem !important;
             padding: 0 !important;
 
             &.o_wrap_label, .o_form_label {
-                display: block !important;
-                margin-bottom: 0.35rem !important;
-                font-weight: 600 !important;
-                font-size: 0.925rem !important;
                 width: 100% !important;
+                margin-bottom: 0.25rem !important;
                 text-align: left !important;
             }
 
             &.o_wrap_input, .o_field_widget {
                 width: 100% !important;
-                display: block !important;
-
-                /* Sizing only: borders/background/focus come from Odoo */
-                input.o_input, select.o_input, textarea.o_input, .o_input {
-                    width: 100% !important;
-                    min-height: 44px !important;
-                    font-size: 0.975rem !important;
-                    padding: 8px 12px !important;
-                    box-sizing: border-box !important;
-                }
             }
         }
     }
 }
 
 /* ========================================================
-   4. PROJECTS EQUIPMENT DASHBOARD (.o_kanban_project_equipment)
-   Cards, KPI boxes and badges use Odoo's native kanban
-   styling (see equipment_timesheet.css for layout helpers).
+   EQUIPMENT LINE POPUP (.o_mobile_vertical_form)
+   Label above input in the line dialog.
    ======================================================== */
-.o_kanban_project_equipment {
-    .o_kpi_box {
-        border-radius: 6px !important;
-        padding: 8px !important;
+.o_mobile_vertical_form {
+    .o_form_sheet {
+        max-width: 100% !important;
     }
+
+    @include et-vertical-groups;
 }

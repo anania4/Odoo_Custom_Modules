@@ -21,8 +21,9 @@
                 <field name="equipment_types_display"/>
                 <templates>
                     <t t-name="card">
+                        <!-- Header: project name, customer, manager -->
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
+                            <div class="o_kanban_record_title">
                                 <h4 class="mb-0">
                                     <field name="name"/>
                                 </h4>
@@ -34,69 +35,49 @@
                             <field name="user_id" widget="many2one_avatar_user"/>
                         </div>
 
-                        <!-- KPI Dashboard Grid -->
-                        <div class="row g-2 my-2 text-center">
+                        <!-- Key figures: plain two-column list -->
+                        <div class="row g-2 my-2 o_kpi_grid">
                             <div class="col-6">
-                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_hours">
-                                    <div class="small text-muted">
-                                        <i class="fa fa-clock-o me-1"/> Working Hours
-                                    </div>
-                                    <div class="fw-bold fs-5 mt-1">
-                                        <field name="equipment_total_hours" widget="float_time"/> hrs
-                                    </div>
+                                <div class="small text-muted">Working Hours</div>
+                                <div class="fw-bold">
+                                    <field name="equipment_total_hours" widget="float_time"/> hrs
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_fuel">
-                                    <div class="small text-muted">
-                                        <i class="fa fa-tint me-1"/> Fuel Consumed
-                                    </div>
-                                    <div class="fw-bold fs-5 mt-1">
-                                        <field name="equipment_total_fuel_consumed"/> L
-                                    </div>
+                                <div class="small text-muted">Fuel Consumed</div>
+                                <div class="fw-bold">
+                                    <field name="equipment_total_fuel_consumed"/> L
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_equipment">
-                                    <div class="small text-muted">
-                                        <i class="fa fa-truck me-1"/> Equipments
-                                    </div>
-                                    <div class="mt-1">
-                                        <span class="badge text-bg-secondary text-truncate" style="display: inline-block; max-width: 100%;">
-                                            <i class="fa fa-cogs me-1"/><field name="equipment_types_display"/>
-                                        </span>
-                                    </div>
+                                <div class="small text-muted">Equipments</div>
+                                <div class="fw-bold text-truncate" t-att-title="record.equipment_types_display.value">
+                                    <field name="equipment_types_display"/>
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-2 border rounded-2 o_kpi_box o_kpi_pending">
-                                    <div class="small text-muted">
-                                        <i class="fa fa-hourglass-half me-1"/> Pending
-                                    </div>
-                                    <div class="mt-1">
-                                        <span t-if="record.equipment_timesheet_pending_count.raw_value > 0" class="badge text-bg-warning px-2 py-1">
-                                            <field name="equipment_timesheet_pending_count"/> To Approve
-                                        </span>
-                                        <span t-else="" class="badge text-bg-secondary px-2 py-1">
-                                            0 Pending
-                                        </span>
-                                    </div>
+                                <div class="small text-muted">Pending</div>
+                                <div class="fw-bold">
+                                    <t t-if="record.equipment_timesheet_pending_count.raw_value > 0">
+                                        <field name="equipment_timesheet_pending_count"/> to approve
+                                    </t>
+                                    <span t-else="" class="text-muted fw-normal">None</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Card Footer: Quick Actions -->
+                        <!-- Footer: actions -->
                         <footer class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
                             <div class="d-flex gap-1">
                                 <button name="action_create_equipment_timesheet" type="object" class="btn btn-primary btn-sm">
                                     <i class="fa fa-plus me-1"/> Add Timesheet
                                 </button>
-                                <button name="action_open_export_wizard" type="object" class="btn btn-outline-secondary btn-sm" title="Export Project Timesheet Lines">
-                                    <i class="fa fa-cog"/>
+                                <button name="action_open_export_wizard" type="object" class="btn btn-secondary btn-sm" title="Export Project Timesheet Lines">
+                                    <i class="fa fa-download"/>
                                 </button>
                             </div>
-                            <button name="action_view_equipment_timesheets" type="object" class="btn btn-outline-secondary btn-sm">
-                                <i class="fa fa-list me-1"/> <field name="equipment_timesheet_count"/> Timesheets
+                            <button name="action_view_equipment_timesheets" type="object" class="btn btn-link btn-sm p-0">
+                                <field name="equipment_timesheet_count"/> Timesheets <i class="fa fa-arrow-right ms-1"/>
                             </button>
                         </footer>
                     </t>

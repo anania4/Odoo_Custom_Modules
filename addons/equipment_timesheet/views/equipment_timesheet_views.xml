@@ -18,7 +18,7 @@
                 <field name="user_id" string="Reported By" widget="many2one_avatar_user"/>
                 <field name="equipment_count" string="Equipments"/>
                 <field name="total_hours" widget="float_time" class="fw-bold" sum="Total Hours"/>
-                <field name="total_fuel_consumed" class="fw-bold" sum="Total Fuel Consumed"/>
+                <field name="total_fuel_consumed" class="fw-bold text-danger" sum="Total Fuel Consumed"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
                        decoration-warning="state == 'submitted'"
@@ -91,46 +91,65 @@
                     <!-- Equipment Lines: Same as Product Lines on Order -->
                     <notebook>
                         <page string="Equipment Operations" name="equipment_lines">
-                            <div class="o_horizontal_separator d-md-none mt-2 mb-3 fw-bold">
-                                <i class="fa fa-truck me-2"/>Equipment Operations
-                            </div>
-                            <field name="line_ids" readonly="state != 'draft'">
+                            <field name="line_ids" mode="list,kanban" readonly="state != 'draft'">
                                 <list editable="bottom">
                                     <!-- Equipment selection from maintenance equipment registration -->
                                     <field name="equipment_id"
                                            string="Equipment"
-                                           options="{'no_create': True}"
-                                           width="220px"/>
-                                    <!-- Shift dropdown: Day / Night -->
+                                           options="{'no_create': True}" width="220px"/>
                                     <field name="shift_type"
-                                           string="Shift"
-                                           width="120px"/>
+                                           string="Shift" width="120px"/>
                                     
                                     <!-- Morning Hours -->
-                                    <field name="day_start_time" string="Morning Start" widget="float_time" width="120px"/>
-                                    <field name="day_end_time" string="Morning End" widget="float_time" width="120px"/>
+                                    <field name="day_start_time" string="Morning Start" widget="equipment_time_picker" width="130px"/>
+                                    <field name="day_end_time" string="Morning End" widget="equipment_time_picker" width="120px"/>
 
                                     <!-- Afternoon Hours -->
-                                    <field name="night_start_time" string="Afternoon Start" widget="float_time" width="120px"/>
-                                    <field name="night_end_time" string="Afternoon End" widget="float_time" width="120px"/>
+                                    <field name="night_start_time" string="Afternoon Start" widget="equipment_time_picker" width="150px"/>
+                                    <field name="night_end_time" string="Afternoon End" widget="equipment_time_picker" width="130px"/>
 
                                     <!-- Auto Calculated Total Hours -->
-                                    <field name="total_hours" string="Total" widget="float_time" readonly="1" class="fw-bold" sum="Total Hours" width="120px"/>
+                                    <field name="total_hours" string="Total" widget="float_time" readonly="1" sum="Total Hours" width="120px"/>
 
                                     <!-- Idle Tracking -->
                                     <field name="idle_time" string="Idle Time" widget="float_time" sum="Total Idle Time" width="110px"/>
-                                    <field name="idle_reason" string="Idle Reason" width="180px"/>
+                                    <field name="idle_reason" string="Idle Reason" width="260px"/>
 
                                     <!-- Fuel Tracking -->
-                                    <field name="fuel_opening" string="Starting Fuel (L)" width="130px"/>
-                                    <field name="fuel_refueled" string="Fuel Refueled (L)" sum="Total Refueled" width="130px"/>
-                                    <field name="fuel_left" string="Fuel Left (Closing) (L)" width="140px"/>
-                                    <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fw-bold" sum="Total Fuel Consumed" width="150px"/>
+                                    <field name="fuel_opening" string="Starting Fuel (L)" width="170px"/>
+                                    <field name="fuel_refueled" string="Fuel Refueled (L)" sum="Total Refueled" width="170px"/>
+                                    <field name="fuel_left" string="Fuel Left (Closing) (L)" width="220px"/>
+                                    <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" sum="Total Fuel Consumed" width="170px"/>
 
-                                    <field name="description" string="Remarks" optional="show" width="220px"/>
+                                    <field name="description" string="Remarks" optional="show" width="260px"/>
                                 </list>
                                 
-                                <!-- Line Form View (Clean Vertical Website-Style Form) -->
+                                <!-- Mobile: Odoo shows these cards instead of the table on small screens -->
+                                <kanban>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <field name="equipment_id" class="fw-bold"/>
+                                                <field name="shift_type"/>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <span t-if="record.day_start_time.raw_value or record.day_end_time.raw_value">
+                                                    Morning <field name="day_start_time" widget="float_time"/> - <field name="day_end_time" widget="float_time"/>
+                                                </span>
+                                                <span t-if="record.night_start_time.raw_value or record.night_end_time.raw_value" class="ms-2">
+                                                    Afternoon <field name="night_start_time" widget="float_time"/> - <field name="night_end_time" widget="float_time"/>
+                                                </span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span><field name="total_hours" widget="float_time"/> hrs</span>
+                                                <span>Fuel <field name="fuel_consumed"/> L</span>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+
+                                
+                                <!-- Line Form View (vertical layout) -->
                                 <form string="Equipment Line Details" class="o_mobile_vertical_form">
                                     <sheet>
                                         <group string="Equipment Registration">
@@ -142,11 +161,11 @@
                                             <field name="equipment_serial" string="Serial / Plate No." readonly="1"/>
                                         </group>
                                         <group string="Shift Working Hours">
-                                            <field name="day_start_time" string="Morning Start" widget="float_time"/>
-                                            <field name="day_end_time" string="Morning End" widget="float_time"/>
-                                            <field name="night_start_time" string="Afternoon Start" widget="float_time"/>
-                                            <field name="night_end_time" string="Afternoon End" widget="float_time"/>
-                                            <field name="total_hours" string="Total Hours" widget="float_time" readonly="1" class="fs-4 fw-bold"/>
+                                            <field name="day_start_time" string="Morning Start" widget="equipment_time_picker"/>
+                                            <field name="day_end_time" string="Morning End" widget="equipment_time_picker"/>
+                                            <field name="night_start_time" string="Afternoon Start" widget="equipment_time_picker"/>
+                                            <field name="night_end_time" string="Afternoon End" widget="equipment_time_picker"/>
+                                            <field name="total_hours" string="Total Hours" widget="float_time" readonly="1"/>
                                             <field name="idle_time" string="Idle Time" widget="float_time"/>
                                             <field name="idle_reason" string="Idle Reason" placeholder="e.g. Weather, Breakdown, Waiting for Material..."/>
                                         </group>
@@ -154,7 +173,7 @@
                                             <field name="fuel_opening" string="Starting Fuel (L)"/>
                                             <field name="fuel_refueled" string="Fuel Refueled (L)"/>
                                             <field name="fuel_left" string="Fuel Left (Closing) (L)"/>
-                                            <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1" class="fs-4 fw-bold"/>
+                                            <field name="fuel_consumed" string="Fuel Consumed (L)" readonly="1"/>
                                         </group>
                                         <group string="Operation Notes">
                                             <field name="description" string="Remarks / Notes" placeholder="Enter notes or remarks here..."/>
@@ -169,17 +188,14 @@
                                     <field name="description" placeholder="General operation notes or shift remarks..." readonly="state != 'draft'"/>
                                 </group>
                                 <group colspan="4" class="oe_subtotal_footer">
-                                    <field name="total_hours" widget="float_time" string="Total Working Hours" class="oe_subtotal_footer_separator fw-bold fs-5"/>
-                                    <field name="total_idle_time" widget="float_time" string="Total Idle Time" class="fw-bold fs-5"/>
-                                    <field name="total_fuel_consumed" string="Grand Total Fuel Consumed (L)" class="oe_subtotal_footer_separator fw-bold fs-5"/>
+                                    <field name="total_hours" widget="float_time" string="Total Working Hours" class="oe_subtotal_footer_separator"/>
+                                    <field name="total_idle_time" widget="float_time" string="Total Idle Time"/>
+                                    <field name="total_fuel_consumed" string="Grand Total Fuel Consumed (L)" class="oe_subtotal_footer_separator"/>
                                 </group>
                             </group>
                         </page>
 
                         <page string="Approval Details" name="approval" invisible="state == 'draft'">
-                            <div class="o_horizontal_separator d-md-none mt-4 mb-3 fw-bold">
-                                <i class="fa fa-check-circle-o me-2"/>Approval Details
-                            </div>
                             <group>
                                 <group>
                                     <field name="approved_by_id" widget="many2one_avatar_user" readonly="1"/>
@@ -192,23 +208,6 @@
                             </group>
                         </page>
                     </notebook>
-                    <!-- Bottom Action Buttons for Mobile View (like Daily Report) -->
-                    <div class="o_equipment_timesheet_mobile_bottom_bar d-md-none mt-4 pt-3 pb-4 border-top">
-                        <div class="d-flex flex-column gap-2">
-                            <button name="action_save"
-                                    string="Save"
-                                    type="object"
-                                    class="btn btn-secondary btn-lg w-100 fw-bold py-3"
-                                    icon="fa-floppy-o"
-                                    invisible="state in ('approved', 'rejected')"/>
-                            <button name="action_submit"
-                                    string="Submit for Approval"
-                                    type="object"
-                                    class="btn btn-primary btn-lg w-100 fw-bold py-3"
-                                    icon="fa-paper-plane"
-                                    invisible="state != 'draft'"/>
-                        </div>
-                    </div>
                 </sheet>
                 <!-- Odoo 18 Chatter -->
                 <chatter/>
@@ -234,7 +233,7 @@
                 <templates>
                     <t t-name="card">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <strong><field name="name"/></strong>
+                            <strong class="text-primary"><field name="name"/></strong>
                             <field name="state" widget="badge"
                                    decoration-info="state == 'draft'"
                                    decoration-warning="state == 'submitted'"
@@ -251,11 +250,11 @@
                         </div>
                         <div class="d-flex justify-content-between mt-2 pt-2 border-top small">
                             <span>
-                                <i class="fa fa-clock-o text-muted me-1"/>
+                                <i class="fa fa-clock-o text-success me-1"/>
                                 <strong><field name="total_hours" widget="float_time"/> hrs</strong>
                             </span>
                             <span>
-                                <i class="fa fa-tint text-muted me-1"/>
+                                <i class="fa fa-tint text-danger me-1"/>
                                 <strong><field name="total_fuel_consumed"/> L</strong>
                             </span>
                             <field name="user_id" widget="many2one_avatar_user"/>

@@ -112,7 +112,7 @@ class TestEquipmentTimesheet(TransactionCase):
 
         # Save action (like mobile view)
         save_res = timesheet.with_user(self.test_user).action_save()
-        self.assertEqual(save_res['tag'], 'display_notification')
+        self.assertIs(save_res, True)
 
         # Submit
         timesheet.with_user(self.test_user).action_submit()
@@ -122,6 +122,32 @@ class TestEquipmentTimesheet(TransactionCase):
         timesheet.with_user(self.test_manager).action_approve()
         self.assertEqual(timesheet.state, 'approved')
         self.assertEqual(timesheet.approved_by_id, self.test_manager)
+
+    def test_07_approval_bell_notifications(self):
+        """Submit notifies the manager; approving clears that notice and notifies the reporter."""
+        Notif = self.env['generic.notification'].sudo()
+        timesheet = self.env['equipment.timesheet'].with_user(self.test_user).create({
+            'project_id': self.project.id,
+            'line_ids': [(0, 0, {
+                'equipment_id': self.equipment.id,
+                'shift_type': 'day',
+                'day_start_time': 8.0,
+                'day_end_time': 12.0,
+            })],
+        })
+        domain = [('res_model', '=', 'equipment.timesheet'), ('res_id', '=', timesheet.id)]
+
+        timesheet.with_user(self.test_user).action_submit()
+        request = Notif.search(domain + [('user_id', '=', self.test_manager.id)])
+        self.assertEqual(len(request), 1, "The project manager gets one approval request notice")
+        self.assertFalse(request.is_read)
+
+        timesheet.with_user(self.test_manager).action_approve()
+        self.assertTrue(request.is_read, "Approving clears the pending request notice")
+        result = Notif.search(domain + [('user_id', '=', self.test_user.id)])
+        self.assertEqual(len(result), 1, "The reporter is told the timesheet was approved")
+        self.assertEqual(result.notif_type, 'success')
+        self.assertFalse(result.is_read)
 
     def test_03_project_statistics(self):
         """Test computed statistics on the project."""

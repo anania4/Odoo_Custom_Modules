@@ -4,14 +4,8 @@
    so the backend keeps its native look.
    ======================================================== */
 
-/* Projects Equipment Dashboard: transparent kanban background */
-.o_kanban_view.o_kanban_project_equipment,
-.o_kanban_renderer.o_kanban_project_equipment {
-    background: transparent !important;
-    background-color: transparent !important;
-}
-
-/* Ensure Odoo layout ghost elements are completely invisible */
+/* Projects Equipment Dashboard: keep Odoo's native kanban card.
+   Only hide the layout ghost records Odoo appends to the grid. */
 .o_kanban_project_equipment .o_kanban_ghost {
     display: none !important;
     height: 0 !important;
@@ -20,8 +14,10 @@
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
     visibility: hidden !important;
-    opacity: 0 !important;
+}
+
+/* Key-figure grid: give the four cells a little breathing room */
+.o_kanban_project_equipment .o_kpi_grid > .col-6 {
+    min-width: 0;
 }

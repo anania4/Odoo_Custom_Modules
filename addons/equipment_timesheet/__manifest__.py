@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Equipment Timesheet',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Services/Timesheets',
     'summary': 'Track field equipment working time (Day & Night hours) and fuel consumption per project',
     'description': """
@@ -31,6 +31,7 @@ This module provides a specialized Timesheet system to track equipment working t
         'mail',
         'project',
         'maintenance',
+        'generic_bell_notification',
         'hr_timesheet',
     ],
     'data': [
@@ -48,6 +49,8 @@ This module provides a specialized Timesheet system to track equipment working t
             'equipment_timesheet/static/src/scss/equipment_timesheet.scss',
             'equipment_timesheet/static/src/js/export_report_menu.js',
             'equipment_timesheet/static/src/xml/export_report_menu.xml',
+            'equipment_timesheet/static/src/js/float_time_picker.js',
+            'equipment_timesheet/static/src/xml/float_time_picker.xml',
         ],
     },
     'installable': True,

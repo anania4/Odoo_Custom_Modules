@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class EquipmentTimesheet(models.Model):
     _name = 'equipment.timesheet'
     _description = 'Equipment Field Timesheet'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _bell_only_notifications = True
     _order = 'date desc, id desc'
 
     name = fields.Char(
@@ -219,68 +224,81 @@ class EquipmentTimesheet(models.Model):
         other_managers = managers.filtered(lambda u: u.id != self.env.uid)
         return other_managers if other_managers else managers
 
-    def _send_odoo_notification(self, users, title, message, notif_type='info'):
-        """Send standard Odoo chatter notification and real-time web client toast via bus"""
-        partners = users.mapped('partner_id').filtered(lambda p: bool(p.id))
-        if not partners:
+    def _send_generic_bell_notification(self, users, title, message, notif_type='info', icon='fa-clock-o'):
+        """Send a bell notification to each active user, never to the person acting.
+        A failing bell never blocks the workflow."""
+        if not users or 'generic.notification' not in self.env:
             return
-        # Post in chatter notifying the target partners
-        self.message_post(
-            body=message,
-            subject=title,
-            partner_ids=partners.ids,
-            message_type='notification',
-            subtype_xmlid='mail.mt_comment',
-        )
-        # Real-time web client toast
-        for partner in partners:
-            self.env['bus.bus'].sudo()._sendone(
-                partner,
-                'simple_notification',
-                {
-                    'type': notif_type,
-                    'title': title,
-                    'message': message,
-                    'sticky': notif_type in ('danger', 'warning'),
-                }
-            )
+        notif_model = self.env['generic.notification'].sudo()
+        for user in users.sudo().filtered(lambda u: u.active and u.id != self.env.uid):
+            try:
+                with self.env.cr.savepoint():
+                    notif_model.send_notification(
+                        user_id=user.id,
+                        title=title,
+                        message=message,
+                        res_model=self._name,
+                        res_id=self.id,
+                        notif_type=notif_type,
+                        icon_class=icon,
+                    )
+            except Exception:
+                _logger.exception("Could not send bell notification to user %s for %s", user.id, self.display_name)
 
-    def _schedule_approval_activity(self, managers):
-        """Schedule an activity in Odoo's native activity systray (clock icon) for the approvers"""
-        for manager in managers:
-            existing = self.env['mail.activity'].sudo().search([
-                ('res_model', '=', self._name),
-                ('res_id', '=', self.id),
-                ('user_id', '=', manager.id),
-            ])
-            if not existing:
-                self.activity_schedule(
-                    act_type_xmlid='mail.mail_activity_data_todo',
-                    summary=_("Approve Equipment Timesheet: %s") % self.name,
-                    note=_("Timesheet %s for project '%s' submitted by %s requires your approval.") % (
-                        self.name, self.project_id.name, self.user_id.name
-                    ),
-                    user_id=manager.id,
-                )
+    def _close_approval_activities(self, feedback=None):
+        """The approval was dealt with. Approval activities left over from older
+        versions are removed (To-Dos people scheduled by hand stay), and the
+        approvers' unread "submitted for approval" bell notices for this
+        timesheet are marked read so they stop showing as pending.
+        A failing bell never blocks the workflow."""
+        self.sudo().activity_ids.filtered('automated').unlink()
+        try:
+            with self.env.cr.savepoint():
+                self._mark_approval_notices_read()
+        except Exception:
+            _logger.exception("Could not clear approval bell notices for %s", self.display_name)
 
-    def _close_approval_activities(self, feedback):
-        """Mark approval activities as completed"""
-        self.activity_feedback(['mail.mail_activity_data_todo'], feedback=feedback)
+    def _mark_approval_notices_read(self):
+        """Mark unread bell notices about these timesheets as read for everyone
+        except the reporter (whose notices are approve/reject results), and
+        push the change so open bells update without a reload."""
+        if 'generic.notification' not in self.env:
+            return
+        notices = self.env['generic.notification'].sudo().search([
+            ('res_model', '=', self._name),
+            ('res_id', 'in', self.ids),
+            ('is_read', '=', False),
+            ('user_id', 'not in', self.user_id.ids),
+        ])
+        if not notices:
+            return
+        notices.write({'is_read': True})
+        for notif in notices:
+            partner = notif.user_id.partner_id
+            if not partner:
+                continue
+            # Same payload the bell sends on create; an existing id is updated in place
+            self.env['bus.bus']._sendone(partner, "generic_notification_update", {
+                "action": "update",
+                "notification": {
+                    "id": notif.id,
+                    "name": notif.name,
+                    "body": notif.body,
+                    "create_date": str(notif.create_date),
+                    "res_model": notif.res_model,
+                    "res_id": notif.res_id,
+                    "is_read": True,
+                    "module_category": notif.module_category,
+                    "notif_type": notif.notif_type,
+                    "icon_class": notif.icon_class,
+                },
+            })
 
     # --- Actions / Approval Workflow ---
     def action_save(self):
         """Explicit save action for mobile view and user convenience."""
         self.ensure_one()
-        return {
-            "type": "ir.actions.client",
-            "tag": "display_notification",
-            "params": {
-                "title": _("Saved"),
-                "message": _("Equipment timesheet saved successfully."),
-                "type": "success",
-                "sticky": False,
-            },
-        }
+        return True
 
     def action_submit(self):
         for record in self:
@@ -298,6 +316,17 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, record.user_id.name
             )
             
+            # 1. Generic Notification Bell integration
+            record._send_generic_bell_notification(
+                users=managers,
+                title=title,
+                message=msg,
+                notif_type='info',
+                icon='fa-clock-o',
+            )
+            
+            
+
     def action_approve(self):
         if not self.env.user.has_group('equipment_timesheet.group_equipment_timesheet_manager'):
             raise UserError(_("Only Project Managers can approve equipment timesheets."))
@@ -319,6 +348,16 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, self.env.user.name
             )
             
+            # 1. Generic Notification Bell integration
+            record._send_generic_bell_notification(
+                users=reporter,
+                title=title,
+                message=msg,
+                notif_type='success',
+                icon='fa-check-circle',
+            )
+            
+
     def action_reject(self):
         if not self.env.user.has_group('equipment_timesheet.group_equipment_timesheet_manager'):
             raise UserError(_("Only Project Managers can reject equipment timesheets."))
@@ -336,6 +375,16 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, self.env.user.name
             )
             
+            # 1. Generic Notification Bell integration
+            record._send_generic_bell_notification(
+                users=reporter,
+                title=title,
+                message=msg,
+                notif_type='danger',
+                icon='fa-times-circle',
+            )
+            
+
     def action_reset_draft(self):
         if not self.env.user.has_group('equipment_timesheet.group_equipment_timesheet_manager'):
             raise UserError(_("Only Project Managers can reset timesheets to draft."))
@@ -355,6 +404,16 @@ class EquipmentTimesheet(models.Model):
                 record.name, record.project_id.name, self.env.user.name
             )
             
+            # 1. Generic Notification Bell integration
+            record._send_generic_bell_notification(
+                users=reporter,
+                title=title,
+                message=msg,
+                notif_type='warning',
+                icon='fa-undo',
+            )
+            
+
     def action_open_export_wizard(self):
         self.ensure_one()
         return {
