@@ -1,0 +1,58 @@
+<odoo>
+    <!-- Create Custom Category -->
+    <record id="store_request_category" model="ir.module.category">
+        <field name="name">Inventory Department</field>
+        <field name="sequence" eval="11"/>
+    </record>
+
+ 
+
+    <!-- Readonly Group -->
+    <record id="group_store_request_readonly" model="res.groups">
+        <field name="name">Readonly</field>
+        <field name="category_id" ref="store_request_category"/>
+    </record>
+
+    <!-- User Group -->
+    <record id="group_store_request_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="store_request_category"/>
+       
+        <field name="implied_ids" eval="[(4, ref('group_store_request_readonly'))]"/>
+    </record>
+
+    <!-- Approver Group -->
+    <record id="group_store_request_approver" model="res.groups">
+        <field name="name">Approver</field>
+        <field name="category_id" ref="store_request_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_store_request_user'))]"/>
+    </record>
+
+    <!-- CEO Group -->
+    <record id="group_store_request_ceo" model="res.groups">
+        <field name="name">CEO</field>
+        <field name="category_id" ref="store_request_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_store_request_approver'))]"/>
+    </record>
+
+    <!-- Super Admin Group -->
+    <record id="group_supplier_analysis_super_admin" model="res.groups">
+        <field name="name">Super Admin</field>
+        <field name="category_id" ref="store_request_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_store_request_ceo'))]"/>
+    </record>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

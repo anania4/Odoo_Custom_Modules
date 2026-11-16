@@ -1,0 +1,131 @@
+<odoo>
+    <!-- ==== SUPPLIER ANALYSIS RULES ==== -->
+
+    <!-- 1. Readonly: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_readonly_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - Readonly (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_readonly'))]"/>
+    </record>
+
+    <!-- 2. User: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_user_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - User (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_user'))]"/>
+    </record>
+
+    <!-- 3. Supervisor: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_supervisor_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - Supervisor (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_supervisor'))]"/>
+    </record>
+
+    <!-- 4. Approver: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_approver_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - Approver (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_approver'))]"/>
+    </record>
+
+    <!-- 5. Procurement Manager: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_procurement_manager_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - Procurement Manager (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_procurement_manager'))]"/>
+    </record>
+
+
+    <!-- 7. Independent Auditor: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_auditor_independent_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - Auditor Independent (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_auditor_independent'))]"/>
+    </record>
+
+    <!-- 7. CEO: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_ceo_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - CEO (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_ceo'))]"/>
+    </record>
+
+    <!-- 8. Super Admin: Can see supplier analysis in their company only -->
+    <record id="supplier_analysis_super_admin_rule" model="ir.rule">
+        <field name="name">Supplier Analysis - Super Admin (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_custom_supplier_analysis_super_admin'))]"/>
+    </record>
+
+    <!-- ==== SUPPLIER ANALYSIS LINE RULES ==== -->
+
+    <!-- 1. Readonly: Can see supplier analysis lines in their company only -->
+    <record id="supplier_analysis_line_readonly_rule" model="ir.rule">
+        <field name="name">Supplier Analysis Line - Readonly (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis_line"/>
+        <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_readonly'))]"/>
+    </record>
+
+    <!-- 2. User: Can see supplier analysis lines in their company only -->
+    <record id="supplier_analysis_line_user_rule" model="ir.rule">
+        <field name="name">Supplier Analysis Line - User (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis_line"/>
+        <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_user'))]"/>
+    </record>
+
+    <!-- 3. Supervisor: Can see supplier analysis lines in their company only -->
+    <record id="supplier_analysis_line_supervisor_rule" model="ir.rule">
+        <field name="name">Supplier Analysis Line - Supervisor (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis_line"/>
+        <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_supervisor'))]"/>
+    </record>
+
+    <!-- 4. Approver: Can see supplier analysis lines in their company only -->
+    <record id="supplier_analysis_line_approver_rule" model="ir.rule">
+        <field name="name">Supplier Analysis Line - Approver (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis_line"/>
+        <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_approver'))]"/>
+    </record>
+
+    <!-- 5. Procurement Manager: Can see supplier analysis lines in their company only -->
+    <record id="supplier_analysis_line_procurement_manager_rule" model="ir.rule">
+        <field name="name">Supplier Analysis Line - Procurement Manager (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis_line"/>
+        <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_procurement_manager'))]"/>
+    </record>
+
+    <!-- 6. Pre-odit Reviews: Can see supplier analysis lines in their company only -->
+
+    <!-- 7. CEO: Can see supplier analysis lines in their company only -->
+    <record id="supplier_analysis_line_ceo_rule" model="ir.rule">
+        <field name="name">Supplier Analysis Line - CEO (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis_line"/>
+        <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_supplier_analysis_ceo'))]"/>
+    </record>
+
+    <!-- 8. Super Admin: Can see supplier analysis lines in their company only -->
+    <record id="supplier_analysis_line_super_admin_rule" model="ir.rule">
+        <field name="name">Supplier Analysis Line - Super Admin (Company Only)</field>
+        <field name="model_id" ref="model_supplier_analysis_line"/>
+        <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_custom_supplier_analysis_super_admin'))]"/>
+    </record>
+
+ 
+
+   </odoo>

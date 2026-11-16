@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Fleet Operations Pro',
-    'version': '18.0.0.0.16',
+    'version': '18.0.0.0.17',
     'category': 'Operations/Fleet',
     'summary': 'Comprehensive Fleet Management System',
     'description': """

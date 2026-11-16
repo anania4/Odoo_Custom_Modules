@@ -117,8 +117,9 @@
                                invisible="state not in ('fleet_approved', 'assigned', 'completed')"
                                readonly="state != 'fleet_approved'"/>
                         <field name="vehicle_id"
-                               invisible="state not in ('assigned', 'completed')"
+                               invisible="state not in ('assigned', 'completed') and not (state == 'fleet_approved' and driver_id)"
                                readonly="1"
+                               force_save="1"
                                options="{'no_create': True}"/>
                     </group>
 

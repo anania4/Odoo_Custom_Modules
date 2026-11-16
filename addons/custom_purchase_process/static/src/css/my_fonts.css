@@ -1,0 +1,63 @@
+@font-face {
+    font-family: 'Neteru';
+    src: url('../fonts/Neteru.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'AbyssinicaSIL-Regular';
+    src: url('../fonts/AbyssinicaSIL-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'AbyssinicaSIL-Connected';
+    src: url('../fonts/AbyssinicaSIL-Connected-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'Brana-Regular';
+    src: url('../fonts/Brana-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'MulatAddis-Bold';
+    src: url('../fonts/MulatAddis-Bold.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'MulatAddis-BoldItalic';
+    src: url('../fonts/MulatAddis-BoldItalic.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'MulatAddis-Italic';
+    src: url('../fonts/MulatAddis-Italic.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'MulatAddis-Medium';
+    src: url('../fonts/MulatAddis-Medium.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'MulatAddis-Regular';
+    src: url('../fonts/MulatAddis-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}

@@ -1,0 +1,91 @@
+<odoo>
+    <!-- ==== PURCHASE REQUEST RULES ==== -->
+
+    <!-- 1. Purchaser: Can see requests they created OR where they are assigned as purchaser -->
+    <!-- <record id="purchase_request_creator_rule" model="ir.rule">
+        <field name="name">Purchase Request - Purchaser (Own Requests + Assigned)</field>
+        <field name="model_id" ref="model_purchase_request"/>
+        <field name="domain_force">['|', ('requested_by', '=', user.id), ('user_id', '=', user.id), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_custom_purchase_request_purchaser'))]"/>
+    </record> -->
+
+    <!-- 2. Approver: Can see requests from their department only -->
+    <!-- <record id="purchase_request_approver_rule" model="ir.rule">
+        <field name="name">Purchase Request - Approver Department Access</field>
+        <field name="model_id" ref="model_purchase_request"/>
+        <field name="domain_force">[
+            ('company_id', 'in', company_ids),
+            ('request_department_id', '=', user.employee_id.department_id.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_custom_purchase_request_approvers'))]"/>
+    </record> -->
+
+    <!-- 3. Store Manager: Can see all requests in their company -->
+    <!-- <record id="purchase_request_store_manager_rule" model="ir.rule">
+        <field name="name">Purchase Request - Store Manager (All Departments)</field>
+        <field name="model_id" ref="model_purchase_request"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_store_request_approver'))]"/>
+    </record> -->
+
+    <!-- 4. CEO and Super Admin: Can see all requests in their company -->
+    <record id="purchase_request_manager_rule" model="ir.rule">
+        <field name="name">Purchase Request - CEO/SuperAdmin (All Departments)</field>
+        <field name="model_id" ref="model_purchase_request"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[
+            (4, ref('group_custom_purchase_request_purchaser')),
+            (4, ref('group_custom_purchase_request_approvers')),
+            (4, ref('group_purchase_request_ceos')),
+            (4, ref('group_custom_purchase_request_super_admin'))
+        ]"/>
+    </record>
+
+    <!-- ==== PURCHASE QUOTATION RULES ==== -->
+
+    <!-- 1. Purchaser: Can see quotations they created OR where they are assigned as purchaser -->
+    <!-- <record id="purchase_quotation_creator_rule" model="ir.rule">
+        <field name="name">Purchase Quotation - Purchaser (Own Requests + Assigned)</field>
+        <field name="model_id" ref="model_purchase_quotation"/>
+        <field name="domain_force">[
+            ('company_id', 'in', company_ids),
+            '|',
+            ('purchase_request_id.requested_by', '=', user.id),
+            ('purchase_request_id.user_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_custom_purchase_request_purchaser'))]"/>
+    </record> -->
+
+    <!-- 2. Approver: Can see quotations from their department only -->
+    <!-- <record id="purchase_quotation_approver_rule" model="ir.rule">
+        <field name="name">Purchase Quotation - Approver Department Access</field>
+        <field name="model_id" ref="model_purchase_quotation"/>
+        <field name="domain_force">[
+            ('company_id', 'in', company_ids),
+            ('purchase_request_id.request_department_id', '=', user.employee_id.department_id.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_custom_purchase_request_approvers'))]"/>
+    </record> -->
+
+    <!-- 3. Store Manager: Can see all quotations in their company -->
+    <!-- <record id="purchase_quotation_store_manager_rule" model="ir.rule">
+        <field name="name">Purchase Quotation - Store Manager (All Departments)</field>
+        <field name="model_id" ref="model_purchase_quotation"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_store_request_approver'))]"/>
+    </record> -->
+
+    <!-- 4. CEO and Super Admin: Can see all quotations in their company -->
+    <record id="purchase_quotation_manager_rule" model="ir.rule">
+        <field name="name">Purchase Quotation - CEO/SuperAdmin (All Departments)</field>
+        <field name="model_id" ref="model_purchase_quotation"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[
+            (4, ref('group_custom_purchase_request_readonly')),
+            (4, ref('group_custom_purchase_request_purchaser')),
+            (4, ref('group_custom_purchase_request_approvers')),
+            (4, ref('group_purchase_request_ceos')),
+            (4, ref('group_custom_purchase_request_super_admin'))
+        ]"/>
+    </record>
+</odoo>

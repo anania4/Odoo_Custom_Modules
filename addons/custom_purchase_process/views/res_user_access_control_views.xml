@@ -1,0 +1,70 @@
+<odoo>
+    <!-- Tree View -->
+    <record id="view_res_user_access_control_tree" model="ir.ui.view">
+        <field name="name">res.user.access.control.tree</field>
+        <field name="model">res.user.access.control</field>
+        <field name="arch" type="xml">
+            <list string="User Access Controls">
+                <field name="name"/>
+                <field name="committee_user_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_res_user_access_control_form" model="ir.ui.view">
+        <field name="name">res.user.access.control.form</field>
+        <field name="model">res.user.access.control</field>
+        <field name="arch" type="xml">
+           <form string="Committee">
+                <sheet>
+
+                    <group>
+                        <field name="name"/>
+                        <field name="committee_user_ids" widget="many2many_tags"/>
+                        <field name="company_id" readonly="1"/>
+                    </group>
+                
+                
+                </sheet>
+
+                <chatter/>
+
+
+                
+            </form>
+
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_res_user_access_control" model="ir.actions.act_window">
+        <field name="name">Committee Access Control</field>
+        <field name="res_model">res.user.access.control</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>Define committee users who can approve supplier analysis requests.</p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_res_user_access_control_root"
+              name="Committee Access Control"
+              parent="base.menu_users"
+              action="action_res_user_access_control"
+              sequence="20"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_res_user_access_control_root_purchase_request_configuration"
+              name="Configuration"
+              parent="custom_purchase_process.menu_purchase_request_root_module"              
+              sequence="10"
+              groups="custom_purchase_process.group_purchase_request_ceos"/>
+    
+    <menuitem id="menu_res_user_access_control_root_purchase_request"
+              name="Committee Access Control"
+              parent="menu_res_user_access_control_root_purchase_request_configuration"
+              action="action_res_user_access_control"
+              sequence="1"
+              groups="custom_purchase_process.group_purchase_request_ceos"/>
+</odoo>

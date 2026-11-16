@@ -1,0 +1,45 @@
+<odoo>
+    <!-- Material Request Access Rules -->
+    
+    <!-- User Access - Can only see their own requests -->
+    <record id="material_request_user_rule" model="ir.rule">
+        <field name="name">Material Request - User Access (Own Requests)</field>
+        <field name="model_id" ref="model_material_request"/>
+        <field name="domain_force">[
+            ('company_id', 'in', company_ids),
+            ('requested_by_id', '=', user.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_material_request_user'))]"/>
+        <field name="global" eval="False"/>
+    </record>
+
+    <!-- Approver Access - Can see their own requests + same department requests -->
+    <record id="material_request_approver_rule" model="ir.rule">
+        <field name="name">Material Request - Approver (Own + Department)</field>
+        <field name="model_id" ref="model_material_request"/>
+        <field name="domain_force">['|',
+            ('requested_by_id', '=', user.id),
+            '&amp;',
+            ('request_department_id', '=', user.employee_id.department_id.id),
+            ('company_id', 'in', company_ids)
+        ]</field>
+        <field name="groups" eval="[(4, ref('group_material_request_approver'))]"/>
+    </record>
+
+    <!-- Store Manager Access - Can see all requests from all departments -->
+    <record id="material_request_store_manager_rule" model="ir.rule">
+        <field name="name">Material Request - Store Manager Access (All Departments)</field>
+        <field name="model_id" ref="model_material_request"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_material_request_store_manager'))]"/>
+    </record>
+
+    <!-- Admin Access - Can see all requests from all departments -->
+    <record id="material_request_admin_rule" model="ir.rule">
+        <field name="name">Material Request - Admin Access (All Departments)</field>
+        <field name="model_id" ref="model_material_request"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_material_request_admin'))]"/>
+    </record>
+
+</odoo>

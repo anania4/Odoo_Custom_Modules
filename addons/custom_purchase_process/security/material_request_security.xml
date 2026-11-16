@@ -1,0 +1,91 @@
+<odoo>
+    <!-- Create Custom Category -->
+    <record id="material_request_category" model="ir.module.category">
+        <field name="name">Store Requestion</field>
+        <field name="sequence" eval="11"/>
+    </record>
+    <!-- Readonly Group -->
+    <!-- <record id="group_material_request_readonly" model="res.groups">
+        <field name="name">Readonly</field>
+        <field name="category_id" ref="material_request_category"/>
+    </record> -->
+
+    <!-- User Group -->
+    <record id="group_material_request_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="material_request_category"/>      
+        
+    </record>
+
+    <!-- Approver Group -->
+    <record id="group_material_request_approver" model="res.groups">
+        <field name="name">Approver</field>
+        <field name="category_id" ref="material_request_category"/>
+        <!-- <field name="implied_ids" eval="[
+            (4, ref('custom_purchase_process.group_material_request_user'))
+        ]"/> -->
+    </record>
+
+    <!-- Store Manager Group -->
+    <record id="group_material_request_store_manager" model="res.groups">
+        <field name="name">Store Manager</field>
+        <field name="category_id" ref="material_request_category"/>
+        <!-- <field name="implied_ids" eval="[
+            (4, ref('custom_purchase_process.group_material_request_approver'))
+        ]"/> -->
+    </record>
+
+
+    <record id="group_material_request_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="category_id" ref="material_request_category"/>
+        <!-- <field name="implied_ids" eval="[
+            (4, ref('custom_purchase_process.group_material_request_store_manager'))
+        ]"/> -->
+    </record>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <odoo>
+    
+    <record id="category_material_requests" model="ir.module.category">
+        <field name="name">Material Requests</field>
+        <field name="sequence" eval="11"/>
+    </record>
+
+  
+    <record id="group_material_request_requestor" model="res.groups">
+        <field name="name">Material Request Requestor</field>
+        <field name="category_id" ref="category_material_requests"/>
+    </record>
+
+    <record id="group_material_request_approver" model="res.groups">
+        <field name="name">Material Request Approver</field>
+        <field name="category_id" ref="category_material_requests"/>
+    </record>
+
+    <record id="group_material_create_purchase_request" model="res.groups">
+        <field name="name">Create PR</field>
+        <field name="category_id" ref="category_material_requests"/>
+    </record>
+
+    <record id="group_material_create_store_request" model="res.groups">
+        <field name="name">Create SR</field>
+        <field name="category_id" ref="category_material_requests"/>
+    </record>
+
+</odoo> -->

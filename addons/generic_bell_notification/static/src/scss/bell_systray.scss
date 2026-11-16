@@ -339,3 +339,41 @@
         padding: 10px 12px;
     }
 }
+
+.o_gbn_alert_banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    background: #fff8e1;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    color: #5d4a00;
+
+    .o_gbn_alert_btn {
+        margin-left: auto;
+        border: 0;
+        border-radius: 4px;
+        padding: 3px 10px;
+        background: #714b67;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    &.o_gbn_alert_muted {
+        background: #f3f3f3;
+        color: #666;
+    }
+}
+
+/* Waiting for someone to act: stays until the workflow step is done */
+.o_gbn_action_badge {
+    display: inline-block;
+    margin: 2px 0;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #fff3cd;
+    color: #856404;
+    font-size: 11px;
+    font-weight: 600;
+}

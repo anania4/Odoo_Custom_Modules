@@ -1,0 +1,51 @@
+<odoo>
+    <!-- Create Custom Category -->
+    <record id="quality_inspection_category" model="ir.module.category">
+        <field name="name">Quality Inspection</field>
+        <field name="sequence" eval="11"/>
+    </record>
+   
+
+    <!-- User Group -->
+    <record id="group_quality_inspection_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="quality_inspection_category"/>      
+        
+    </record>
+
+    <record id="group_quality_inspection_readonly" model="res.groups">
+        <field name="name">Readonly</field>
+        <field name="category_id" ref="quality_inspection_category"/>
+    </record>
+
+    <!-- Approver Group -->
+    <record id="group_quality_inspection_approver" model="res.groups">
+        <field name="name">Approver</field>
+        <field name="category_id" ref="quality_inspection_category"/>
+        <!-- <field name="implied_ids" eval="[
+            (4, ref('group_material_request_user'))
+        ]"/> -->
+    </record>
+
+    <!-- Admin Group -->
+    <record id="group_quality_inspection_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="category_id" ref="quality_inspection_category"/>
+    </record>
+
+   
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

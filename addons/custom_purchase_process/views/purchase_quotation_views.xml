@@ -1,0 +1,154 @@
+<odoo>
+
+     <record id="view_purchase_quotation_tree" model="ir.ui.view">
+        <field name="name">purchase.quotation.tree</field>
+        <field name="model">purchase.quotation</field>
+        <field name="arch" type="xml">
+            <list default_order="name desc">
+                <field name="name" string="Quotation Reference"/>
+                <field name="material_request_id" string="Material Request" column_invisible="1"/>
+                <field name="purchase_request_id" string="Purchase Request"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="date_order" string="Date"/>
+                <field name="state" string="Status"/>
+                <field name="amount_total" string="Total Amount"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Purchase Quotation -->
+    <record id="view_purchase_quotation_form" model="ir.ui.view">
+        <field name="name">purchase.quotation.form</field>
+        <field name="model">purchase.quotation</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Quotation">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,received"/>
+                    <button name="action_send_to_vendor" 
+                            string="Sent to Vendor"     
+                            type="object" 
+                            class="btn-primary"
+                            groups="custom_purchase_process.group_custom_purchase_request_purchaser"
+                            invisible="state != 'draft'"/>
+                    <!-- Receive without confirm when all lines priced or all unpriced (but action will still validate) -->
+                    <button name="action_receive" 
+                            string="Receive" 
+                            type="object" 
+                            class="btn-success"
+                            groups="custom_purchase_process.group_custom_purchase_request_purchaser"
+                            invisible="state != 'sent' or needs_receive_confirm"/>
+                    <!-- Receive with confirm when mixture of priced and unpriced lines -->
+                    <button name="action_receive" 
+                            string="Receive" 
+                            type="object" 
+                            class="btn-success"
+                            confirm="There are quotation lines without Unit Price. Do you want to continue?"
+                            groups="custom_purchase_process.group_custom_purchase_request_purchaser"
+                            invisible="state != 'sent' or not needs_receive_confirm"/>
+
+                    <!-- <button name="action_reset_to_draft" 
+                            string="Reset to Draft" 
+                            type="object" 
+                            class="btn-warning"
+                            invisible="state != 'received'"/> -->
+
+                    <button name="action_reject" 
+                            string="Reject" 
+                            type="object" 
+                            class="btn-danger"                            
+                            invisible="state != 'sent'"/>
+
+                    <!-- <button name="action_reset_to_draft" 
+                            string="Reset to Draft" 
+                            type="object" 
+                            class="btn-warning"
+                           /> -->
+
+                    <!-- <button name="%(action_purchase_quotation_report)d" string="Print Quotation"
+                            groups="custom_purchase_process.group_custom_purchase_request_purchaser"
+                            type="action" class="btn-primary"
+                            invisible="state != 'sent'"/> -->
+                    
+                    <!-- Reset to Draft Button -->
+                    <button name="action_reset_to_draft" 
+                            string="Reset to Draft" 
+                            type="object" 
+                            class="btn-warning"
+                            groups="custom_purchase_process.group_custom_purchase_request_purchaser"
+                            invisible="state != 'received'"
+                            help="Reset quotation back to draft state"/>
+                </header>
+                <sheet>
+                <div class="o_form_sheet_bg">
+                    <h1>
+                        <field name="name" class="o_inline_display"/>
+                    </h1>
+                </div>
+                    <group>
+
+                        <group>
+                            <field name="state" invisible="1"/>
+                            <field name="partner_id" readonly="state in ['received', 'rejected']"/>
+                            <field name="date_order" readonly="state in ['received', 'rejected']"/>
+                            <field name="quality_evaluation" readonly="state in ['received', 'rejected']"/>
+                            <field name="company_id"/>
+                            <field name="created_by" readonly="1"/>
+                            <field name="needs_receive_confirm" invisible="1"/>
+                            <field name="rejection_reason" readonly="1" invisible="not rejection_reason"/>
+
+                        </group>
+                        <group>
+                            
+                            <field name="material_request_id" readonly="state in ['received', 'rejected','draft']"/>
+                            <field name="purchase_request_id" readonly="state in ['received', 'rejected','draft']"/>
+                            <field name="procurement_type" readonly="state in ['received', 'rejected']"/>
+                            <field name="amount_total" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Quotation Lines">
+                            <field name="quotation_line_ids" create="0" delete="0" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}">
+                                <list editable="bottom" no_create="1" no_open="1">
+                                    <field name="state" column_invisible="1"/>
+                                    <field name="product_id" string="Product" readonly="1"/>
+                                    <field name="description" string="Description" readonly="1"/>
+                                    <field name="product_uom_id" string="UOM" readonly="1"/>
+                                    <field name="quantity" string="Quantity" readonly="1"/>
+                                    <field name="unit_price" string="Unit Price" readonly="state == 'received'"/>
+                                    <field name="taxes_id" string="Taxes" widget="many2many_tags"
+                                           readonly="state == 'received'"/>
+                                    <field name="subtotal" string="Subtotal (Incl. Tax)" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+     <record id="action_purchase_quotation" model="ir.actions.act_window">
+        <field name="name">Purchase Quotations</field>
+        <field name="res_model">purchase.quotation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_purchse_quotation_root_menus"
+              name="Purchase Quotation"
+              parent="custom_purchase_process.menu_purchase_request_root_module"            
+             />
+
+
+    <menuitem id="menu_purchase_quotation_sub_menu"
+              name="Purchase Quotation"
+              parent="menu_purchse_quotation_root_menus"
+              action="action_purchase_quotation" 
+              sequence="1"/>
+
+
+     <!-- Submenu for Purchase Quotations -->
+    <!-- <menuitem id="menu_purchase_quotation" 
+              parent="menu_purchase_management" name="Purchase Quotations" action="action_purchase_quotation"
+              sequence="2"/> -->
+</odoo>

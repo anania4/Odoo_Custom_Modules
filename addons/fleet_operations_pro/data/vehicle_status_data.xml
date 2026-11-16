@@ -10,7 +10,16 @@
             <field name="color">10</field>
             <field name="description">Vehicle is active and operational</field>
         </record>
-        
+
+        <!-- Used by the driver switch and by fleet request assignment: do not remove -->
+        <record id="vehicle_status_in_use" model="fleet.vehicle.status">
+            <field name="name">In Use</field>
+            <field name="code">in_use</field>
+            <field name="sequence">15</field>
+            <field name="color">1</field>
+            <field name="description">Vehicle is on a trip with its driver</field>
+        </record>
+
         <record id="vehicle_status_available" model="fleet.vehicle.status">
             <field name="name">Available</field>
             <field name="code">available</field>

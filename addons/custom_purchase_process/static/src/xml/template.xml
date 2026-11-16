@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="custom_purchase_process.ins_dashboard" owl="1">
+  </t>
+</templates>

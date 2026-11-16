@@ -1,0 +1,69 @@
+<odoo>
+    <data>
+
+    <record id="purchase_request_company_rule" model="ir.rule">
+        <field name="name">Purchase Request by Company</field>
+        <field name="model_id" ref="model_purchase_request"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="product_siv_company_rule" model="ir.rule">
+        <field name="name">Product SIV by Company</field>
+        <field name="model_id" ref="model_product_siv"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+        <record id="purchase_quotation_company_rule" model="ir.rule">
+            <field name="name">Purchase Quotation by Company</field>
+            <field name="model_id" ref="model_purchase_quotation"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="supplier_analysis_company_rule" model="ir.rule">
+            <field name="name">Supplier Analysis by Company</field>
+            <field name="model_id" ref="model_supplier_analysis"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="material_request_company_rule" model="ir.rule">
+    <field name="name">Material Request by Company</field>
+    <field name="model_id" ref="model_material_request"/>
+    <field name="domain_force">[
+        '|',
+        ('requesting_company_id', 'in', company_ids),
+        ('company_id', 'in', company_ids)
+    ]</field>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+</record>
+
+
+
+    <!-- Category for Material Requests -->
+    <record id="category_material_requests" model="ir.module.category">
+        <field name="name">Material Requests</field>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <!-- Requestor Group -->
+    <record id="group_material_request_requestor" model="res.groups">
+        <field name="name">Material Request Requestor</field>
+        <field name="category_id" ref="category_material_requests"/>
+    </record>
+
+    <!-- Approver Group -->
+    <record id="group_material_request_approver" model="res.groups">
+        <field name="name">Material Request Approver</field>
+        <field name="category_id" ref="category_material_requests"/>
+        <field name="implied_ids" eval="[(4, ref('group_material_request_requestor'))]"/>
+    </record>
+
+
+
+
+		
+    </data>
+</odoo>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+     <record id="action_purchase_quotation_report" model="ir.actions.report">
+        <field name="name">Purchase Requisition Voucher</field>
+        <field name="model">purchase.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_purchase_process.report_purchase_quotation_document</field>
+        <field name="print_report_name">'Purchase Requisition Voucher - %s' % (object.name)</field>
+    </record>
+</odoo>

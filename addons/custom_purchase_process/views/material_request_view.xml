@@ -1,0 +1,290 @@
+<odoo>
+    <record id="view_material_request_form" model="ir.ui.view">
+        <field name="name">material.request.form</field>
+        <field name="model">material.request</field>
+        <field name="arch" type="xml">
+            <form string="Store Requestion">
+
+                <header>
+                    <!-- Display the current state -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,approval_requested,approved,pr,siv,delivered,rejected"/>
+
+                    <!-- Action Buttons -->
+                    <button name="action_submit"
+                            string="Submit"
+                            type="object"
+                            class="btn-primary"    
+                            groups="custom_purchase_process.group_material_request_user"                                                   
+                            invisible="state != 'draft'"/>
+
+                    <!-- Buttons for Approver -->
+                    <button name="action_approve"
+                            string="Approve"
+                            type="object"
+                            class="btn-success"
+                            groups="custom_purchase_process.group_material_request_approver"
+                            invisible="state != 'approval_requested'"/>
+
+                    <button name="action_reject"
+                            string="Reject"
+                            type="object"
+                            class="btn-danger"
+                            groups="custom_purchase_process.group_material_request_approver"
+                            invisible="state != 'approval_requested'"/>
+
+
+
+                    <button name="action_reset_to_draft"
+                            string="Reset To Draft"
+                            type="object"
+                            class="btn-warning"
+                            groups="custom_purchase_process.group_material_request_approver"
+                            invisible="state != 'approval_requested'"/>
+
+                    <button name="check_stock"
+                            string="Check Availability"
+                            type="object"
+                            class="btn-primary"
+                            groups="custom_purchase_process.group_material_request_store_manager"
+                            invisible="purpose == 'service' or state not in ('approved', 'pr', 'siv')"/>
+                            <!-- invisible="state == 'approved' or state == 'draft' or state == 'pr' or state == 'rejected' or state == 'delivered' or state == 'siv'"/> -->
+
+                            
+
+                    <button name="action_create_pr"
+                            string="Create PR"
+                            type="object"
+                            class="btn-info"
+                            groups="custom_purchase_process.group_material_request_store_manager"
+                            invisible="state not in ('approved', 'siv')"/>
+                            
+
+                    <button name="action_create_siv"
+                            string="Generate SIV"
+                            type="object"
+                            class="btn-info"
+                            groups="custom_purchase_process.group_material_request_store_manager"
+                            invisible="state != 'approved' and state != 'pr'  and state != 'siv'"/>
+
+                    <button name="reset_to_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            class="btn-warning"
+                            groups="custom_purchase_process.group_material_request_store_manager"
+                            invisible="state != 'approved'"/>
+
+                    <!-- <button name="action_deliver"
+                            string="Generate SIV"
+                            type="object"
+                            class="btn-success"
+                            groups="custom_purchase_process.group_store_request_user"
+                            invisible="state != 'siv'"/> -->
+                    <!-- <button name="reset_to_approved"
+                            string="Reset to Approved"
+                            type="object"
+                            class="btn-secondary"
+                            groups="custom_purchase_process.group_store_request_approver"
+                            invisible="state not in ('pr', 'siv')"/> -->
+                </header>
+                <sheet>
+
+                    <div class="oe_button_box" name="button_box">                     
+
+
+
+                        <button class="oe_stat_button" 
+                                name="action_view_siv" 
+                                type="object"
+                                icon="fa-external-link">                                            
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_value">
+                                            <field name="siv_count" widget="statinfo" string="SIV"/>
+                                        </span>
+                                    </div>
+                        </button>
+                        
+                        <button class="oe_stat_button" 
+                                name="action_view_purchase_requests" 
+                                type="object"
+                                icon="fa-external-link">                                            
+                                    <div class="o_stat_info">
+                                        <span class="o_stat_value">
+                                            <field name="purchase_request_count" widget="statinfo" string="PR(s)"/>
+                                        </span>
+                                    </div>
+                        </button>    
+
+                    </div>
+
+
+                    
+
+                    <div class="o_form_sheet_bg">
+                        <h1>
+                            <field name="name" class="o_inline_display"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+
+                            <field name="requested_by_id" readonly="1" force_save="1" />
+                            <field name="request_department_id" readonly="1" force_save="1" />
+                            <field name="purchase_request_status" widget="badge" decoration-info="purchase_request_status == 'no_pr'" decoration-success="purchase_request_status == 'purchase_order'" decoration-warning="purchase_request_status in ('draft', 'submitted', 'checked', 'reviewed')" decoration-danger="purchase_request_status == 'rejected'"/>
+                            <field name="siv_count" invisible="1"/>
+                            <field name="purchase_request_count" invisible="1"/>
+                            <field name="approved_by_id" invisible="state == 'draft' or state == 'approval_requested'" modifiers="{'readonly': true}"
+                                   force_save="1" readonly="state not in ['draft', 'approval_requested']"/>
+                            <field name="approved_by_char" invisible="1" readonly="1" force_save="1"/>
+                            <field name="date_requested" readonly="1" force_save="1"/>
+                            <field name="date_approved" invisible="state == 'draft'" readonly="1" force_save="1"/>
+                            <field name="current_user_department_id"  readonly="1" force_save="1" invisible="state != 'rejected'"/>
+                            <field name="reason_reset_to_draft" string="Reason Reset to Draft" readonly="state != 'approved'" force_save="1" />
+                        </group>
+                        <group>
+                            
+
+                            <field name="company_id"/>
+                            <field name="purpose" string="Purpose" readonly="state != 'draft'"/>
+                            <field name="maintenance_reference" invisible="purpose != 'maintenance'" readonly="state != 'draft'" force_save="1"/>
+                            <field name="rejection_reason" readonly="1" invisible="not rejection_reason"/>
+                            <field name="from_location_id" string="Store"
+                                   readonly="state not in ['draft', 'approval_requested','approved']"
+                                   invisible="purpose == 'service' or state == 'draft' or state == 'approval_requested'" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="picking_type_id" string="SIV Voucher" invisible="state == 'draft' or state == 'approval_requested'"
+                                   domain="[('default_location_src_id', '=', from_location_id), ('code', '=', 'internal')]"
+                                   readonly="state not in ['draft', 'approval_requested','approved']" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="project_id" string="Project"
+                                   readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="warehouse_id" string="Warehouse" required="1"
+                                   readonly="state not in ['draft', 'approval_requested', 'approved']"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="boq_work_type_ids" invisible="1"/>
+                            <field name="approved_boq_id" string="Approved BOQ"
+                                   readonly="1" force_save="1"
+                                   invisible="not project_id or not approved_boq_id"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="description_of_work_id" string="Description of Work"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <!-- <field name="generate_siv" readonly="state not in ['approved', 'pr','siv']"
+                                   invisible="state in ['draft', 'approval_requested']"/>
+                            <field name="generate_pr" readonly="state not in ['approved', 'pr','siv']"
+                                   invisible="state in ['draft', 'approval_requested']"/> -->
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Request Lines">
+                            <field name="material_request_line_ids">
+                                <list editable="bottom">
+                                    <field name="generate_siv" column_invisible="1"/>
+                                    <field name="generate_pr" column_invisible="1"/>
+                                    <field name="material_request_id" column_invisible="1"/>
+                                    <field name="state" column_invisible="1"/>
+                                    <field name="purpose" column_invisible="1"/>
+                                    <field name="product_id" string="Product" readonly="state != 'draft'"
+                                            domain="[('type', '=', 'consu')] if purpose == 'goods' else ([('type', '=', 'service')] if purpose == 'service' else (['|', ('type', '=', 'consu'), ('type', '=', 'service')] if purpose == 'maintenance' else []))"
+                                            options="{'no_create': True, 'no_open': True}"/>
+
+                                    <field name="description" string="Description" readonly="state != 'draft'"/>
+
+                                    <field name="product_uom_id" readonly="1"/>
+                                    <field name="requested_qty" string="Requested Quantity" readonly="state != 'draft'"
+                                           options="{'auto_width': true}"/>
+                                    <field name="available_qty" string="Available Quantity" readonly="1" force_save="1"
+                                           options="{'auto_width': true}"/>
+                                    <field name="delivered_qty" string="Delivered Quantity" readonly="1" force_save="1"
+                                           options="{'auto_width': true}"/>
+                                    <field name="pr_qty" string="PR Quantity"
+                                           readonly="1"
+                                           options="{'auto_width': true}"/>
+                                    <field name="siv_qty" string="SIV Quantity"
+                                           readonly="state not in ['siv']"
+                                           options="{'auto_width': true}"/>
+                                </list>
+
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_material_request_tree" model="ir.ui.view">
+        <field name="name">material.request.tree</field>
+        <field name="model">material.request</field>
+        <field name="arch" type="xml">
+            <list default_order="name desc">
+                <field name="name"/>
+                <field name="state" widget="badge" />
+                <field name="purchase_request_status" widget="badge" decoration-info="purchase_request_status == 'no_pr'" decoration-success="purchase_request_status == 'purchase_order'" decoration-warning="purchase_request_status in ('draft', 'submitted', 'checked', 'reviewed')" decoration-danger="purchase_request_status == 'rejected'"/>
+                <field name="date_requested"/>
+                <field name="purpose"/>
+                <field name="requested_by_char"/>
+                <field name="approved_by_char"/>
+                <field name="company_id"/>
+                <field name="request_department_id"/>
+                <field name="project_id"/>
+                <field name="warehouse_id" optional="show"/>
+                <!-- <field name="company_id"/> -->
+            </list>
+        </field>
+    </record>
+    <record id="view_material_request_search" model="ir.ui.view">
+        <field name="name">material.request.search</field>
+        <field name="model">material.request</field>
+        <field name="arch" type="xml">
+            <search string="Store Requestion">
+                <field name="name"/>
+                <field name="requested_by_id"/>
+                <field name="request_department_id"/>
+                <field name="state"/>
+                <field name="purchase_request_status"/>
+                <field name="company_id"/>
+                <field name="project_id"/>
+                <filter string="Today" name="filter_today" domain="[('date_requested', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))), ('date_requested', '&lt;', datetime.datetime.combine(context_today() + datetime.timedelta(days=1), datetime.time(0,0,0)))]"/>
+                <filter string="Department" name="group_by_department" context="{'group_by': 'request_department_id'}"/>
+                <filter string="State" name="group_by_state" context="{'group_by': 'state'}"/>
+                <filter string="PR Status" name="group_by_pr_status" context="{'group_by': 'purchase_request_status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_material_request" model="ir.actions.act_window">
+        <field name="name">Store Requestion</field>
+        <field name="res_model">material.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_material_request_search"/>
+        <field name="context">{'search_default_filter_today': 1}</field>
+    </record>
+     <record id="action_material_request_to_approve" model="ir.actions.act_window">
+        <field name="name">Store Requestion to Approve</field>
+        <field name="res_model">material.request</field>
+        <field name="view_mode">list,form</field>   
+        <field name="domain">[('state', '=', 'approval_requested')]</field>
+        <field name="view_id" ref="view_material_request_search"/>
+    </record>
+
+    <menuitem id="menu_material_request_root_module" 
+              name="Store Requestion"
+              web_icon="custom_purchase_process,static/description/icon.png"
+              groups="custom_purchase_process.group_material_request_user,custom_purchase_process.group_material_request_approver,custom_purchase_process.group_material_request_store_manager,custom_purchase_process.group_material_request_admin"/>  
+
+    <menuitem id="menu_material_request_root_menus" 
+              name="Store Requestion"
+              parent="menu_material_request_root_module"
+              action="action_material_request"
+              sequence="1"/>           
+              
+    
+    <!-- <menuitem id="menu_material_request_to_approve_submenus" 
+              name="Store Requestion to Approve"
+              parent="menu_material_request_root_module"
+              action="action_material_request_to_approve"
+              groups="custom_purchase_process.group_material_request_approver,custom_purchase_process.group_material_request_store_manager,custom_purchase_process.group_material_request_admin"
+              sequence="1"/> -->
+</odoo>

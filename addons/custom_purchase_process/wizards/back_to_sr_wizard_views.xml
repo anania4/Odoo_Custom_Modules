@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_back_to_sr_wizard_form" model="ir.ui.view">
+        <field name="name">back.to.sr.wizard.form</field>
+        <field name="model">back.to.sr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Back to SR">
+                <group>
+                    <field name="purchase_request_id" invisible="1"/>
+                    <field name="reason" placeholder="Please provide a reason for returning to Material Request..." required="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Confirm" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_back_to_sr_wizard" model="ir.actions.act_window">
+        <field name="name">Back to SR</field>
+        <field name="res_model">back.to.sr.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
+

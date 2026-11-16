@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+
+    <record id="seq_material_request" model="ir.sequence">
+        <field name="name">Store Requestion Sequence</field>
+        <field name="code">material.request</field>
+        <field name="prefix">SR-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_product_siv" model="ir.sequence">
+        <field name="name">Product SIV Sequence</field>
+        <field name="code">product.siv</field>
+        <field name="prefix">SIV-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_supplier_analysis" model="ir.sequence">
+        <field name="name">Supplier Analysis Sequence</field>
+        <field name="code">supplier.analysis</field>
+        <field name="prefix">SA-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_purchase_requests" model="ir.sequence">
+        <field name="name">Purchase Request Sequence</field>
+        <field name="code">purchase.request</field>
+        <field name="prefix">PR-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_quality_inspection" model="ir.sequence">
+        <field name="name">Quality Inspection Sequence</field>
+        <field name="code">quality.inspection</field>
+        <field name="prefix">QI-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

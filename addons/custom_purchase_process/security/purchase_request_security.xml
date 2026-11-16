@@ -1,0 +1,44 @@
+<odoo>
+    <!-- Create Custom Category -->
+    <record id="custom_purchase_request_category" model="ir.module.category">
+        <field name="name">Purchase Requests</field>
+        <field name="sequence" eval="11"/>
+    </record>
+
+    <!-- Readonly Group -->
+    <record id="group_custom_purchase_request_readonly" model="res.groups">
+        <field name="name">Readonly</field>
+        <field name="category_id" ref="custom_purchase_request_category"/>
+    </record>    <!-- User Group -->
+   
+
+    <record id="group_custom_purchase_request_purchaser" model="res.groups">
+        <field name="name">Procurement Officer</field>
+        <field name="category_id" ref="custom_purchase_request_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_custom_purchase_request_readonly'))]"/>
+        
+        
+    </record>
+
+    <!-- Approver Group -->
+    <record id="group_custom_purchase_request_approvers" model="res.groups">
+        <field name="name">Procurement Supervisor</field>
+        <field name="category_id" ref="custom_purchase_request_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_custom_purchase_request_purchaser'))]"/>
+    </record>
+
+
+    <!-- CEO Group -->
+    <record id="group_purchase_request_ceos" model="res.groups">
+        <field name="name">Procurement Manager</field>
+        <field name="category_id" ref="custom_purchase_request_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_custom_purchase_request_approvers'))]"/>
+    </record>
+
+    <!-- Super Admin Group -->
+    <record id="group_custom_purchase_request_super_admin" model="res.groups">
+        <field name="name">Super Admin</field>
+        <field name="category_id" ref="custom_purchase_request_category"/>
+        <field name="implied_ids" eval="[(4, ref('group_purchase_request_ceos'))]"/>
+    </record>
+</odoo>

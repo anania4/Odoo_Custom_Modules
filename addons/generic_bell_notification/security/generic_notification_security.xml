@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Each user can only see / touch his own notifications -->
+    <record id="generic_notification_rule_own" model="ir.rule">
+        <field name="name">Generic Notification: own notifications only</field>
+        <field name="model_id" ref="model_generic_notification"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+</odoo>

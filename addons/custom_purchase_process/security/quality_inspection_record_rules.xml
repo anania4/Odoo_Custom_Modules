@@ -1,0 +1,38 @@
+<odoo>
+    <!-- ==== QUALITY INSPECTION RULES ==== -->
+
+    
+    <record id="quality_inspection_user_rule" model="ir.rule">
+        <field name="name">Quality Inspection - User (Company Only)</field>
+        <field name="model_id" ref="model_quality_inspection"/>
+        <field name="domain_force">[('supplier_analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_quality_inspection_user'))]"/>
+    </record>
+
+    <record id="quality_inspection_readonly_rule" model="ir.rule">
+        <field name="name">Quality Inspection - Readonly (Company Only)</field>
+        <field name="model_id" ref="model_quality_inspection"/>
+        <field name="domain_force">[('supplier_analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_quality_inspection_readonly'))]"/>
+    </record>
+
+    
+
+    <!-- 4. Approver: Can see quality inspections through supplier analysis company -->
+    <record id="quality_inspection_approver_rule" model="ir.rule">
+        <field name="name">Quality Inspection - Approver (Company Only)</field>
+        <field name="model_id" ref="model_quality_inspection"/>
+        <field name="domain_force">[('supplier_analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_quality_inspection_approver'))]"/>
+    </record>
+
+    <!-- 5. Admin: Full access to quality inspections -->
+    <record id="quality_inspection_admin_rule" model="ir.rule">
+        <field name="name">Quality Inspection - Admin (Full Access)</field>
+        <field name="model_id" ref="model_quality_inspection"/>
+        <field name="domain_force">[('supplier_analysis_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_quality_inspection_admin'))]"/>
+    </record>
+
+   
+</odoo> 

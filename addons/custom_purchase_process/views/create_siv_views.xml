@@ -1,0 +1,162 @@
+<odoo>
+ <!-- Product SIV Line Tree View -->
+    <record id="view_product_siv_line_tree" model="ir.ui.view">
+        <field name="name">product.siv.line.tree</field>
+        <field name="model">product.siv.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="material_request_line_id"/>
+                <field name="product_id"/>
+                <field name="requested_qty"/>
+                <field name="issued_qty"/>
+            </list>
+        </field>
+    </record>
+
+ <!-- Product SIV Views -->
+    <record id="view_product_siv_form" model="ir.ui.view">
+        <field name="name">product.siv.form</field>
+        <field name="model">product.siv</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <!-- State as a Status Bar -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,request_approval,approved,delivered"/>
+
+                    <!-- Buttons Based on State -->
+                    <button name="action_request_approval" 
+                            string="Request Approval" 
+                            type="object" 
+                            class="btn-primary"
+                            groups="custom_purchase_process.group_store_request_user"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve" 
+                            string="Approve" 
+                            type="object" 
+                            class="btn-success"
+                            groups="custom_purchase_process.group_store_request_approver"
+                            invisible="state != 'request_approval'"/>
+                    <button name="action_deliver" 
+                            string="Deliver" 
+                            type="object" 
+                            class="btn-primary"
+                            groups="custom_purchase_process.group_store_request_user"
+                            invisible="state != 'approved'"/>
+                    <button name="unlink" 
+                            string="Cancel" 
+                            type="object" 
+                            class="btn-secondary"
+                            invisible="state in ['delivered', 'cancel']"/>
+                </header>
+                <sheet>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_view_moves"
+                                icon="fa-truck"
+                                class="oe_stat_button"
+                                invisible="picking_count == 0">
+                            <field name="picking_count" widget="statinfo" string="Transfers"/>
+                        </button>
+
+                    </div>
+
+                    <div class="o_form_sheet_bg">
+                        <h1>
+                            <field name="name" class="o_inline_display"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="material_request_id" readonly="1"/>
+                            <field name="operation_type_id" readonly="1"/>
+                            <field name="requested_date"/>
+                            
+                        </group>
+                        <group>
+                            <field name="requested_by" readonly="1"/>
+                            <field name="approved_by_id" readonly="1"/>
+                            <field name="issued_by" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+                    </group>
+
+
+                    <notebook>
+                        <page string="SR Lines">
+                            <field name="product_siv_line_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="material_request_line_id"/>
+                                    <field name="product_id"/>
+                                    <field name="requested_qty"/>
+                                    <field name="issued_qty"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="material_request_line_id"/>
+                                        <field name="product_id"/>
+                                        <field name="requested_qty"/>
+                                        <field name="issued_qty"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                    <footer>
+                        <button string="Request Approval" 
+                                type="object" 
+                                name="action_request_approval"
+                                class="btn-primary" 
+                                
+                                modifiers="{'invisible': [('state', '!=', 'draft')]}"/>
+                        <button string="Approve" 
+                                type="object" 
+                                name="action_approve" 
+                                class="btn-success"
+                                
+                                modifiers="{'invisible': [('state', '!=', 'request_approval')]}"/>
+                        <button string="Deliver" 
+                                type="object" 
+                                name="action_deliver" 
+                                class="btn-primary"
+                                
+                                modifiers="{'invisible': [('state', '!=', 'approved')]}"/>
+                        <button string="Cancel" 
+                                type="object" 
+                                name="unlink" 
+                                class="btn-secondary"
+                                modifiers="{'invisible': [('state', 'in', ['draft', 'request_approval', 'approved'])]}"/>
+                    </footer>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_product_siv_tree" model="ir.ui.view">
+        <field name="name">product.siv.tree</field>
+        <field name="model">product.siv</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="requested_date"/>
+                <field name="material_request_id"/>
+                <field name="operation_type_id"/>
+                <field name="requested_by"/>
+                <field name="approved_by_id"/>
+                <field name="issued_by"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_product_siv" model="ir.actions.act_window">
+        <field name="name">SR</field>
+        <field name="res_model">product.siv</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- <menuitem id="menu_product_siv"  name="SR"
+              action="action_product_siv" web_icon="afro_construction_template_ovid,static/description/siv.png"/> -->
+
+</odoo>

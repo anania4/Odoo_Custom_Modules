@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_purchase_quotation_document">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-set="doc" t-value="docs[0]"/>
+                <div style="font-family: Arial, sans-serif; font-size: 12px; margin: 5px;">
+                    
+                    <!-- Simple Header -->
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <div style="font-size: 24px; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;"><t t-esc="doc.company_id.name or ''"/></div>
+                        <div style="font-size: 18px; font-weight: bold;">PURCHASE REQUISITION VOUCHER</div>
+                    </div>
+                    
+                    <!-- Basic Info Table -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><strong>Document No:</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><t t-esc="doc.name"/></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><t t-esc="doc.material_request_id.name or ''"/></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"></td>
+                            
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><strong>Department:</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;" colspan="3"><t t-esc="doc.material_request_id.request_department_id.name or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><strong>Purpose:</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;" colspan="3"><t t-esc="doc.material_request_id.purpose_label or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><strong>Source of Finance:</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><strong>Budget Line (BL):</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><strong>Date:</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><t t-esc="doc.date_requested or ''"/></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"><strong>Work Plan (WP):</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 25%;"></td>
+                        </tr>
+                    </table>
+                    
+                    <!-- Main Items Table - Excel Style -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <!-- Header Row -->
+                        <tr style="background-color: #f0f0f0;">
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 5%; font-size: 13px;">No.</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 20%; font-size: 13px;">Product Name</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 20%; font-size: 13px;">Description</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 10%; font-size: 13px;">UOM</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 8%; font-size: 13px;">Quantity</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 10%; font-size: 13px;">Unit Price</th>
+                            <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; width: 17%; font-size: 13px;">Remark</th>
+                        </tr>
+                        
+                        <!-- Data Rows -->
+                        <t t-foreach="doc.purchase_request_line_ids" t-as="line">
+                            <tr>
+                                <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 12px;"><t t-esc="line_index + 1"/></td>
+                                <td style="border: 1px solid #000; padding: 5px; font-size: 12px;"><t t-esc="line.product_id.name or ''"/></td>
+                                <td style="border: 1px solid #000; padding: 5px; font-size: 12px;"><t t-esc="line.description or ''"/></td>
+                                <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 12px;"><t t-esc="line.product_id.uom_id.name or ''"/></td>
+                                <td style="border: 1px solid #000; padding: 5px; text-align: center; font-size: 12px;"><t t-esc="line.quantity or 0"/></td>
+                                <td style="border: 1px solid #000; padding: 5px; text-align: right; font-size: 12px;"><t t-esc="line.unit_price or 0" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td style="border: 1px solid #000; padding: 5px; text-align: right; font-size: 12px;"><t t-esc="''"/></td>
+                            </tr>
+                        </t>
+                    </table>
+                    
+                    <!-- Delivery Info -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; width: 30%;"><strong>Address to which you want the supplies to be delivered:</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px; width: 70%;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px;"><strong>How do you want the supplies to be delivered and by when:</strong></td>
+                            <td style="border: 1px solid #000; padding: 5px;"></td>
+                        </tr>
+                    </table>
+                    
+
+                    
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

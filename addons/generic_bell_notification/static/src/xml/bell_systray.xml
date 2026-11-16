@@ -17,19 +17,34 @@
             </div>
         </div>
 
+        <div t-if="state.alertPermission === 'default'" class="o_gbn_alert_banner">
+            <i class="fa fa-desktop"/>
+            <span>Get a sound and a pop-up even when Odoo is in the background.</span>
+            <button type="button" class="o_gbn_alert_btn" t-on-click.stop="enableAlerts">Enable</button>
+        </div>
+        <div t-elif="state.alertPermission === 'denied'" class="o_gbn_alert_banner o_gbn_alert_muted">
+            <i class="fa fa-ban"/>
+            <span>Pop-up alerts are blocked for this site in your browser settings.</span>
+        </div>
+        <div t-elif="state.alertPermission === 'unsupported'" class="o_gbn_alert_banner o_gbn_alert_muted">
+            <i class="fa fa-lock"/>
+            <span>Background pop-up alerts need Odoo to be opened over HTTPS.</span>
+        </div>
+
         <t t-if="state.notifications.length">
             <div class="o_gbn_list">
                 <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
-                    <div t-attf-class="o_gbn_card o_gbn_type_#{notif.notif_type or 'info'} #{notif.is_read ? 'o_gbn_read' : ''}">
+                    <div t-attf-class="o_gbn_card o_gbn_type_#{notif.notif_type or 'info'} #{notif.is_read ? 'o_gbn_read' : ''} #{notif.action_required ? 'o_gbn_action_required' : ''}">
                         <div class="o_gbn_icon" t-on-click="openNotification.bind(this, notif.id)">
                             <i t-attf-class="fa #{notif.icon_class or 'fa-bell'}"/>
                         </div>
                         <div class="o_gbn_content" t-on-click="openNotification.bind(this, notif.id)">
                             <div class="o_gbn_title" t-esc="notif.name"/>
+                            <div t-if="notif.action_required" class="o_gbn_action_badge">Action required</div>
                             <div class="o_gbn_body" style="white-space: pre-line;" t-esc="notif.body"/>
                             <div class="o_gbn_time" t-esc="notif.create_date"/>
                         </div>
-                        <i class="fa fa-check o_gbn_mark_single" title="Mark as read"
+                        <i t-if="!notif.action_required" class="fa fa-check o_gbn_mark_single" title="Mark as read"
                            t-on-click.stop="markAsRead.bind(this, notif.id)"/>
                     </div>
                 </t>

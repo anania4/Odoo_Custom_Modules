@@ -1,7 +1,16 @@
 /** @odoo-module **/
 import { Component, useState, onMounted, onWillUnmount, useRef } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { useService, useBus } from "@web/core/utils/hooks";
+import { useService } from "@web/core/utils/hooks";
+import {
+    playDing,
+    systemPermission,
+    requestSystemPermission,
+    initSystemAlerts,
+    showSystemNotification,
+    closeSystemNotifications,
+    onSystemNotificationClick,
+} from "./bell_alerts";
 
 export class GenericBellSystray extends Component {
     static template = "generic_bell_notification.BellSystray";
@@ -18,15 +27,18 @@ export class GenericBellSystray extends Component {
             counter: 0,
             open: false,
             limit: 10,
+            alertPermission: systemPermission(),
         });
 
-        useBus(this.busService, "notification", (notifications) => {
-            for (const n of notifications) {
-                if (n.type === "generic_notification_update") {
-                    this._addOrUpdateNotification(n.notification);
-                }
+        this._onBusUpdate = (payload) => {
+            if (payload.action === "remove") {
+                this._onRemoved(payload.notification_ids);
+            } else {
+                this._addOrUpdateNotification(payload.notification);
             }
-        });
+        };
+        this.busService.subscribe("generic_notification_update", this._onBusUpdate);
+        this.busService.start();
 
         this._onClickOutside = this._onClickOutside.bind(this);
 
@@ -34,22 +46,31 @@ export class GenericBellSystray extends Component {
             const data = await this.orm.call("res.users", "systray_identity", []);
             this.userId = data.user_id;
             this.partnerId = data.partner_id;
-            if (this.partnerId) this.busService.addChannel(String(this.partnerId));
             await this._loadNotifications();
             await this._popPending();
+            initSystemAlerts();
+            this._stopClickListener = onSystemNotificationClick((id) => this.openNotification(id));
         });
 
         onWillUnmount(() => {
+            this.busService.unsubscribe("generic_notification_update", this._onBusUpdate);
             this._removeOutsideListeners();
+            if (this._stopClickListener) {
+                this._stopClickListener();
+            }
         });
     }
 
     async _loadNotifications(offset = 0) {
         const domain = [["user_id", "=", this.userId]];
-        const fields = ["id","name","body","create_date","res_model","res_id","is_read","module_category","notif_type","icon_class"];
-        const records = await this.orm.searchRead("generic.notification", domain, fields, {limit: this.state.limit, offset, order: "create_date desc"});
+        const fields = ["id","name","body","create_date","res_model","res_id","is_read","module_category","notif_type","icon_class","action_required"];
+        const records = await this.orm.searchRead("generic.notification", domain, fields, {limit: this.state.limit, offset, order: "action_required desc nulls last, create_date desc"});
         this.state.notifications = records;
-        this.state.counter = records.filter(n => !n.is_read).length;
+        // Count on the server: only the latest notifications are loaded here.
+        this.state.counter = await this.orm.searchCount("generic.notification", [
+            ["user_id", "=", this.userId],
+            ["is_read", "=", false],
+        ]);
     }
 
     _showCornerPopup(n) {
@@ -91,6 +112,7 @@ export class GenericBellSystray extends Component {
         if (!pending.length) {
             return;
         }
+        playDing();
         const MAX_INDIVIDUAL = 3;
         // oldest first so the newest ends up on top of the stack
         const shown = pending.slice(0, MAX_INDIVIDUAL).reverse();
@@ -145,10 +167,28 @@ export class GenericBellSystray extends Component {
                 this.state.notifications.pop();
             }
             if (!notif.is_read) {
+                this.state.counter++;
                 this._showCornerPopup(notif);
+                const dinged = playDing();
+                showSystemNotification(notif, dinged);
             }
         }
-        this.state.counter = this.state.notifications.filter(n => !n.is_read).length;
+    }
+
+    /** Somebody dealt with the record: these notifications no longer exist. */
+    _onRemoved(notifIds) {
+        closeSystemNotifications(notifIds);
+        if (this.userId) {
+            this._loadNotifications();
+        }
+    }
+
+    _markLocallyRead(notifId) {
+        const notif = this.state.notifications.find(n => n.id === notifId);
+        if (notif && !notif.is_read && !notif.action_required) {
+            notif.is_read = true;
+            this.state.counter = Math.max(0, this.state.counter - 1);
+        }
     }
 
     _onToggle() {
@@ -177,28 +217,41 @@ export class GenericBellSystray extends Component {
 
     async markAsRead(notifId) {
         await this.orm.call("generic.notification", "action_mark_as_read", [notifId]);
-        const notif = this.state.notifications.find(n => n.id === notifId);
-        if (notif) notif.is_read = true;
-        this.state.counter = this.state.notifications.filter(n => !n.is_read).length;
+        this._markLocallyRead(notifId);
+        closeSystemNotifications([notifId]);
+    }
+
+    async enableAlerts() {
+        this.state.alertPermission = await requestSystemPermission();
+        playDing();
+    }
+
+    /** Ids of the loaded notifications that may be dismissed: never the
+     * action-required ones, which stay until the task is done. */
+    _dismissableIds() {
+        return this.state.notifications.filter(n => !n.action_required).map(n => n.id);
     }
 
     async markAllAsRead() {
+        closeSystemNotifications(this._dismissableIds());
         await this.orm.call("generic.notification", "action_mark_all_as_read", []);
-        this.state.notifications.forEach(n => n.is_read = true);
-        this.state.counter = 0;
+        await this._loadNotifications();
     }
 
     async clearAll() {
+        closeSystemNotifications(this._dismissableIds());
         await this.orm.call("generic.notification", "action_clear_all", []);
-        this.state.notifications = [];
-        this.state.counter = 0;
+        await this._loadNotifications();
     }
 
     async openNotification(notifId) {
         const action = await this.orm.call("generic.notification", "action_open_record", [notifId]);
-        const notif = this.state.notifications.find(n => n.id === notifId);
-        if (notif) notif.is_read = true;
-        this.state.counter = this.state.notifications.filter(n => !n.is_read).length;
+        this._markLocallyRead(notifId);
+        closeSystemNotifications([notifId]);
+        if (action && action.type === "ir.actions.act_window_close") {
+            // The record is gone, or the notification had no record to open.
+            await this._loadNotifications();
+        }
         this.state.open = false;
         this._removeOutsideListeners();
         if (action && action.type) this.action.doAction(action);

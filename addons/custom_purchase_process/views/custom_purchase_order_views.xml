@@ -1,0 +1,91 @@
+<odoo>
+
+     <record id="view_purchase_order_form_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Delivery Instructions">
+                    <field name="delivery_instruction_ids" readonly="not is_unlocked and state not in ['draft', 'sent', 'to approve']">
+                        <list editable="bottom">
+                            <field name="expected_date" string="Expected Date"/>
+                            <field name="quantity" string="Quantity"/>
+                            <field name="name" string="Remark"/>
+
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+
+            <!-- Add Procurement Type and State Fields -->
+            <field name="partner_id" position="after">
+                <field name="procurement_type" required="1" readonly="not is_unlocked and state not in ['draft', 'sent', 'to approve']"/>
+            </field>
+
+            <!-- Unlock: only Purchase Administrators. A confirmed (or locked) PO can be
+                 unlocked, which makes every field editable until it is locked again. -->
+            <xpath expr="//header/button[@name='button_unlock']" position="attributes">
+                <attribute name="invisible">is_unlocked or state not in ('purchase', 'done')</attribute>
+                <attribute name="groups">purchase.group_purchase_manager</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='button_unlock']" position="after">
+                <field name="is_unlocked" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning mb-0 text-center" role="alert" invisible="not is_unlocked">
+                    <i class="fa fa-unlock me-1" title="Unlocked"/>
+                    <strong>Unlocked</strong>: every field of this purchase order can be edited. Click <strong>Lock</strong> when you are done.
+                </div>
+            </xpath>
+
+            <!-- Fields standard Odoo makes read-only once confirmed: editable while unlocked -->
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="readonly">not is_unlocked and state in ['cancel', 'done', 'purchase']</attribute>
+            </xpath>
+            <xpath expr="//field[@name='currency_id'][@groups='base.group_multi_currency']" position="attributes">
+                <attribute name="readonly">not is_unlocked and state in ['cancel', 'done', 'purchase']</attribute>
+            </xpath>
+            <xpath expr="//field[@name='date_order']" position="attributes">
+                <attribute name="invisible">not is_unlocked and state in ('purchase', 'done')</attribute>
+                <attribute name="readonly">not is_unlocked and state in ['cancel', 'done', 'purchase']</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="attributes">
+                <attribute name="readonly">not parent.is_unlocked and (state in ('purchase', 'to approve', 'done', 'cancel') or is_downpayment)</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_uom']" position="attributes">
+                <attribute name="readonly">not parent.is_unlocked and (state in ('purchase', 'done', 'cancel') or is_downpayment)</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="attributes">
+                <attribute name="readonly">not parent.is_unlocked and qty_invoiced != 0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='discount']" position="attributes">
+                <attribute name="readonly">not parent.is_unlocked and qty_invoiced != 0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
+                <attribute name="readonly">not parent.is_unlocked and state in ('purchase', 'to approve', 'done', 'cancel')</attribute>
+            </xpath>
+
+            <!-- Add Quality Inspection Fields -->
+            <!-- Lock order lines once the PO is confirmed/running (unless unlocked) -->
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="readonly">not is_unlocked and state not in ['draft', 'sent', 'to approve']</attribute>
+            </xpath>
+
+            <xpath expr="//sheet" position="inside">
+                <group string="Quality Inspection">
+                    <field name="quality_evaluation" readonly="not is_unlocked and state not in ['draft', 'sent', 'to approve']"/>
+                    <field name="passed_evaluation" readonly="not is_unlocked and state not in ['draft', 'sent', 'to approve']"/>
+                    <field name="evaluation_remark" readonly="not is_unlocked and state not in ['draft', 'sent', 'to approve']"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Opening the Purchase app shows the Purchase Orders (not the Requests for Quotation) -->
+    <record id="purchase.menu_purchase_root" model="ir.ui.menu">
+        <field name="action" ref="purchase.purchase_form_action"/>
+    </record>
+
+</odoo>
