@@ -1,0 +1,1290 @@
+// Project Dashboard — extends the Budget Schedule look (o_budget_schedule / o_bd_*
+// from mefs_budget_planning). Same tokens; only dashboard-specific pieces here.
+
+$pd-bg: #f4f6f9;
+$pd-card: #ffffff;
+$pd-ink: #111827;
+$pd-ink-2: #374151;
+$pd-muted: #6b7280;
+$pd-faint: #9ca3af;
+$pd-border: #e5e7eb;
+$pd-line: #f0f2f5;
+$pd-accent: #2e6da4;
+$pd-accent-soft: #7fb0dc;
+$pd-good: #1f7a45;
+$pd-warn: #b26a00;
+$pd-bad: #b42318;
+$pd-violet: #5b4bb7;
+
+.o_budget_schedule.o_project_dashboard {
+    background: $pd-bg;
+
+    // Odoo sets `overflow: hidden` on the action container, so scroll inside it
+    .o_pd_scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        background: linear-gradient(180deg, #eef1f8 0, $pd-bg 320px);
+    }
+
+    .o_pd_page {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 1.75rem 2rem 3rem;
+    }
+
+    .o_pd_neg { color: $pd-bad !important; }
+    .o_pd_pos { color: $pd-good !important; }
+    .o_pd_warn { color: $pd-warn !important; }
+    .o_pd_strong { color: $pd-ink-2; font-weight: 600; }
+    .o_pd_code {
+        color: $pd-muted;
+        font-family: $font-family-monospace;
+        font-size: 0.78rem;
+    }
+
+    // ---- Header: project picker styled as the title field ----
+    .o_pd_title_select {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
+        margin-top: 0.1rem;
+
+        select {
+            appearance: none;
+            max-width: 44rem;
+            min-width: 14ch;
+            padding: 0.1rem 2rem 0.1rem 0.4rem;
+            margin-left: -0.4rem;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: transparent;
+            color: $pd-ink-2;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.85);
+                border-color: $pd-border;
+            }
+            &:focus {
+                outline: 0;
+                background: #fff;
+                border-color: $pd-accent;
+                box-shadow: 0 0 0 3px rgba(46, 109, 164, 0.15);
+            }
+        }
+        > .fa {
+            position: absolute;
+            top: 50%;
+            right: 0.6rem;
+            transform: translateY(-50%);
+            color: $pd-ink-2;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        &:hover > .fa { opacity: 1; }
+    }
+    .o_pd_subtitle_value { color: $pd-ink-2; font-weight: 600; }
+    .o_pd_sep { color: $pd-faint; }
+    .o_pd_sample_tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.3rem 0.75rem;
+        border: 1px dashed $pd-border;
+        border-radius: 999px;
+        background: #fff;
+        color: $pd-muted;
+        font-size: 0.78rem;
+        font-weight: 500;
+    }
+
+    // ---- 5 headline cards ----
+    .o_pd_kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(#{"min(100%, 220px)"}, 1fr));
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+
+        .o_bd_kpi_value { white-space: normal; }
+    }
+    .o_pd_icon_red { background: #fdecec; color: $pd-bad; }
+
+    // ---- Progress & tasks strip (below the cards) ----
+    .o_pd_pstrip {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 1rem;
+        padding: 1rem 1.25rem;
+        overflow: visible;
+    }
+    .o_pd_pstrip_ring { display: flex; align-items: center; gap: 0.9rem; }
+    .o_pd_ring_sm { flex: 0 0 76px; width: 76px; height: 76px; }
+    .o_pd_ring_sm .o_pd_ring_val { font-size: 26px; }
+    .o_pd_pstrip_ringtxt .o_bd_kpi_label { padding: 0 0 0.2rem; }
+    .o_pd_pstrip_line {
+        color: $pd-muted;
+        font-size: 0.78rem;
+        white-space: nowrap;
+
+        b { color: $pd-ink; font-weight: 650; }
+    }
+
+    // Phase stepper
+    .o_pd_steps {
+        display: flex;
+        gap: 0.5rem;
+        min-width: 0;
+        padding: 0 1.5rem;
+        border-left: 1px solid $pd-line;
+        border-right: 1px solid $pd-line;
+    }
+    .o_pd_step {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        padding-top: 0.1rem;
+
+        // connector to the next step
+        &:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 13px;
+            left: calc(26px + 0.4rem);
+            right: 0.1rem;
+            height: 2px;
+            background: $pd-line;
+        }
+        &.is-done:not(:last-child)::after { background: #a7d7b9; }
+    }
+    .o_pd_step_dot {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border: 2px solid $pd-border;
+        border-radius: 50%;
+        background: #fff;
+        color: $pd-faint;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+    .o_pd_step_name {
+        overflow: hidden;
+        margin-top: 0.4rem;
+        color: $pd-ink-2;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .o_pd_step_bar {
+        height: 4px;
+        margin: 0.35rem 0 0.3rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: $pd-line;
+
+        span { display: block; height: 100%; border-radius: 999px; background: $pd-accent; }
+    }
+    .o_pd_step_meta {
+        overflow: hidden;
+        color: $pd-faint;
+        font-size: 0.7rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        b { color: $pd-ink-2; }
+    }
+    .o_pd_step.is-done {
+        .o_pd_step_dot { border-color: $pd-good; background: $pd-good; color: #fff; }
+        .o_pd_step_bar span { background: $pd-good; }
+    }
+    .o_pd_step.is-current {
+        .o_pd_step_dot { border-color: $pd-accent; background: $pd-accent; color: #fff; box-shadow: 0 0 0 4px rgba(46, 109, 164, 0.15); }
+        .o_pd_step_name { color: $pd-accent; }
+    }
+    .o_pd_step.is-started .o_pd_step_dot { border-color: $pd-accent-soft; color: $pd-accent; }
+
+    // Task counters
+    .o_pd_pstrip_tasks {
+        display: flex;
+        gap: 1.25rem;
+
+        > div { display: flex; flex-direction: column; align-items: center; min-width: 4.2rem; }
+        b { color: $pd-ink; font-size: 1.45rem; font-weight: 700; line-height: 1.1; }
+        small { color: $pd-muted; font-size: 0.72rem; white-space: nowrap; }
+        .is-done b { color: $pd-good; }
+        .is-pending b { color: $pd-warn; }
+    }
+    @media (max-width: 1100px) {
+        .o_pd_pstrip { grid-template-columns: 1fr; gap: 1rem; }
+        .o_pd_steps { padding: 1rem 0; border: 0; border-top: 1px solid $pd-line; border-bottom: 1px solid $pd-line; overflow-x: auto; }
+        .o_pd_step { min-width: 110px; }
+        .o_pd_pstrip_tasks { justify-content: space-around; }
+    }
+
+    // ---- Sub-menu tabs ----
+    .o_pd_tabs {
+        display: flex;
+        gap: 0.25rem;
+        margin: 1.75rem 0 0;
+        padding: 0.3rem;
+        overflow-x: auto;
+        border: 1px solid $pd-border;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    .o_pd_tab {
+        display: inline-flex;
+        flex: 1 0 auto;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1rem;
+        border: 0;
+        border-radius: 7px;
+        background: transparent;
+        color: $pd-muted;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: background-color 0.15s ease, color 0.15s ease;
+
+        .fa { opacity: 0.8; }
+        &:hover { background: #f3f6fa; color: $pd-ink-2; }
+        &.active {
+            background: $pd-accent;
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(46, 109, 164, 0.35);
+        }
+    }
+
+    // ---- Shared chart bits ----
+    .o_pd_legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.25rem;
+        color: $pd-muted;
+        font-size: 0.78rem;
+
+        i {
+            display: inline-block;
+            width: 0.7rem;
+            height: 0.7rem;
+            margin-right: 0.4rem;
+            border-radius: 3px;
+            vertical-align: -1px;
+        }
+        b { color: $pd-ink-2; }
+    }
+    .o_pd_card_foot {
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid $pd-line;
+        background: #fafbfc;
+    }
+
+    .o_pd_fill_income   { background: $pd-accent; }
+    .o_pd_fill_budget   { background: #cfd6e0; }
+    .o_pd_fill_booked   { background: #2e6da4; }
+    .o_pd_fill_unbooked { background: $pd-accent-soft; }
+    .o_pd_fill_idle     { background: #f2c27b; }
+    .o_pd_key_planned   { background: transparent !important; border: 2px dashed $pd-faint; }
+    .o_pd_key_certified { background: $pd-accent; }
+    .o_pd_key_mark      { width: 3px !important; background: $pd-ink-2; }
+    .o_pd_key_bar       { background: #dbe7f3; border: 1px solid $pd-accent-soft; }
+    .o_pd_key_slip      { background: repeating-linear-gradient(135deg, #f3b1aa 0 3px, #fdecec 3px 6px); }
+    .o_pd_key_today     { width: 0 !important; border-left: 2px dashed $pd-bad; border-radius: 0 !important; }
+    .o_pd_key_finish    { width: 0 !important; border-left: 2px solid $pd-violet; border-radius: 0 !important; }
+
+    .o_pd_meter {
+        position: relative;
+        display: flex;
+        flex: 1;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: $pd-line;
+
+        > span { display: block; flex: none; height: 100%; }
+    }
+    .o_pd_meter_lg { height: 12px; }
+    .o_pd_meter_good > span { background: $pd-good; }
+    .o_pd_meter_warn > span { background: #d98b1a; }
+    .o_pd_meter_bad > span  { background: $pd-bad; }
+    .o_pd_meter_target {
+        overflow: visible;
+        > span:first-child { border-radius: 999px 0 0 999px; }
+        > i {
+            position: absolute;
+            top: -3px;
+            width: 3px;
+            height: 14px;
+            margin-left: -1px;
+            border-radius: 2px;
+            background: $pd-ink-2;
+        }
+    }
+    .o_pd_meter_row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.9rem;
+        font-size: 0.85rem;
+
+        > span:first-child { flex: 0 0 110px; color: $pd-muted; }
+        > b { flex: 0 0 auto; min-width: 3.2rem; color: $pd-ink; text-align: right; }
+    }
+
+    .o_pd_badge {
+        display: inline-block;
+        padding: 0.1rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .o_pd_badge_good  { background: #e8f5ed; color: $pd-good; }
+    .o_pd_badge_warn  { background: #fdf3e3; color: $pd-warn; }
+    .o_pd_badge_bad   { background: #fdecec; color: $pd-bad; }
+    .o_pd_badge_done  { background: #eaf1f8; color: $pd-accent; }
+    .o_pd_badge_muted { background: #f1f2f4; color: $pd-muted; }
+
+    // ---- Tables (match o_bd_table look) ----
+    .o_pd_table {
+        font-size: 0.85rem;
+
+        thead th {
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid $pd-border;
+            background: #fafbfc;
+            color: $pd-muted;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 0.6rem 0.75rem;
+            border-color: $pd-line;
+            color: $pd-ink;
+            vertical-align: middle;
+        }
+        tbody tr:hover td { background: #f8fafc; }
+        tfoot td {
+            padding: 0.65rem 0.75rem;
+            border-top: 1px solid $pd-border;
+            background: #fafbfc;
+            color: $pd-ink;
+            font-weight: 650;
+        }
+        th:first-child, td:first-child { padding-left: 1.25rem; }
+        th:last-child, td:last-child { padding-right: 1.25rem; }
+    }
+
+    // ---- Mini stat strip ----
+    .o_pd_minis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(#{"min(100%, 180px)"}, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    .o_pd_mini {
+        display: flex;
+        flex-direction: column;
+        padding: 0.85rem 1rem;
+        border: 1px solid $pd-border;
+        border-radius: 10px;
+        background: #fff;
+
+        small { color: $pd-muted; font-size: 0.75rem; font-weight: 500; }
+        b { margin-top: 0.2rem; color: $pd-ink; font-size: 1.15rem; font-weight: 650; }
+        span { color: $pd-faint; font-size: 0.72rem; }
+    }
+
+    // ---- Overview: income line chart ----
+    .o_pd_line {
+        display: flex;
+        gap: 0.6rem;
+        height: 260px;
+        margin-top: 1rem;
+    }
+    .o_pd_line_y {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-bottom: 24px;
+        color: $pd-faint;
+        font-size: 0.7rem;
+        text-align: right;
+        transform: translateY(-0.45em);
+    }
+    .o_pd_line_plot {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+
+        svg { flex: 1; width: 100%; overflow: visible; }
+    }
+    .o_pd_line_x {
+        display: flex;
+        justify-content: space-between;
+        height: 24px;
+        padding-top: 6px;
+        color: $pd-muted;
+        font-size: 0.75rem;
+    }
+    .o_pd_gridline { stroke: $pd-line; stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .o_pd_area { fill: rgba(46, 109, 164, 0.1); }
+    .o_pd_ln_planned {
+        fill: none;
+        stroke: $pd-faint;
+        stroke-width: 2;
+        stroke-dasharray: 6 5;
+        vector-effect: non-scaling-stroke;
+    }
+    .o_pd_ln_certified {
+        fill: none;
+        stroke: $pd-accent;
+        stroke-width: 2.5;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+    }
+
+    // ---- Overview: progress ring, phases, tasks; income ----
+    // Full-width progress card: ring + facts | phases | task counts
+    .o_pd_prog_grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(#{"min(100%, 300px)"}, 1fr));
+        gap: 1.25rem 2rem;
+
+        .o_pd_phase_list, .o_pd_task_tiles { margin-top: 0; }
+        .o_pd_task_tiles { grid-template-columns: 1fr; }
+    }
+    .o_pd_prog_col { min-width: 0; }
+    .o_pd_prog { display: flex; align-items: center; gap: 1.25rem; }
+    .o_pd_ring { flex: 0 0 128px; width: 128px; height: 128px; }
+    .o_pd_ring_bg { fill: none; stroke: $pd-line; stroke-width: 12; }
+    .o_pd_ring_fg { fill: none; stroke: $pd-accent; stroke-width: 12; stroke-linecap: round; }
+    .o_pd_ring_val { fill: $pd-ink; font-size: 22px; font-weight: 700; }
+    .o_pd_ring_sub { fill: $pd-muted; font-size: 10px; }
+    .o_pd_prog_side { flex: 1; min-width: 0; }
+    .o_pd_prog_line {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.3rem 0;
+        border-bottom: 1px solid $pd-line;
+        font-size: 0.82rem;
+
+        span { color: $pd-muted; }
+        b { color: $pd-ink; font-weight: 650; text-align: right; }
+        &:last-child { border-bottom: 0; }
+    }
+    .o_pd_phase_list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1.1rem; }
+    .o_pd_phase {
+        padding: 0.45rem 0.6rem;
+        border-radius: 8px;
+
+        &.is-current { background: #f3f6fa; .o_pd_phase_head span { color: $pd-accent; font-weight: 650; } }
+    }
+    .o_pd_phase_head {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.3rem;
+        color: $pd-ink;
+        font-size: 0.82rem;
+
+        b { font-weight: 650; }
+    }
+    .o_pd_phase_sub { margin-top: 0.25rem; color: $pd-faint; font-size: 0.72rem; }
+    .o_pd_task_tiles {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.6rem;
+        margin-top: 1.1rem;
+
+        > div {
+            display: flex;
+            flex-direction: column;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid $pd-border;
+            border-radius: 8px;
+        }
+        small { color: $pd-muted; font-size: 0.72rem; }
+        b { color: $pd-ink; font-size: 1.2rem; font-weight: 700; }
+    }
+    .o_pd_inc_bar {
+        display: flex;
+        height: 14px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #cfd6e0;
+
+        > span { display: block; height: 100%; }
+    }
+
+    // ---- Overview: margin under four views of cost ----
+    .o_pd_margin {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+    .o_pd_margin_col { display: flex; flex-direction: column; min-width: 0; }
+    .o_pd_margin_area {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        height: 260px;
+        border-bottom: 1px solid $pd-border;
+    }
+    .o_pd_margin_val {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 0.4rem;
+        text-align: center;
+
+        b { color: $pd-ink; font-size: 1rem; font-weight: 700; white-space: nowrap; }
+        span { color: $pd-muted; font-size: 0.75rem; font-weight: 600; }
+    }
+    .o_pd_margin_bar {
+        width: 70%;
+        max-width: 84px;
+        min-height: 3px;
+        border-radius: 8px 8px 0 0;
+    }
+    .is-budget  .o_pd_margin_bar { background: repeating-linear-gradient(135deg, #cfd6e0 0 6px, #dfe4eb 6px 12px); }
+    .is-booked  .o_pd_margin_bar { background: $pd-accent; }
+    .is-unbooked .o_pd_margin_bar { background: #4f8bc2; }
+    .is-rebar   .o_pd_margin_bar { background: $pd-accent-soft; }
+    .is-neg .o_pd_margin_bar { background: #f3b1aa; }
+    .is-neg .o_pd_margin_val b { color: $pd-bad; }
+    .o_pd_margin_label {
+        margin-top: 0.55rem;
+        color: $pd-ink;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    .o_pd_margin_note {
+        color: $pd-faint;
+        font-size: 0.72rem;
+        text-align: center;
+    }
+    .o_pd_margin_foot {
+        margin-top: 1rem;
+        padding: 0.55rem 0.8rem;
+        border-radius: 8px;
+        background: #f8fafc;
+        color: $pd-muted;
+        font-size: 0.78rem;
+    }
+    .o_pd_cell_sub {
+        max-width: 22rem;
+        overflow: hidden;
+        color: $pd-faint;
+        font-size: 0.72rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    @media (max-width: 576px) {
+        .o_pd_margin { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .o_pd_margin_area { height: 180px; }
+    }
+
+    // ---- Overview: cost position ----
+    .o_pd_position { display: flex; flex-direction: column; gap: 1.1rem; }
+    .o_pd_position_label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.35rem;
+        color: $pd-muted;
+        font-size: 0.82rem;
+
+        b { color: $pd-ink; font-weight: 650; }
+    }
+    .o_pd_position_track {
+        position: relative;
+        display: flex;
+        height: 22px;
+        border-radius: 6px;
+        background: $pd-line;
+
+        > span { display: block; height: 100%; }
+        > span:first-child { border-radius: 6px 0 0 6px; }
+    }
+    .o_pd_budget_mark {
+        position: absolute;
+        top: -4px;
+        bottom: -4px;
+        width: 3px;
+        margin-left: -1px;
+        border-radius: 2px;
+        background: $pd-ink-2;
+    }
+
+    .o_pd_legend_full { max-height: none; }
+
+    .o_pd_facts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+        margin-top: 1.25rem;
+
+        > div {
+            display: flex;
+            flex-direction: column;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        small { color: $pd-muted; font-size: 0.72rem; }
+        b { color: $pd-ink; font-weight: 650; }
+    }
+
+    // ---- Cost vs budget comparison bars ----
+    .o_pd_cmp { display: flex; flex-direction: column; gap: 1rem; }
+    .o_pd_cmp_row {
+        display: grid;
+        grid-template-columns: 170px 1fr 130px;
+        align-items: center;
+        gap: 1rem;
+    }
+    .o_pd_cmp_row_sm { grid-template-columns: 140px 1fr 70px; }
+    .o_pd_cmp_name { color: $pd-ink; font-size: 0.85rem; font-weight: 500; }
+    .o_pd_cmp_val { text-align: right; font-size: 0.85rem; color: $pd-ink-2; font-weight: 600; }
+    .o_pd_cmp_bars { display: flex; flex-direction: column; gap: 3px; }
+    .o_pd_cmp_budget, .o_pd_cmp_actual {
+        display: flex;
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+
+        > span { display: block; height: 100%; }
+    }
+    .o_pd_cmp_budget > span { background: #cfd6e0; border-radius: 999px; }
+
+    // ---- Cost vs budget: diverging variance bars ----
+    .o_pd_var { display: flex; flex-direction: column; gap: 0.35rem; }
+    .o_pd_var_row {
+        display: grid;
+        grid-template-columns: 220px 1fr 110px;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+
+        &:hover { background: #f8fafc; }
+        &.is-rebar { background: #f6f8fb; }
+        &.is-rebar .o_pd_var_name { font-style: italic; }
+    }
+    .o_pd_var_name {
+        overflow: hidden;
+        color: $pd-ink;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        .fa { color: $pd-faint; }
+    }
+    .o_pd_var_track {
+        position: relative;
+        height: 20px;
+    }
+    .o_pd_var_zero {
+        position: absolute;
+        top: -6px;
+        bottom: -6px;
+        width: 0;
+        border-left: 1px solid $pd-ink-2;
+    }
+    .o_pd_var_bar {
+        position: absolute;
+        top: 2px;
+        bottom: 2px;
+        min-width: 2px;
+        border-radius: 4px;
+
+        &.is-over { background: #d9534f; border-radius: 0 4px 4px 0; }
+        &.is-under { background: $pd-good; border-radius: 4px 0 0 4px; }
+    }
+    .is-rebar .o_pd_var_bar.is-under {
+        background: repeating-linear-gradient(135deg, $pd-good 0 5px, #5fa77d 5px 10px);
+    }
+    .o_pd_var_val {
+        font-size: 0.85rem;
+        font-weight: 650;
+        text-align: right;
+        white-space: nowrap;
+    }
+    .o_pd_var_key_over { background: #d9534f; }
+    .o_pd_var_key_under { background: $pd-good; }
+    .o_pd_zero { color: $pd-faint !important; }
+
+    // ---- Cost vs budget: monthly spend (stacked columns) ----
+    .o_pd_spend {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .o_pd_spend_y {
+        position: relative;
+        flex: 0 0 5.5rem;
+        height: 240px;
+        margin-top: 24px;
+
+        span {
+            position: absolute;
+            right: 0;
+            transform: translateY(50%);
+            color: $pd-faint;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+    }
+    .o_pd_spend_plot { flex: 1; min-width: 0; }
+    .o_pd_spend_area {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        gap: 0.75rem;
+        height: 240px;
+        margin-top: 24px;
+        border-bottom: 1px solid $pd-border;
+    }
+    .o_pd_spend_grid {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 0;
+        border-top: 1px solid $pd-line;
+    }
+    .o_pd_spend_col {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex: 1;
+        align-items: flex-end;
+        justify-content: center;
+        height: 100%;
+        min-width: 0;
+    }
+    .o_pd_spend_bar {
+        position: relative;
+        display: flex;
+        flex-direction: column-reverse;
+        width: 78%;
+        max-width: 120px;
+        min-height: 3px;
+
+        > i {
+            display: block;
+            width: 100%;
+            min-height: 1px;
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        > i:last-of-type { border-radius: 3px 3px 0 0; border-top: 0; }
+    }
+    .o_pd_spend_total {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        padding-bottom: 4px;
+        transform: translateX(-50%);
+        color: $pd-ink;
+        font-size: 0.75rem;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+    .o_pd_spend_x {
+        display: flex;
+        gap: 0.75rem;
+        padding-top: 0.5rem;
+
+        span {
+            flex: 1;
+            min-width: 0;
+            color: $pd-muted;
+            font-size: 0.75rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+    }
+    .o_pd_spend_foot {
+        margin-top: 1rem;
+        color: $pd-muted;
+        font-size: 0.78rem;
+
+        b { color: $pd-ink-2; }
+    }
+
+    // ---- Work packages: income / booked / incl. unbooked bars ----
+    $pk-income: #9ca3af;
+    $pk-booked: #3b8beb;
+    $pk-total: #e04848;
+    .o_pd_pk { display: flex; flex-direction: column; gap: 1.1rem; }
+    .o_pd_pk_row {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .o_pd_pk_name {
+        color: $pd-ink;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: right;
+    }
+    .o_pd_pk_bars {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding-left: 2px;
+        border-left: 1px solid $pd-border;
+    }
+    .o_pd_pk_line {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: 13px;
+        padding-right: 6rem; // room for the value label of the longest bar
+    }
+    .o_pd_pk_bar {
+        display: block;
+        flex: none;
+        height: 100%;
+        min-width: 2px;
+        border-radius: 0 3px 3px 0;
+
+        &.is-income { background: $pk-income; }
+        &.is-booked { background: $pk-booked; }
+        &.is-total { background: $pk-total; }
+    }
+    .o_pd_pk_val {
+        flex: none;
+        color: $pd-muted;
+        font-size: 0.72rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .o_pd_pk_key_income { background: $pk-income; }
+    .o_pd_pk_key_booked { background: $pk-booked; }
+    .o_pd_pk_key_total { background: $pk-total; }
+    .o_pd_note { color: $pd-muted; font-size: 0.8rem; }
+    .o_pd_pk_val.is-pending { color: $pd-faint; font-weight: 400; }
+    .o_pd_legend_pending { opacity: 0.6; font-style: italic; }
+    .o_pd_pk_row.is-unallocated {
+        .o_pd_pk_name { color: $pd-muted; font-style: italic; }
+        .o_pd_pk_bar { opacity: 0.45; }
+    }
+    .o_pd_table tbody .o_pd_row_unallocated td { background: #fafbfc; color: $pd-muted; }
+
+    // ---- Schedule: planned vs actual milestone dumbbells ----
+    $ms-planned: #9ca3af;
+    $ms-actual: #3b8beb;
+    .o_pd_ms_scroll { overflow-x: auto; }
+    .o_pd_ms { min-width: 760px; }
+    .o_pd_ms_row {
+        display: grid;
+        grid-template-columns: 210px 1fr;
+        align-items: center;
+        gap: 0.75rem;
+        height: 34px;
+    }
+    .o_pd_ms_name {
+        overflow: hidden;
+        color: $pd-ink;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .o_pd_ms_track {
+        position: relative;
+        height: 100%;
+        margin-right: 3.5rem; // room for the "+Nd" label on the last date
+    }
+    .o_pd_ms_grid {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-left: 1px solid $pd-line;
+    }
+    .o_pd_ms_today {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        z-index: 1;
+        border-left: 2px dashed $pd-bad;
+    }
+    .o_pd_ms_line {
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+        height: 2px;
+        margin-top: -1px;
+        background: $ms-planned;
+    }
+    .o_pd_ms_dot {
+        position: absolute;
+        top: 50%;
+        z-index: 3;
+        width: 11px;
+        height: 11px;
+        margin: -5.5px 0 0 -5.5px;
+        border-radius: 50%;
+
+        &.is-planned { background: $ms-planned; }
+        &.is-actual { background: $ms-actual; box-shadow: 0 0 0 2px #fff; }
+        &.is-forecast { border: 2px solid $ms-actual; background: #fff; }
+    }
+    .o_pd_ms_late {
+        position: absolute;
+        top: 50%;
+        z-index: 3;
+        margin-left: 10px;
+        transform: translateY(-50%);
+        color: $pd-muted;
+        font-size: 0.72rem;
+        font-weight: 600;
+        white-space: nowrap;
+
+        &.is-late { color: $pd-ink-2; }
+    }
+    .o_pd_ms_axis {
+        height: 26px;
+        border-top: 1px solid $pd-border;
+    }
+    .o_pd_ms_tick {
+        position: absolute;
+        top: 6px;
+        color: $pd-muted;
+        font-size: 0.72rem;
+        white-space: nowrap;
+        transform: translateX(-50%);
+    }
+    .o_pd_ms_key_planned { background: $ms-planned; border-radius: 50% !important; }
+    .o_pd_ms_key_actual { background: $ms-actual; border-radius: 50% !important; }
+    .o_pd_ms_key_forecast { border: 2px solid $ms-actual; background: #fff; border-radius: 50% !important; }
+    .o_pd_note_cell { color: $pd-ink-2; font-size: 0.82rem; }
+    .o_pd_ms_group { cursor: pointer; }
+    .o_pd_table tbody .o_pd_ms_item td {
+        padding-top: 0.4rem;
+        padding-bottom: 0.4rem;
+        background: #fafbfc;
+        color: $pd-ink-2;
+        font-size: 0.8rem;
+    }
+    .o_pd_table tbody .o_pd_ms_item td:first-child { padding-left: 2.6rem; }
+    .o_pd_table tbody .o_pd_ms_item.is-last td { color: $pd-ink; font-weight: 600; }
+    .o_pd_muted_i { color: $pd-muted; font-style: italic; }
+
+    // ---- Machinery: simple labelled horizontal bars ----
+    .o_pd_hb { display: flex; flex-direction: column; gap: 0.55rem; }
+    .o_pd_hb_row {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .o_pd_hb_name {
+        overflow: hidden;
+        color: $pd-ink;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .o_pd_hb_line {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: 16px;
+        padding-right: 4rem;
+        border-left: 1px solid $pd-border;
+    }
+    .o_pd_hb_bar {
+        display: block;
+        flex: none;
+        height: 100%;
+        min-width: 2px;
+        border-radius: 0 3px 3px 0;
+        background: #3b8beb;
+
+        &.is-low { background: #e04848; }
+    }
+    .o_pd_hb_val {
+        flex: none;
+        color: $pd-muted;
+        font-size: 0.72rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    // ---- Machinery: fuel bars ----
+    .o_pd_bars {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        gap: 0.75rem;
+        padding-top: 22px;
+    }
+    .o_pd_bars_avg {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        border-top: 1px dashed $pd-faint;
+        pointer-events: none;
+
+        span {
+            position: absolute;
+            right: 0;
+            top: -1.15rem;
+            padding: 0 0.3rem;
+            background: #fff;
+            color: $pd-muted;
+            font-size: 0.7rem;
+        }
+    }
+    .o_pd_bar_col { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+    .o_pd_bar_area {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        height: 200px;
+        border-bottom: 1px solid $pd-border;
+    }
+    .o_pd_bar {
+        position: relative;
+        width: 60%;
+        max-width: 44px;
+        min-height: 2px;
+        border-radius: 6px 6px 0 0;
+        background: linear-gradient(180deg, $pd-accent-soft, $pd-accent);
+
+        span {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            padding-bottom: 3px;
+            transform: translateX(-50%);
+            color: $pd-muted;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+    }
+    .o_pd_bar_label {
+        height: 26px;
+        padding-top: 6px;
+        color: $pd-muted;
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    // ---- Schedule: Gantt ----
+    .o_pd_gantt_scroll { overflow-x: auto; }
+    .o_pd_gantt { min-width: 860px; }
+    .o_pd_gantt_row {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 40px;
+        border-bottom: 1px solid $pd-line;
+    }
+    .o_pd_gantt_head {
+        min-height: 30px;
+        border-bottom: 1px solid $pd-border;
+        color: $pd-muted;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .o_pd_gantt_name {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-width: 0;
+        padding-right: 1rem;
+        color: $pd-ink;
+        font-size: 0.85rem;
+    }
+    .o_pd_gantt_track { position: relative; display: flex; }
+    .o_pd_gantt_month {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        padding-left: 0.4rem;
+        border-left: 1px solid $pd-line;
+
+        small { color: $pd-faint; }
+    }
+    .o_pd_gantt_cell { flex: 1; border-left: 1px solid $pd-line; }
+    .o_pd_gantt_bar {
+        position: absolute;
+        top: 9px;
+        z-index: 1;
+        height: 22px;
+        overflow: hidden;
+        border: 1px solid $pd-accent-soft;
+        border-radius: 6px;
+        background: #dbe7f3;
+
+        &.is-done { border-color: $pd-good; background: #e8f5ed; .o_pd_gantt_fill { background: $pd-good; } }
+    }
+    .o_pd_gantt_fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        background: $pd-accent;
+    }
+    .o_pd_gantt_pct {
+        position: relative;
+        padding-left: 0.4rem;
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 650;
+        line-height: 20px;
+        text-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+        white-space: nowrap;
+    }
+    .o_pd_gantt_slip {
+        position: absolute;
+        top: 12px;
+        z-index: 1;
+        height: 16px;
+        border: 1px solid #f3b1aa;
+        border-left: 0;
+        border-radius: 0 6px 6px 0;
+        background: repeating-linear-gradient(135deg, #f3b1aa 0 3px, #fdecec 3px 6px);
+    }
+    .o_pd_gantt_today {
+        position: absolute;
+        top: 0;
+        bottom: -1px;
+        z-index: 2;
+        border-left: 2px dashed $pd-bad;
+    }
+    .o_pd_gantt_finish {
+        position: absolute;
+        top: 0;
+        bottom: -1px;
+        z-index: 2;
+        border-left: 2px solid $pd-violet;
+    }
+
+    // ---- Ledger ----
+    .o_pd_card_head_tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+    .o_pd_tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+
+        .form-select { width: auto; min-width: 11rem; }
+    }
+    .o_pd_segment {
+        display: inline-flex;
+        padding: 2px;
+        border: 1px solid $pd-border;
+        border-radius: 8px;
+        background: #f8fafc;
+
+        button {
+            padding: 0.25rem 0.75rem;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: $pd-muted;
+            font-size: 0.8rem;
+            font-weight: 600;
+
+            &.active { background: #fff; color: $pd-accent; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.1); }
+        }
+    }
+    .o_pd_search {
+        position: relative;
+
+        .fa {
+            position: absolute;
+            top: 50%;
+            left: 0.6rem;
+            transform: translateY(-50%);
+            color: $pd-faint;
+            font-size: 0.8rem;
+        }
+        input { width: 15rem; padding-left: 1.8rem; }
+    }
+    .o_pd_categ { color: $pd-muted; font-size: 0.8rem; }
+    .o_pd_ref_link {
+        color: $pd-accent;
+        text-decoration: none;
+
+        .fa { font-size: 0.65rem; opacity: 0; transition: opacity 0.15s ease; }
+        &:hover { text-decoration: underline; .fa { opacity: 0.8; } }
+    }
+    .o_pd_filter {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        margin: 0;
+
+        > span {
+            color: $pd-muted;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+    }
+    .o_pd_clear {
+        align-self: flex-end;
+        color: $pd-muted;
+        text-decoration: none;
+
+        &:hover { color: $pd-accent; }
+    }
+    .o_pd_ledger_totals {
+        flex-wrap: wrap;
+        gap: 0.5rem 1.5rem;
+        justify-content: flex-end;
+
+        > span:first-child { margin-right: auto; color: $pd-muted; font-weight: 500; }
+        > span { color: $pd-muted; font-weight: 500; }
+        b { color: $pd-ink; margin-left: 0.3rem; }
+    }
+
+    @media (max-width: 768px) {
+        .o_pd_page { padding: 1rem 16px 2rem; }
+        .o_bd_page_head { flex-wrap: wrap; }
+        .o_pd_cmp_row { grid-template-columns: 1fr; gap: 0.35rem; }
+        .o_pd_var_row { grid-template-columns: 1fr 80px; }
+        .o_pd_pk_row { grid-template-columns: 1fr; gap: 0.3rem; }
+        .o_pd_pk_name { text-align: left; }
+        .o_pd_var_track { grid-column: 1 / -1; grid-row: 2; }
+        .o_pd_cmp_val { text-align: left; }
+        .o_pd_gantt_row { grid-template-columns: 180px 1fr; }
+        .o_pd_search input { width: 100%; }
+    }
+}
