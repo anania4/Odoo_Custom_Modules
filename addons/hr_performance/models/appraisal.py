@@ -12,6 +12,14 @@ STAFF_GROUPS_CSV = ",".join(STAFF_GROUPS)
 # Fields each non-HR participant may write on the appraisal, and when.
 EMPLOYEE_WRITABLE_FIELDS = {"employee_comment", "line_ids"}
 MANAGER_WRITABLE_FIELDS = {"manager_comment", "line_ids"}
+CEO_WRITABLE_FIELDS = {"ceo_comment"}
+
+# Stages at which each role may mark the appraisal as Failed.
+HR_FAILABLE_STATES = ("employee", "manager", "submitted", "reviewed", "approved")
+CEO_FAILABLE_STATES = ("reviewed",)
+
+# The employee sees their result only once the CEO has approved.
+RESULT_REVEALED_STATES = ("approved", "done")
 
 
 def is_hr(env):
@@ -32,6 +40,29 @@ class HrPerformanceAppraisal(models.Model):
     _name = "hr.performance.appraisal"
     _description = "Performance Appraisal"
     _inherit = ["mail.thread", "mail.activity.mixin"]
+    _order = "id desc"
+
+    name = fields.Char(
+        string="Reference",
+        required=True,
+        readonly=True,
+        copy=False,
+        index=True,
+        default=lambda self: _("New"),
+    )
+
+    _sql_constraints = [
+        ("name_unique", "unique(name)", "The appraisal reference must be unique."),
+    ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get("name") or vals["name"] == _("New"):
+                vals["name"] = self.env["ir.sequence"].sudo().next_by_code(
+                    "hr.performance.appraisal"
+                ) or _("New")
+        return super().create(vals_list)
 
     employee_id = fields.Many2one(
         "hr.employee",
@@ -40,17 +71,24 @@ class HrPerformanceAppraisal(models.Model):
         tracking=True,
     )
 
+    # Taken from the employee when the appraisal is created/the employee is
+    # changed (a snapshot: later HR moves don't rewrite past appraisals).
     department_id = fields.Many2one(
         "hr.department",
         string="Department",
-        required=True,
+        compute="_compute_department_manager",
+        store=True,
+        readonly=True,
     )
 
     manager_id = fields.Many2one(
         "hr.employee",
         string="Department Manager",
-        help="Scores the appraisal after the employee when "
-             "'Include Department Manager' is ticked.",
+        compute="_compute_department_manager",
+        store=True,
+        readonly=True,
+        help="Manager of the employee's department. Scores the appraisal "
+             "when 'Include Department Manager' is ticked.",
     )
 
     include_employee = fields.Boolean(
@@ -71,8 +109,8 @@ class HrPerformanceAppraisal(models.Model):
     target_job_id = fields.Many2one(
         "hr.job",
         string="Target Position",
-        domain="[('department_id', '=', department_id)]",
-        required=True,
+        help="Optional: the job position this appraisal is for (e.g. a "
+             "promotion). Any job position can be selected.",
     )
 
     template_id = fields.Many2one(
@@ -84,9 +122,16 @@ class HrPerformanceAppraisal(models.Model):
     date_from = fields.Date(required=True)
     date_to = fields.Date(required=True)
 
-    appraisal_type = fields.Selection(
-        [("half", "Half Year"), ("annual", "Annual")],
+    appraisal_type_id = fields.Many2one(
+        "hr.performance.appraisal.type",
+        string="Appraisal Type",
         required=True,
+        tracking=True,
+    )
+    appraisal_period = fields.Selection(
+        related="appraisal_type_id.period",
+        string="Period",
+        store=True,
     )
 
     state = fields.Selection(
@@ -95,11 +140,22 @@ class HrPerformanceAppraisal(models.Model):
             ("employee", "Employee Self-Assessment"),
             ("manager", "Department Manager Scoring"),
             ("submitted", "HR Scoring"),
-            ("reviewed", "HR Reviewed"),
+            ("reviewed", "Waiting CEO Approval"),
+            ("approved", "CEO Approved"),
             ("done", "Promoted"),
+            ("failed", "Failed"),
         ],
         default="draft",
         tracking=True,
+    )
+
+    ceo_comment = fields.Text(string="CEO Comment", groups=STAFF_GROUPS_CSV)
+    failed_by_id = fields.Many2one(
+        "res.users", string="Failed By", readonly=True, copy=False,
+        groups=STAFF_GROUPS_CSV,
+    )
+    failed_date = fields.Datetime(
+        string="Failed On", readonly=True, copy=False, groups=STAFF_GROUPS_CSV,
     )
 
     line_ids = fields.One2many(
@@ -162,6 +218,52 @@ class HrPerformanceAppraisal(models.Model):
     can_hr_score = fields.Boolean(
         compute="_compute_user_roles", compute_sudo=True,
     )
+    is_ceo_user = fields.Boolean(compute="_compute_user_roles", compute_sudo=True)
+    can_ceo_approve = fields.Boolean(
+        compute="_compute_user_roles", compute_sudo=True,
+    )
+    can_fail = fields.Boolean(compute="_compute_user_roles", compute_sudo=True)
+    is_staff_user = fields.Boolean(
+        compute="_compute_user_roles", compute_sudo=True,
+    )
+
+    # What the appraised employee sees. The real scores carry staff-only
+    # groups; these mirrors are filled only once the CEO has approved.
+    employee_status = fields.Char(
+        string="Status", compute="_compute_employee_view", compute_sudo=True,
+    )
+    result_visible = fields.Boolean(
+        compute="_compute_employee_view", compute_sudo=True,
+    )
+    result_total = fields.Float(
+        string="Total Score", compute="_compute_employee_view", compute_sudo=True,
+    )
+    result_percentage = fields.Float(
+        string="Percentage", compute="_compute_employee_view", compute_sudo=True,
+    )
+    result_grade = fields.Char(
+        string="Grade", compute="_compute_employee_view", compute_sudo=True,
+    )
+
+    @api.depends_context("uid")
+    @api.depends("state", "total_score", "percentage_score", "final_grade")
+    def _compute_employee_view(self):
+        staff = any(self.env.user.has_group(g) for g in STAFF_GROUPS)
+        for rec in self:
+            revealed = rec.state in RESULT_REVEALED_STATES
+            if rec.state == "employee":
+                rec.employee_status = _("Waiting for your answers")
+            elif rec.state == "failed":
+                rec.employee_status = _("Closed")
+            elif revealed:
+                rec.employee_status = _("Approved")
+            else:
+                rec.employee_status = _("In review")
+            rec.result_visible = staff or revealed
+            show = rec.result_visible
+            rec.result_total = rec.total_score if show else 0
+            rec.result_percentage = rec.percentage_score if show else 0
+            rec.result_grade = rec.final_grade if show else False
 
     @api.depends_context("uid")
     @api.depends("state", "employee_id.user_id", "manager_id.user_id",
@@ -169,8 +271,17 @@ class HrPerformanceAppraisal(models.Model):
     def _compute_user_roles(self):
         user = self.env.user
         hr = user.has_group(GROUP_HR_MANAGER)
+        ceo = user.has_group(GROUP_CEO)
+        staff = any(user.has_group(g) for g in STAFF_GROUPS)
         for rec in self:
             rec.is_hr_user = hr
+            rec.is_ceo_user = ceo
+            rec.is_staff_user = staff
+            rec.can_ceo_approve = rec.state == "reviewed" and ceo
+            rec.can_fail = (
+                (hr and rec.state in HR_FAILABLE_STATES)
+                or (ceo and rec.state in CEO_FAILABLE_STATES)
+            )
             rec.is_appraised_employee = rec.employee_id.user_id == user
             rec.is_assigned_manager = bool(
                 rec.include_dept_manager and rec.manager_id.user_id == user
@@ -183,17 +294,21 @@ class HrPerformanceAppraisal(models.Model):
             )
             rec.can_hr_score = rec.state == "submitted" and hr
 
-    @api.onchange("employee_id")
-    def _onchange_employee_id(self):
-        if self.employee_id.department_id:
-            self.department_id = self.employee_id.department_id
-        self.target_job_id = False
+    @api.depends("employee_id")
+    def _compute_department_manager(self):
+        for rec in self:
+            department = rec.employee_id.department_id
+            rec.department_id = department
+            rec.manager_id = department.manager_id
 
-    @api.onchange("department_id")
-    def _onchange_department_id(self):
-        self.manager_id = self.department_id.manager_id
-        if self.target_job_id.department_id != self.department_id:
-            self.target_job_id = False
+    @api.constrains("employee_id")
+    def _check_employee_department(self):
+        for rec in self:
+            if not rec.department_id:
+                raise ValidationError(
+                    _("Employee '%s' has no department. Set their department "
+                      "first.") % rec.employee_id.name
+                )
 
     @api.constrains("date_from", "date_to")
     def _check_dates(self):
@@ -203,12 +318,12 @@ class HrPerformanceAppraisal(models.Model):
                     _("The 'From' date must be earlier than the 'To' date.")
                 )
 
-    @api.constrains("employee_id", "appraisal_type", "date_from", "date_to")
+    @api.constrains("employee_id", "appraisal_type_id", "date_from", "date_to")
     def _check_no_duplicate_appraisal(self):
         for rec in self:
             duplicate = self.sudo().search([
                 ("employee_id", "=", rec.employee_id.id),
-                ("appraisal_type", "=", rec.appraisal_type),
+                ("appraisal_type_id", "=", rec.appraisal_type_id.id),
                 ("date_from", "=", rec.date_from),
                 ("date_to", "=", rec.date_to),
                 ("id", "!=", rec.id),
@@ -253,6 +368,8 @@ class HrPerformanceAppraisal(models.Model):
                 if rec.can_employee_answer and keys <= EMPLOYEE_WRITABLE_FIELDS:
                     continue
                 if rec.can_manager_score and keys <= MANAGER_WRITABLE_FIELDS:
+                    continue
+                if rec.can_ceo_approve and keys <= CEO_WRITABLE_FIELDS:
                     continue
                 raise AccessError(
                     _("You cannot modify this appraisal at its current stage.")
@@ -427,13 +544,56 @@ class HrPerformanceAppraisal(models.Model):
             )
 
     def action_review(self):
+        """HR finishes scoring and sends the appraisal to the CEO."""
         self._check_hr()
         self._check_state("submitted")
         self.write({"state": "reviewed"})
+        ceo_users = self.env.ref(GROUP_CEO).sudo().users
+        for rec in self:
+            rec._notify(
+                ceo_users,
+                _("Appraisal Waiting for Your Approval"),
+                _("The performance appraisal of %s has been reviewed by HR "
+                  "and needs your approval.") % rec.employee_id.name,
+            )
+
+    def action_ceo_approve(self):
+        for rec in self:
+            if not (self.env.su or rec.can_ceo_approve):
+                raise AccessError(_("Only the CEO can approve this appraisal."))
+        self.sudo().write({"state": "approved"})
+        for rec in self:
+            rec._notify_hr(
+                _("Appraisal Approved by CEO"),
+                _("The CEO approved the performance appraisal of %s. It can "
+                  "now be promoted.") % rec.employee_id.name,
+            )
+
+    def action_fail(self):
+        """HR Manager or CEO marks the appraisal as Failed."""
+        for rec in self:
+            if not (self.env.su or rec.can_fail):
+                raise AccessError(
+                    _("You cannot mark this appraisal as failed at its "
+                      "current stage.")
+                )
+        self.sudo().write({
+            "state": "failed",
+            "failed_by_id": self.env.user.id,
+            "failed_date": fields.Datetime.now(),
+        })
+        by_ceo = not is_hr(self.env)
+        for rec in self.sudo():
+            message = _("The performance appraisal of %s was marked as "
+                        "failed by %s.") % (rec.employee_id.name, self.env.user.name)
+            if by_ceo:
+                rec._notify_hr(_("Appraisal Failed"), message)
+            if rec.include_dept_manager and rec.manager_id.user_id:
+                rec._notify(rec.manager_id.user_id, _("Appraisal Failed"), message)
 
     def action_done(self):
         self._check_hr()
-        self._check_state("reviewed")
+        self._check_state("approved")
         self.write({"state": "done"})
         # Only the department manager (if involved) is told; the employee
         # is intentionally not notified when the appraisal is finished.

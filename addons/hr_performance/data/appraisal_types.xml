@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Starter types; HR can rename/add more under Performance > Configuration -->
+    <record id="appraisal_type_half_year" model="hr.performance.appraisal.type">
+        <field name="name">Half Year Appraisal</field>
+        <field name="period">half</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="appraisal_type_annual" model="hr.performance.appraisal.type">
+        <field name="name">Annual Appraisal</field>
+        <field name="period">annual</field>
+        <field name="sequence">20</field>
+    </record>
+</odoo>

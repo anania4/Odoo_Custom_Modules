@@ -7,13 +7,15 @@
         <field name="model">hr.performance.appraisal</field>
         <field name="arch" type="xml">
             <list>
+                <field name="name"/>
                 <field name="employee_id"/>
                 <field name="department_id"/>
                 <field name="target_job_id"/>
-                <field name="appraisal_type"/>
+                <field name="appraisal_type_id"/>
+                <field name="appraisal_period" optional="show"/>
                 <field name="include_employee" optional="show"/>
                 <field name="include_dept_manager" optional="show"/>
-                <field name="manager_id" optional="hide"/>
+                <field name="manager_id" optional="show"/>
                 <field name="manager_percentage_score" optional="show"/>
                 <field name="percentage_score" string="HR Percentage"/>
                 <field name="final_grade"/>
@@ -69,18 +71,32 @@
                             groups="hr_performance.group_hr_manager"
                             confirm="Move on to HR scoring without waiting for the department manager?"/>
 
-                    <!-- HR: scoring and approval -->
-                    <button name="action_review" string="HR Review"
+                    <!-- HR: scoring, then CEO approval, then promotion -->
+                    <button name="action_review" string="HR Review (Send to CEO)"
                             type="object" class="oe_highlight"
                             invisible="state != 'submitted'"
                             groups="hr_performance.group_hr_manager"/>
+                    <button name="action_ceo_approve" string="CEO Approve"
+                            type="object" class="oe_highlight"
+                            invisible="not can_ceo_approve"/>
                     <button name="action_done" string="Promote"
                             type="object" class="oe_highlight"
-                            invisible="state != 'reviewed'"
+                            invisible="state != 'approved'"
                             groups="hr_performance.group_hr_manager"/>
+                    <button name="action_fail" string="Fail"
+                            type="object" class="btn-danger"
+                            invisible="not can_fail"
+                            confirm="Mark this appraisal as Failed? This ends the appraisal."/>
 
+                    <!-- Staff see the full workflow; the employee only sees a
+                         simple status until the CEO approves. -->
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,employee,manager,submitted,reviewed,done"/>
+                           statusbar_visible="draft,employee,manager,submitted,reviewed,approved,done"
+                           groups="hr_performance.group_dept_manager,hr_performance.group_hr_manager,hr_performance.group_ceo"/>
+                    <field name="employee_status" widget="badge"
+                           invisible="is_staff_user"
+                           decoration-info="state == 'employee'"
+                           decoration-success="state in ('approved', 'done')"/>
                 </header>
 
                 <sheet>
@@ -88,6 +104,11 @@
                     <field name="can_employee_answer" invisible="1"/>
                     <field name="can_manager_score" invisible="1"/>
                     <field name="can_hr_score" invisible="1"/>
+                    <field name="can_ceo_approve" invisible="1"/>
+                    <field name="can_fail" invisible="1"/>
+                    <field name="is_staff_user" invisible="1"/>
+                    <field name="result_visible" invisible="1"/>
+                    <field name="state" invisible="1"/>
 
                     <div class="alert alert-info" role="alert"
                          invisible="not can_employee_answer">
@@ -103,29 +124,43 @@
                     <div class="alert alert-info" role="alert"
                          invisible="not can_hr_score">
                         Give the final <b>HR Score</b> for each question, then
-                        click <b>HR Review</b>.
+                        click <b>HR Review (Send to CEO)</b>.
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not can_ceo_approve">
+                        This appraisal is waiting for your approval. Review the
+                        <b>Final Result</b>, then click <b>CEO Approve</b> or
+                        <b>Fail</b>.
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="state != 'failed'"
+                         groups="hr_performance.group_dept_manager,hr_performance.group_hr_manager,hr_performance.group_ceo">
+                        This appraisal was marked as <b>Failed</b> by
+                        <field name="failed_by_id" readonly="1" class="d-inline"/> on
+                        <field name="failed_date" readonly="1" class="d-inline"/>.
                     </div>
 
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
                     <group>
                         <group>
                             <field name="employee_id"
                                    readonly="state != 'draft' or not is_hr_user"/>
-                            <field name="department_id"
-                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="department_id" readonly="1"/>
+                            <field name="manager_id" readonly="1"/>
                             <field name="target_job_id"
                                    readonly="state != 'draft' or not is_hr_user"/>
                             <field name="include_employee"
                                    readonly="state != 'draft' or not is_hr_user"/>
                             <field name="include_dept_manager"
                                    readonly="state != 'draft' or not is_hr_user"/>
-                            <field name="manager_id"
-                                   invisible="not include_dept_manager"
-                                   required="include_dept_manager"
-                                   readonly="state != 'draft' or not is_hr_user"/>
                         </group>
                         <group>
-                            <field name="appraisal_type"
+                            <field name="appraisal_type_id"
+                                   options="{'no_create': True}"
                                    readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="appraisal_period"/>
                             <field name="date_from"
                                    readonly="state != 'draft' or not is_hr_user"/>
                             <field name="date_to"
@@ -175,6 +210,17 @@
                             </group>
                         </page>
 
+                        <!-- Employee: result revealed after CEO approval -->
+                        <page string="Result"
+                              invisible="is_staff_user or not result_visible">
+                            <group>
+                                <field name="result_total"/>
+                                <field name="result_percentage"
+                                       options="{'precision': 2}"/>
+                                <field name="result_grade"/>
+                            </group>
+                        </page>
+
                         <!-- Comments -->
                         <page string="Comments"
                               groups="hr_performance.group_dept_manager,hr_performance.group_hr_manager,hr_performance.group_ceo">
@@ -184,6 +230,9 @@
                                        readonly="not can_manager_score"/>
                                 <field name="hr_comment"
                                        readonly="not is_hr_user"/>
+                                <field name="ceo_comment"
+                                       invisible="state not in ('reviewed', 'approved', 'done', 'failed')"
+                                       readonly="not can_ceo_approve"/>
                             </group>
                         </page>
 
@@ -220,11 +269,33 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <!-- Employee list: simple status, result only after CEO approval -->
+    <record id="view_hr_performance_my_appraisal_list" model="ir.ui.view">
+        <field name="name">hr.performance.appraisal.my.list</field>
+        <field name="model">hr.performance.appraisal</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="name"/>
+                <field name="appraisal_type_id"/>
+                <field name="appraisal_period"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="state" column_invisible="1"/>
+                <field name="employee_status" widget="badge"
+                       decoration-info="state == 'employee'"
+                       decoration-success="state in ('approved', 'done')"/>
+                <field name="result_grade"/>
+            </list>
+        </field>
+    </record>
+
     <!-- Action: the logged-in employee's own appraisals -->
     <record id="action_hr_performance_my_appraisal" model="ir.actions.act_window">
         <field name="name">My Appraisals</field>
         <field name="res_model">hr.performance.appraisal</field>
         <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_hr_performance_my_appraisal_list"/>
         <field name="domain">[('employee_id.user_id', '=', uid)]</field>
         <field name="context">{'create': False, 'delete': False}</field>
         <field name="help" type="html">

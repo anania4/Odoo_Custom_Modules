@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_hr_performance_appraisal_type_list" model="ir.ui.view">
+        <field name="name">hr.performance.appraisal.type.list</field>
+        <field name="model">hr.performance.appraisal.type</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="period"/>
+                <field name="description" optional="show"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_performance_appraisal_type_form" model="ir.ui.view">
+        <field name="name">hr.performance.appraisal.type.form</field>
+        <field name="model">hr.performance.appraisal.type</field>
+        <field name="arch" type="xml">
+            <form string="Appraisal Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="period"/>
+                        <field name="active"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_performance_appraisal_type" model="ir.actions.act_window">
+        <field name="name">Appraisal Types</field>
+        <field name="res_model">hr.performance.appraisal.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

@@ -21,16 +21,30 @@
               groups="base.group_user"
               sequence="15"/>
 
+    <!-- Configuration -->
+    <menuitem id="menu_hr_performance_config"
+              name="Configuration"
+              parent="menu_performance_root"
+              groups="hr_performance.group_hr_manager,hr_performance.group_ceo"
+              sequence="90"/>
+
+    <menuitem id="menu_hr_performance_appraisal_type"
+              name="Appraisal Types"
+              parent="menu_hr_performance_config"
+              action="action_hr_performance_appraisal_type"
+              groups="hr_performance.group_hr_manager"
+              sequence="10"/>
+
     <menuitem id="menu_hr_performance_question"
               name="Evaluation Questions"
-              parent="menu_performance_root"
+              parent="menu_hr_performance_config"
               action="action_hr_performance_question"
               groups="hr_performance.group_hr_manager,hr_performance.group_ceo"
               sequence="20"/>
 
     <menuitem id="menu_hr_performance_template"
               name="Evaluation Templates"
-              parent="menu_performance_root"
+              parent="menu_hr_performance_config"
               action="action_hr_performance_template"
               groups="hr_performance.group_hr_manager,hr_performance.group_ceo"
               sequence="30"/>

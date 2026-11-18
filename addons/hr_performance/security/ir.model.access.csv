@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hr_performance_appraisal_ceo,performance appraisal ceo,model_hr_performance_appraisal,group_ceo,1,0,0,0
+access_hr_performance_appraisal_ceo,performance appraisal ceo,model_hr_performance_appraisal,group_ceo,1,1,0,0
 access_hr_performance_appraisal_dept,performance appraisal dept,model_hr_performance_appraisal,group_dept_manager,1,1,0,0
 access_hr_performance_appraisal_hr,performance appraisal hr,model_hr_performance_appraisal,group_hr_manager,1,1,1,1
 access_hr_performance_appraisal_line_ceo,performance appraisal line ceo,model_hr_performance_appraisal_line,group_ceo,1,0,0,0
@@ -23,3 +23,5 @@ access_hr_employee_dept_manager,hr.employee dept manager,hr.model_hr_employee,gr
 access_hr_employee_ceo,hr.employee ceo,hr.model_hr_employee,group_ceo,1,0,0,0
 access_hr_performance_appraisal_employee,performance appraisal employee,model_hr_performance_appraisal,base.group_user,1,1,0,0
 access_hr_performance_appraisal_line_employee,performance appraisal line employee,model_hr_performance_appraisal_line,base.group_user,1,1,0,0
+access_hr_performance_appraisal_type_hr,performance appraisal type hr,model_hr_performance_appraisal_type,group_hr_manager,1,1,1,1
+access_hr_performance_appraisal_type_user,performance appraisal type user,model_hr_performance_appraisal_type,base.group_user,1,0,0,0
