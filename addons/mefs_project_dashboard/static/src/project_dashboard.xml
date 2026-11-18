@@ -25,26 +25,34 @@
                         </div>
                         <div class="o_bd_page_subtitle">
                             <span class="o_bd_subtitle_label">Client</span>
-                            <span class="o_pd_subtitle_value" t-esc="p.client"/>
+                            <span class="o_pd_subtitle_value" t-esc="p.client || '—'"/>
                             <span class="o_pd_sep">·</span>
                             <span class="o_bd_subtitle_label">Budget plan</span>
-                            <span class="o_pd_subtitle_value" t-esc="p.budgetPlan"/>
+                            <span class="o_pd_subtitle_value" t-esc="p.budgetPlan || '—'"/>
                             <span class="o_pd_sep">·</span>
                             <span class="o_bd_subtitle_label">BOQ</span>
-                            <span class="o_pd_subtitle_value" t-esc="p.boq"/>
+                            <span class="o_pd_subtitle_value" t-esc="p.boq || '—'"/>
                         </div>
                     </div>
                     <div class="o_bd_page_actions">
-                        <span class="o_pd_sample_tag"><i class="fa fa-flask me-1"/>Sample data</span>
+                        <button type="button" class="btn btn-secondary" t-on-click="onRefresh" t-att-disabled="state.loading" title="Reload the figures from the project, BOQ, budget plan, bills and timesheets">
+                            <i t-attf-class="fa fa-refresh me-1 {{ state.loading ? 'fa-spin' : '' }}"/>Refresh
+                        </button>
                     </div>
                 </div>
 
+                <div t-if="!state.loading and !state.data" class="o_bd_card o_pd_empty">
+                    <i class="fa fa-folder-open-o"/>
+                    <div t-if="!projects.length">No projects yet. Create a project to see its dashboard.</div>
+                    <div t-else="">Select a project above to see its dashboard.</div>
+                </div>
+                <t t-if="state.data">
                 <!-- Headline cards -->
                 <div class="o_pd_kpis">
                     <div class="o_bd_card o_bd_kpi">
                         <div class="o_bd_kpi_top">
                             <div class="o_bd_kpi_label">Contract Income</div>
-                            <span class="o_bd_kpi_icon o_bd_icon_blue"><i class="fa fa-money"/></span>
+                            <span class="o_pd_kpi_ic" title="Contract"><svg class="o_pd_kpi_svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 10h6M9 13h6"/><path d="M9 17.5c.9-1.1 1.6-1.1 2.2 0s1.4 1.1 2.6-.5"/></svg></span>
                         </div>
                         <div class="o_bd_kpi_value" t-esc="birr(c.income)"/>
                         <div class="o_bd_kpi_sub">Recorded as fully earned</div>
@@ -53,7 +61,7 @@
                     <div class="o_bd_card o_bd_kpi">
                         <div class="o_bd_kpi_top">
                             <div class="o_bd_kpi_label">Total Cost incl. Unbooked</div>
-                            <span class="o_bd_kpi_icon o_bd_icon_amber"><i class="fa fa-credit-card"/></span>
+                            <span class="o_pd_kpi_ic" title="Cost"><svg class="o_pd_kpi_svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9 8h6M9 11h6M9 14h3.5"/></svg></span>
                         </div>
                         <div class="o_bd_kpi_value" t-esc="birr(c.total)"/>
                         <div class="o_bd_kpi_sub">
@@ -68,7 +76,7 @@
                     <div class="o_bd_card o_bd_kpi">
                         <div class="o_bd_kpi_top">
                             <div class="o_bd_kpi_label">Booked + Unbooked</div>
-                            <span class="o_bd_kpi_icon o_bd_icon_violet"><i class="fa fa-files-o"/></span>
+                            <span class="o_pd_kpi_ic" title="Ledger"><svg class="o_pd_kpi_svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v14H7.5A2.5 2.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-4"/><path d="M9 7.5h6M9 10.5h4"/></svg></span>
                         </div>
                         <div class="o_bd_kpi_value" t-esc="birr(c.booked)"/>
                         <div class="o_bd_kpi_sub">
@@ -79,7 +87,7 @@
                     <div class="o_bd_card o_bd_kpi">
                         <div class="o_bd_kpi_top">
                             <div class="o_bd_kpi_label">Margin on Total Cost</div>
-                            <span class="o_bd_kpi_icon o_bd_icon_green"><i class="fa fa-line-chart"/></span>
+                            <span class="o_pd_kpi_ic" title="Margin"><svg class="o_pd_kpi_svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M7 16.5v-3M12 16.5V10M17 16.5V6"/><path d="M15 6h2v2" /></svg></span>
                         </div>
                         <div t-attf-class="o_bd_kpi_value {{ c.margin &lt; 0 ? 'o_pd_neg' : '' }}" t-esc="pct(c.margin)"/>
                         <div class="o_bd_kpi_sub">
@@ -91,7 +99,7 @@
                     <div class="o_bd_card o_bd_kpi">
                         <div class="o_bd_kpi_top">
                             <div class="o_bd_kpi_label">Completion Delay</div>
-                            <span t-attf-class="o_bd_kpi_icon {{ c.delay ? 'o_pd_icon_red' : 'o_bd_icon_green' }}"><i class="fa fa-clock-o"/></span>
+                            <span t-attf-class="o_pd_kpi_ic {{ c.delay ? 'is-bad' : '' }}" title="Schedule"><svg class="o_pd_kpi_svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4.5 8 5 8 9s-8 4.5-8 9"/><path d="M16 3c0 4.5-8 5-8 9s8 4.5 8 9"/><path d="M10 18.5h4"/></svg></span>
                         </div>
                         <div t-attf-class="o_bd_kpi_value {{ c.delay ? 'o_pd_neg' : '' }}">
                             <t t-esc="c.delay"/> <t t-esc="c.delay === 1 ? 'day' : 'days'"/>
@@ -121,20 +129,20 @@
                         </div>
                     </div>
 
-                    <!-- Phase stepper -->
+                    <!-- Task stage steps: the project's own task stages, read live -->
                     <div class="o_pd_steps">
-                        <t t-foreach="pr.phases" t-as="ph" t-key="ph.name">
-                            <t t-set="stepState" t-value="ph.progress &gt;= 100 ? 'is-done' : ph.current ? 'is-current' : ph.progress &gt; 0 ? 'is-started' : 'is-todo'"/>
-                            <div t-attf-class="o_pd_step {{ stepState }}"
-                                 t-att-title="ph.name + ': ' + pct(ph.progress, 0) + ' · ' + ph.tasksDone + ' of ' + ph.tasksTotal + ' tasks · ' + ph.basis">
+                        <div t-if="!pr.phases.length" class="o_pd_steps_empty">This project has no task stages yet.</div>
+                        <t t-foreach="pr.phases" t-as="ph" t-key="ph.id">
+                            <div t-attf-class="o_pd_step {{ ph.state }}"
+                                 t-att-title="ph.name + ': ' + ph.count + ' task(s), ' + pct(ph.progress, 0) + ' of all tasks' + (ph.fold ? ' · closed stage' : '')">
                                 <div class="o_pd_step_dot">
-                                    <i t-if="stepState === 'is-done'" class="fa fa-check"/>
+                                    <i t-if="ph.state === 'is-done'" class="fa fa-check"/>
                                     <span t-else="" t-esc="ph_index + 1"/>
                                 </div>
                                 <div class="o_pd_step_name" t-esc="ph.name"/>
                                 <div class="o_pd_step_bar"><span t-attf-style="width: {{ Math.min(ph.progress, 100) }}%"/></div>
                                 <div class="o_pd_step_meta">
-                                    <b t-esc="pct(ph.progress, 0)"/> · <t t-esc="ph.tasksDone"/>/<t t-esc="ph.tasksTotal"/> tasks
+                                    <b t-esc="ph.count"/> <t t-esc="ph.count === 1 ? 'task' : 'tasks'"/> · <t t-esc="pct(ph.progress, 0)"/>
                                 </div>
                             </div>
                         </t>
@@ -167,6 +175,7 @@
                 <t t-elif="state.tab === 'machinery'" t-call="mefs_project_dashboard.TabMachinery"/>
                 <t t-elif="state.tab === 'schedule'" t-call="mefs_project_dashboard.TabSchedule"/>
                 <t t-elif="state.tab === 'ledger'" t-call="mefs_project_dashboard.TabLedger"/>
+                </t>
             </div>
           </div>
         </div>
@@ -343,7 +352,7 @@
                         <div class="o_bd_card_title">Over and Under Budget by Cost Type</div>
                         <div class="o_bd_card_sub">
                             Total cost (booked plus unbooked) less budget, Birr. Red is over budget.
-                            The rebar under-run is more likely uncosted stock than a real saving.
+                            <t t-if="p.rebarCostType">The rebar under-run is more likely uncosted stock than a real saving.</t>
                         </div>
                     </div>
                     <div class="o_bd_card_body">
@@ -617,7 +626,7 @@
                                         <td class="text-end" t-esc="m.hours.toFixed(1)"/>
                                         <td class="text-end" t-esc="num(m.fuel)"/>
                                         <td class="text-end" t-esc="m.lph.toFixed(1)"/>
-                                        <td class="text-end" t-esc="num(m.fuelBirr)"/>
+                                        <td class="text-end" t-esc="numOrDash(m.fuelBirr)"/>
                                         <td t-attf-class="text-end {{ m.util &lt; 60 ? 'o_pd_neg' : '' }}" t-esc="m.util.toFixed(0) + '%'"/>
                                         <td class="text-end" t-esc="m.avgDay.toFixed(1)"/>
                                         <td class="text-nowrap" t-esc="date(m.from)"/>
@@ -863,7 +872,8 @@
                                     <div class="o_pd_cell_sub" t-esc="e.source"/>
                                 </td>
                                 <td class="text-end text-nowrap">
-                                    <span t-if="!e.booked" class="o_pd_badge o_pd_badge_bad me-2">Unpaid</span>
+                                    <span t-if="e.part === 'paid'" class="o_pd_badge o_pd_badge_good me-2" title="Paid part of a partly paid bill">Paid</span>
+                                    <span t-if="!e.booked" class="o_pd_badge o_pd_badge_bad me-2" t-att-title="e.part === 'unpaid' ? 'Unpaid part of a partly paid bill' : 'Not paid yet'">Unpaid</span>
                                     <b t-esc="num(e.amount)"/>
                                 </td>
                                 <td class="text-nowrap" t-esc="e.costClass"/>

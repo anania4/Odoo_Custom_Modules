@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Project form: the customer (a Contact) is shown as "Client"; the dashboard header displays it -->
+    <record id="view_project_form_client" model="ir.ui.view">
+        <field name="name">project.project.form.mefs.client</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <!-- apply after the modules that hide the field -->
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet//group//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Client</attribute>
+                <!-- timesheet billing hides it unless the project is "Billable": always show it -->
+                <attribute name="invisible">0</attribute>
+                <attribute name="placeholder">Select a client from Contacts...</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -114,6 +114,37 @@ $pd-violet: #5b4bb7;
     }
     .o_pd_icon_red { background: #fdecec; color: $pd-bad; }
 
+    // Headline card icons: plain line drawings, no tinted box
+    .o_pd_kpi_ic {
+        display: inline-flex;
+        flex: none;
+        color: $pd-faint;
+
+        &.is-bad { color: $pd-bad; }
+    }
+    .o_pd_kpi_svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .o_bd_kpi:hover .o_pd_kpi_ic:not(.is-bad) { color: $pd-ink-2; }
+
+    .o_pd_empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 3rem 1rem;
+        color: $pd-muted;
+        text-align: center;
+
+        .fa { font-size: 2rem; color: $pd-faint; }
+    }
+
     // ---- Progress & tasks strip (below the cards) ----
     .o_pd_pstrip {
         display: grid;
@@ -145,6 +176,7 @@ $pd-violet: #5b4bb7;
         border-left: 1px solid $pd-line;
         border-right: 1px solid $pd-line;
     }
+    .o_pd_steps_empty { align-self: center; color: $pd-faint; font-size: 0.8rem; }
     .o_pd_step {
         position: relative;
         flex: 1;

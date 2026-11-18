@@ -1,10 +1,22 @@
 /** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
+import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
-import { PROJECTS, TODAY } from "./sample_data";
+
+// Today as YYYY-MM-DD (local date)
+const _now = new Date();
+const TODAY = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, "0")}-${String(_now.getDate()).padStart(2, "0")}`;
+const LAST_PROJECT_KEY = "mefs_project_dashboard.last_project";
+
+// Shape of a project's data while nothing is loaded (or the project has no data yet)
+const EMPTY_PROJECT = {
+    id: false, name: "", client: "", budgetPlan: "", boq: "",
+    contractIncome: 0, plannedStart: false, plannedFinish: false, actualFinish: false,
+    costClasses: [], rebarCostType: false, packages: [], boqItems: [], scheduleItems: [],
+    taskStages: [], tasks: { total: 0, done: 0 }, ipcs: [], machines: [], ledger: [],
+};
 
 // Where a ledger reference lives, by document source
 const SOURCE_MODELS = {
@@ -43,10 +55,12 @@ export class MefsProjectDashboard extends Component {
         this.action = useService("action");
         this.orm = useService("orm");
         this.notification = useService("notification");
-        this.projects = PROJECTS;
         this.tabs = TABS;
         this.state = useState({
-            projectId: PROJECTS[0].id,
+            projects: [],
+            projectId: false,
+            data: null,
+            loading: false,
             tab: "overview",
             // Ledger filters
             ledgerCostType: "all",
@@ -55,6 +69,60 @@ export class MefsProjectDashboard extends Component {
             // Schedule: which work types show their BOQ items
             scheduleOpen: {},
         });
+        onWillStart(async () => {
+            this.state.projects = await this.orm.call("mefs.project.dashboard", "get_projects", []);
+            const fromAction = this.props.action?.params?.project_id || this.props.action?.context?.active_id;
+            let last = null;
+            try {
+                last = parseInt(window.localStorage.getItem(LAST_PROJECT_KEY), 10) || null;
+            } catch {
+                last = null;
+            }
+            const ids = this.state.projects.map((p) => p.id);
+            const id = [fromAction, last, ids[0]].find((x) => x && ids.includes(x));
+            if (id) {
+                await this.loadProject(id);
+            }
+        });
+    }
+
+    get projects() {
+        return this.state.projects;
+    }
+
+    /** Refresh button: reload the project list and the selected project's figures. */
+    async onRefresh() {
+        this.state.loading = true;
+        try {
+            this.state.projects = await this.orm.call("mefs.project.dashboard", "get_projects", []);
+        } finally {
+            this.state.loading = false;
+        }
+        const ids = this.state.projects.map((p) => p.id);
+        const id = ids.includes(this.state.projectId) ? this.state.projectId : ids[0];
+        if (id) {
+            await this.loadProject(id);
+        } else {
+            this.state.projectId = false;
+            this.state.data = null;
+        }
+        this.notification.add(_t("Dashboard refreshed."), { type: "success" });
+    }
+
+    async loadProject(id) {
+        this.state.projectId = id;
+        this.state.loading = true;
+        try {
+            const data = await this.orm.call("mefs.project.dashboard", "get_dashboard_data", [id]);
+            this.state.data = data && data.id ? data : null;
+            try {
+                window.localStorage.setItem(LAST_PROJECT_KEY, String(id));
+            } catch {
+                // storage unavailable: ignore
+            }
+        } finally {
+            this.state.loading = false;
+        }
     }
 
     // ------------------------------------------------------------------ format
@@ -84,12 +152,15 @@ export class MefsProjectDashboard extends Component {
 
     // ------------------------------------------------------------------ project
     get project() {
-        return PROJECTS.find((p) => p.id === this.state.projectId) || PROJECTS[0];
+        return this.state.data || EMPTY_PROJECT;
     }
-    onProjectChange(ev) {
-        this.state.projectId = parseInt(ev.target.value, 10);
+    async onProjectChange(ev) {
+        const id = parseInt(ev.target.value, 10);
         this.clearLedgerFilters();
         this.state.scheduleOpen = {};
+        if (id) {
+            await this.loadProject(id);
+        }
     }
     setTab(key) {
         this.state.tab = key;
@@ -107,10 +178,11 @@ export class MefsProjectDashboard extends Component {
         return { budget, booked, unbooked, total: booked + unbooked };
     }
 
-    /** Actual / forecast finish. Source still to be agreed: sample value for the delay card only. */
+    /** Actual / forecast finish. Actual-date source still to be agreed, so this is the planned finish for now. */
     get forecastFinish() {
         const a = this.project.actualFinish;
-        return a && a > this.project.plannedFinish ? a : this.project.plannedFinish;
+        const pf = this.project.plannedFinish;
+        return a && (!pf || a > pf) ? a : pf;
     }
 
     get cards() {
@@ -121,7 +193,7 @@ export class MefsProjectDashboard extends Component {
         const margin = income ? ((income - t.total) / income) * 100 : 0;
         const marginBooked = income ? ((income - t.booked) / income) * 100 : 0;
         const marginBudget = income ? ((income - t.budget) / income) * 100 : 0;
-        const delay = Math.max(0, daysBetween(p.plannedFinish, this.forecastFinish));
+        const delay = p.plannedFinish && this.forecastFinish ? Math.max(0, daysBetween(p.plannedFinish, this.forecastFinish)) : 0;
         return {
             income,
             total: t.total,
@@ -185,21 +257,28 @@ export class MefsProjectDashboard extends Component {
      */
     get progress() {
         const p = this.project;
-        const items = p.scheduleItems || [];
+        const items = p.boqItems || [];
         const contract = items.reduce((s, i) => s + (i.value || 0), 0);
         const executedValue = items.reduce((s, i) => s + ((i.value || 0) * (i.executed || 0)) / 100, 0);
         const construction = contract ? (executedValue / contract) * 100 : 0;
-        const boqDone = items.filter((i) => (i.executed || 0) >= 100).length;
-        const phases = (p.phases || []).map((ph) => {
-            if (ph.boq) {
-                return { ...ph, progress: construction, tasksDone: boqDone, tasksTotal: items.length, basis: "Weighted by BOQ value" };
-            }
-            const total = ph.tasksTotal || 0;
-            return { ...ph, progress: total ? (ph.tasksDone / total) * 100 : 0, basis: "Tasks completed" };
-        });
-        const tasksTotal = phases.reduce((s, ph) => s + (ph.tasksTotal || 0), 0);
-        const tasksDone = phases.reduce((s, ph) => s + (ph.tasksDone || 0), 0);
-        const elapsed = Math.min(Math.max(daysBetween(p.plannedStart, TODAY) / Math.max(daysBetween(p.plannedStart, p.plannedFinish), 1), 0), 1) * 100;
+        // Project tasks (excluding cancelled)
+        const tasksTotal = p.tasks ? p.tasks.total : 0;
+        const tasksDone = p.tasks ? p.tasks.done : 0;
+        // Steps = the project's own task stages (read live), each with its share of the tasks.
+        // Folded stages count as closed; the busiest open stage is highlighted.
+        const stages = p.taskStages || [];
+        const busiest = stages
+            .filter((s) => !s.fold && s.count - s.done > 0)
+            .reduce((a, s) => (!a || s.count - s.done > a.count - a.done ? s : a), null);
+        const phases = stages.map((s) => ({
+            ...s,
+            progress: tasksTotal ? (s.count / tasksTotal) * 100 : 0,
+            current: !!busiest && s.id === busiest.id,
+            state: s.fold ? "is-done" : busiest && s.id === busiest.id ? "is-current" : s.count ? "is-started" : "is-todo",
+        }));
+        const elapsed = p.plannedStart && p.plannedFinish
+            ? Math.min(Math.max(daysBetween(p.plannedStart, TODAY) / Math.max(daysBetween(p.plannedStart, p.plannedFinish), 1), 0), 1) * 100
+            : 0;
         const current = phases.find((ph) => ph.current);
         return {
             construction,
@@ -334,9 +413,12 @@ export class MefsProjectDashboard extends Component {
             ticks.push({ v, bottom: (v / max) * 100, label: v ? this.birr(v) : "Birr 0K" });
         }
         const pf = this.project.plannedFinish;
-        const [py, pm] = pf.split("-");
-        const finishLabel = `${MONTHS[parseInt(pm, 10) - 1]} ${py}`;
-        const note = pf < TODAY ? `Budgeted work was to finish in ${finishLabel}.` : `Budgeted work is to finish in ${finishLabel}.`;
+        let note = "";
+        if (pf) {
+            const [py, pm] = pf.split("-");
+            const finishLabel = `${MONTHS[parseInt(pm, 10) - 1]} ${py}`;
+            note = pf < TODAY ? `Budgeted work was to finish in ${finishLabel}.` : `Budgeted work is to finish in ${finishLabel}.`;
+        }
         return { months, ticks, series, note };
     }
 
@@ -373,7 +455,7 @@ export class MefsProjectDashboard extends Component {
         }
         // Executed % per work type: executed value ÷ contract value of its BOQ items
         const exec = {};
-        for (const it of this.project.scheduleItems || []) {
+        for (const it of this.project.boqItems || []) {
             exec[it.workType] ||= { value: 0, done: 0 };
             exec[it.workType].value += it.value || 0;
             exec[it.workType].done += ((it.value || 0) * (it.executed || 0)) / 100;
@@ -578,11 +660,13 @@ export class MefsProjectDashboard extends Component {
 
     /**
      * Open the document behind a ledger reference (vendor bill in Accounting, or the PO).
-     * Rows with a real `moveId` open directly; sample rows are looked up by reference.
+     * Rows carry their record (`resModel` / `resId`); otherwise the reference is looked up.
      */
     async openBill(e) {
-        const target = SOURCE_MODELS[e.source] || SOURCE_MODELS.default;
-        let resId = e.moveId || false;
+        const target = e.resModel
+            ? { model: e.resModel, fields: [] }
+            : SOURCE_MODELS[e.source] || SOURCE_MODELS.default;
+        let resId = e.resId || false;
         if (!resId) {
             try {
                 for (const field of target.fields) {
@@ -598,7 +682,7 @@ export class MefsProjectDashboard extends Component {
             }
         }
         if (!resId) {
-            this.notification.add(_t("%s was not found in Odoo (sample data).", e.ref), { type: "warning" });
+            this.notification.add(_t("%s was not found in Odoo.", e.ref), { type: "warning" });
             return;
         }
         await this.action.doAction({
