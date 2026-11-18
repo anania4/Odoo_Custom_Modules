@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Department Manager: any appraisal they created -->
+    <record id="rule_hr_performance_appraisal_dept_manager" model="ir.rule">
+        <field name="name">Performance Appraisal: Department Manager</field>
+        <field name="model_id" ref="model_hr_performance_appraisal"/>
+        <field name="groups" eval="[(4, ref('group_dept_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="domain_force">
+            [('create_uid', '=', user.id)]
+        </field>
+    </record>
+
+    <!-- HR Manager: all non-draft + own drafts -->
+    <record id="rule_hr_performance_appraisal_hr_manager" model="ir.rule">
+        <field name="name">Performance Appraisal: HR Manager</field>
+        <field name="model_id" ref="model_hr_performance_appraisal"/>
+        <field name="groups" eval="[(4, ref('group_hr_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="domain_force">
+            ['|', ('state', '!=', 'draft'), ('create_uid', '=', user.id)]
+        </field>
+    </record>
+
+    <!-- CEO: all non-draft appraisals -->
+    <record id="rule_hr_performance_appraisal_ceo" model="ir.rule">
+        <field name="name">Performance Appraisal: CEO</field>
+        <field name="model_id" ref="model_hr_performance_appraisal"/>
+        <field name="groups" eval="[(4, ref('group_ceo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="domain_force">[('state', '!=', 'draft')]</field>
+    </record>
+
+    <!-- Employee visibility (formerly create_data's restrictive rule):
+         Department Managers only see employees of their own department
+         (including sub-departments) and their own employee record. -->
+    <record id="rule_hr_employee_dept_manager" model="ir.rule">
+        <field name="name">Employee: Department Manager sees own department</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="groups" eval="[(4, ref('group_dept_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">
+            ['|',
+                ('user_id', '=', user.id),
+                ('department_id', 'child_of', user.employee_id.department_id.ids)
+            ]
+        </field>
+    </record>
+
+    <!-- HR Manager and CEO see all employees (keeps them unrestricted
+         even if they also hold the Department Manager role). -->
+    <record id="rule_hr_employee_hr_ceo_all" model="ir.rule">
+        <field name="name">Employee: HR Manager / CEO see all</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="groups" eval="[(4, ref('group_hr_manager')), (4, ref('group_ceo'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Template: Dept Manager sees only templates for their department -->
+    <record id="rule_hr_performance_template_dept_manager" model="ir.rule">
+        <field name="name">Performance Template: Department Manager</field>
+        <field name="model_id" ref="model_hr_performance_template"/>
+        <field name="groups" eval="[(4, ref('group_dept_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">
+            ['|',
+                ('department_ids', 'in', user.employee_id.department_id.ids),
+                ('department_ids', '=', False)
+            ]
+        </field>
+    </record>
+
+</odoo>

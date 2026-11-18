@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_hr_performance_question_tree" model="ir.ui.view">
+        <field name="name">hr.performance.question.tree</field>
+        <field name="model">hr.performance.question</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="section"/>
+                <field name="name"/>
+                <field name="max_score"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_performance_question_form" model="ir.ui.view">
+        <field name="name">hr.performance.question.form</field>
+        <field name="model">hr.performance.question</field>
+        <field name="arch" type="xml">
+            <form string="Evaluation Question">
+                <sheet>
+                    <group>
+                        <field name="section"/>
+                        <field name="name"/>
+                        <field name="max_score"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_performance_question" model="ir.actions.act_window">
+        <field name="name">Evaluation Questions</field>
+        <field name="res_model">hr.performance.question</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Roles formerly provided by the external create_data module -->
+    <record id="module_category_hr_performance" model="ir.module.category">
+        <field name="name">Performance</field>
+        <field name="description">Access levels for performance appraisals.</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Department Manager: creates and scores appraisals for own department -->
+    <record id="group_dept_manager" model="res.groups">
+        <field name="name">Department Manager</field>
+        <field name="category_id" ref="module_category_hr_performance"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- HR Manager: reviews/approves appraisals, manages questions and templates -->
+    <record id="group_hr_manager" model="res.groups">
+        <field name="name">HR Manager</field>
+        <field name="category_id" ref="module_category_hr_performance"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('hr.group_hr_user'))]"/>
+    </record>
+
+    <!-- CEO: oversight of all submitted appraisals -->
+    <record id="group_ceo" model="res.groups">
+        <field name="name">CEO</field>
+        <field name="category_id" ref="module_category_hr_performance"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+</odoo>

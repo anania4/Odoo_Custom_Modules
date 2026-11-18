@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_hr_performance_template_list" model="ir.ui.view">
+        <field name="name">hr.performance.template.list</field>
+        <field name="model">hr.performance.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="department_ids" widget="many2many_tags"/>
+                <field name="question_count" string="Questions"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_performance_template_form" model="ir.ui.view">
+        <field name="name">hr.performance.template.form</field>
+        <field name="model">hr.performance.template</field>
+        <field name="arch" type="xml">
+            <form string="Evaluation Template">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <separator string="Departments"/>
+                    <field name="department_ids" placeholder="Leave empty to apply to all departments" widget="many2many_tags"/>
+                    <group>
+                        <field name="parent_department_ids" widget="many2many_tags" readonly="1" string="Parent Departments"/>
+                        <field name="department_manager_ids" widget="many2many_tags" readonly="1" string="Managers"/>
+                    </group>
+                    <field name="description" placeholder="Template description..."/>
+                    <separator string="Questions"/>
+                    <field name="question_ids">
+                        <list>
+                            <field name="section"/>
+                            <field name="name"/>
+                            <field name="max_score"/>
+                            <field name="active"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_performance_template" model="ir.actions.act_window">
+        <field name="name">Evaluation Templates</field>
+        <field name="res_model">hr.performance.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

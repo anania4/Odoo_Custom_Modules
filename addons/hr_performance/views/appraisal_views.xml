@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View (HR / Manager / CEO) -->
+    <record id="view_hr_performance_appraisal_tree" model="ir.ui.view">
+        <field name="name">hr.performance.appraisal.tree</field>
+        <field name="model">hr.performance.appraisal</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="employee_id"/>
+                <field name="target_job_id"/>
+                <field name="department_id"/>
+                <field name="template_id"/>
+                <field name="appraisal_type"/>
+                <field name="percentage_score"/>
+                <field name="final_grade"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View (HR / Manager / CEO) -->
+    <record id="view_hr_performance_appraisal_form" model="ir.ui.view">
+        <field name="name">hr.performance.appraisal.form</field>
+        <field name="model">hr.performance.appraisal</field>
+        <field name="arch" type="xml">
+            <form string="Performance Appraisal">
+                <header>
+                    <button name="action_load_questions"
+                            string="Load Questions"
+                            type="object"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_submit"
+                            string="Submit to HR"
+                            type="object"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_review"
+                            string="HR Review"
+                            type="object"
+                            invisible="state != 'submitted'"
+                            groups="hr_performance.group_hr_manager"/>
+
+                    <button name="action_done"
+                            string="Promote"
+                            type="object"
+                            invisible="state != 'reviewed'"
+                            groups="hr_performance.group_hr_manager"/>
+
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,submitted,reviewed,done"/>
+                </header>
+
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="department_id" readonly="state != 'draft'"/>
+                            <field name="target_job_id" readonly="state != 'draft'"/>
+                            <field name="manager_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="appraisal_type" readonly="state != 'draft'"/>
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
+                            <field name="template_id" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+
+                        <!-- Evaluation: single unified list, grouped by section -->
+                        <page string="Evaluation">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom"
+                                      default_group_by="question_id.section">
+                                    <field name="question_id" readonly="1"/>
+                                    <field name="question_section" string="Section" readonly="1"/>
+                                    <field name="score"/>
+                                    <field name="is_na"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Comments -->
+                        <page string="Comments">
+                            <group>
+                                <field name="hr_comment"
+                                       readonly="not can_edit_hr_comment"/>
+                                <field name="manager_comment"
+                                       readonly="not can_edit_manager_comment"/>
+                            </group>
+                        </page>
+
+                        <!-- Final Result -->
+                        <page string="Final Result">
+                            <group col="3">
+                                <field name="total_score" class="oe_highlight"/>
+                                <field name="percentage_score"
+                                       options="{'precision': 2}"/>
+                                <field name="final_grade" class="oe_highlight"/>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action: HR / Manager / CEO -->
+    <record id="action_hr_performance_appraisal" model="ir.actions.act_window">
+        <field name="name">Performance Appraisals</field>
+        <field name="res_model">hr.performance.appraisal</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

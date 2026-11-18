@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="question_customer_focus" model="hr.performance.question">
+        <field name="name">Demonstrates excellent customer focus</field>
+        <field name="section">customer</field>
+        <field name="max_score">5</field>
+    </record>
+
+    <record id="question_teamwork" model="hr.performance.question">
+        <field name="name">Works effectively as part of a team</field>
+        <field name="section">teamwork</field>
+        <field name="max_score">5</field>
+    </record>
+
+    <record id="question_work_quality" model="hr.performance.question">
+        <field name="name">Produces high quality work</field>
+        <field name="section">work</field>
+        <field name="max_score">5</field>
+    </record>
+
+    <record id="question_initiative" model="hr.performance.question">
+        <field name="name">Shows initiative and drive</field>
+        <field name="section">work</field>
+        <field name="max_score">5</field>
+    </record>
+
+    <record id="question_supervisory" model="hr.performance.question">
+        <field name="name">Provides effective supervision</field>
+        <field name="section">supervisory</field>
+        <field name="max_score">5</field>
+    </record>
+
+</odoo>

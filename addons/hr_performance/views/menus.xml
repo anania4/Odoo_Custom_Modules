@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_performance_root"
+              name="Performance"
+              parent="hr.menu_hr_root"
+              sequence="50"/>
+
+    <!-- HR / Manager / CEO menus -->
+    <menuitem id="menu_hr_performance_appraisal"
+              name="Performance Appraisals"
+              parent="menu_performance_root"
+              action="action_hr_performance_appraisal"
+              groups="hr_performance.group_hr_manager,hr_performance.group_dept_manager,hr_performance.group_ceo"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_performance_question"
+              name="Evaluation Questions"
+              parent="menu_performance_root"
+              action="action_hr_performance_question"
+              groups="hr_performance.group_hr_manager,hr_performance.group_ceo"
+              sequence="20"/>
+
+    <menuitem id="menu_hr_performance_template"
+              name="Evaluation Templates"
+              parent="menu_performance_root"
+              action="action_hr_performance_template"
+              groups="hr_performance.group_hr_manager,hr_performance.group_ceo"
+              sequence="30"/>
+
+</odoo>

@@ -1,0 +1,23 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_performance_appraisal_ceo,performance appraisal ceo,model_hr_performance_appraisal,group_ceo,1,1,1,1
+access_hr_performance_appraisal_dept,performance appraisal dept,model_hr_performance_appraisal,group_dept_manager,1,1,1,1
+access_hr_performance_appraisal_hr,performance appraisal hr,model_hr_performance_appraisal,group_hr_manager,1,1,1,1
+access_hr_performance_appraisal_line_ceo,performance appraisal line ceo,model_hr_performance_appraisal_line,group_ceo,1,1,1,1
+access_hr_performance_appraisal_line_dept,performance appraisal line dept,model_hr_performance_appraisal_line,group_dept_manager,1,1,1,1
+access_hr_performance_appraisal_line_hr,performance appraisal line hr,model_hr_performance_appraisal_line,group_hr_manager,1,1,1,1
+access_hr_performance_question_ceo,performance question ceo,model_hr_performance_question,group_ceo,1,1,1,1
+access_hr_performance_question_dept,performance question dept,model_hr_performance_question,group_dept_manager,1,0,0,0
+access_hr_performance_question_hr,performance question hr,model_hr_performance_question,group_hr_manager,1,1,1,1
+access_hr_performance_question_employee,performance question employee,model_hr_performance_question,base.group_user,1,0,0,0
+access_hr_performance_template_hr,performance template hr,model_hr_performance_template,group_hr_manager,1,1,1,1
+access_hr_performance_template_ceo,performance template ceo,model_hr_performance_template,group_ceo,1,0,0,0
+access_hr_performance_template_dept,performance template dept,model_hr_performance_template,group_dept_manager,1,0,0,0
+access_hr_job_dept_manager,hr.job dept manager,hr.model_hr_job,group_dept_manager,1,0,0,0
+access_hr_job_hr_manager,hr.job hr manager,hr.model_hr_job,group_hr_manager,1,0,0,0
+access_hr_job_ceo,hr.job ceo,hr.model_hr_job,group_ceo,1,0,0,0
+access_hr_department_dept_manager,hr.department dept manager,hr.model_hr_department,group_dept_manager,1,0,0,0
+access_hr_department_hr_manager,hr.department hr manager,hr.model_hr_department,group_hr_manager,1,0,0,0
+access_hr_department_ceo,hr.department ceo,hr.model_hr_department,group_ceo,1,0,0,0
+access_hr_department_employee,hr.department employee,hr.model_hr_department,base.group_user,1,0,0,0
+access_hr_employee_dept_manager,hr.employee dept manager,hr.model_hr_employee,group_dept_manager,1,0,0,0
+access_hr_employee_ceo,hr.employee ceo,hr.model_hr_employee,group_ceo,1,0,0,0

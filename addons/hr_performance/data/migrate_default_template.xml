@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Migration: create a default fallback template that contains all
+        existing active questions. "noupdate=1" means this record is only
+        created on first install — it will NOT be overwritten on module upgrade,
+        protecting any HR customizations made after installation.
+
+        department_ids is intentionally left empty so this template acts as a
+        global fallback for any department that has no specific template yet.
+    -->
+    <record id="template_default" model="hr.performance.template">
+        <field name="name">Default Evaluation Template</field>
+        <field name="active">True</field>
+        <field name="description">
+            Auto-created on install. Contains all default evaluation questions
+            and applies to any department that does not have its own template.
+            HR may create department-specific templates under
+            Performance &gt; Evaluation Templates.
+        </field>
+        <field name="question_ids" eval="[
+            (4, ref('question_customer_focus')),
+            (4, ref('question_teamwork')),
+            (4, ref('question_work_quality')),
+            (4, ref('question_initiative')),
+            (4, ref('question_supervisory')),
+        ]"/>
+    </record>
+</odoo>
