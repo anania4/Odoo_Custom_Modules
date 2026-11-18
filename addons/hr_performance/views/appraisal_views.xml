@@ -1,106 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- List View (HR / Manager / CEO) -->
+    <!-- List View -->
     <record id="view_hr_performance_appraisal_tree" model="ir.ui.view">
         <field name="name">hr.performance.appraisal.tree</field>
         <field name="model">hr.performance.appraisal</field>
         <field name="arch" type="xml">
             <list>
                 <field name="employee_id"/>
-                <field name="target_job_id"/>
                 <field name="department_id"/>
-                <field name="template_id"/>
+                <field name="target_job_id"/>
                 <field name="appraisal_type"/>
-                <field name="percentage_score"/>
+                <field name="include_employee" optional="show"/>
+                <field name="include_dept_manager" optional="show"/>
+                <field name="manager_id" optional="hide"/>
+                <field name="manager_percentage_score" optional="show"/>
+                <field name="percentage_score" string="HR Percentage"/>
                 <field name="final_grade"/>
-                <field name="state"/>
+                <field name="state" widget="badge"/>
             </list>
         </field>
     </record>
 
-    <!-- Form View (HR / Manager / CEO) -->
+    <!-- Form View. Score/comment fields carry model-level groups, so Odoo
+         strips them for the appraised employee. -->
     <record id="view_hr_performance_appraisal_form" model="ir.ui.view">
         <field name="name">hr.performance.appraisal.form</field>
         <field name="model">hr.performance.appraisal</field>
         <field name="arch" type="xml">
             <form string="Performance Appraisal">
                 <header>
-                    <button name="action_load_questions"
-                            string="Load Questions"
+                    <!-- HR: draft -->
+                    <button name="action_load_questions" string="Load Questions"
                             type="object"
-                            invisible="state != 'draft'"/>
-
-                    <button name="action_submit"
-                            string="Submit to HR"
-                            type="object"
-                            invisible="state != 'draft'"/>
-
-                    <button name="action_review"
-                            string="HR Review"
-                            type="object"
-                            invisible="state != 'submitted'"
+                            invisible="state != 'draft'"
+                            groups="hr_performance.group_hr_manager"/>
+                    <button name="action_start" string="Send to Employee"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'draft' or not line_ids or not include_employee"
+                            groups="hr_performance.group_hr_manager"/>
+                    <button name="action_start" string="Send to Department Manager"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'draft' or not line_ids or include_employee or not include_dept_manager"
+                            groups="hr_performance.group_hr_manager"/>
+                    <button name="action_start" string="Start HR Scoring"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'draft' or not line_ids or include_employee or include_dept_manager"
                             groups="hr_performance.group_hr_manager"/>
 
-                    <button name="action_done"
-                            string="Promote"
+                    <!-- Employee -->
+                    <button name="action_submit_self_assessment"
+                            string="Submit Self-Assessment"
+                            type="object" class="oe_highlight"
+                            invisible="not can_employee_answer"/>
+                    <button name="action_skip_employee" string="Skip Employee"
                             type="object"
+                            invisible="state != 'employee'"
+                            groups="hr_performance.group_hr_manager"
+                            confirm="Move on without waiting for the employee's answers?"/>
+
+                    <!-- Department Manager -->
+                    <button name="action_manager_submit" string="Submit Scores to HR"
+                            type="object" class="oe_highlight"
+                            invisible="not can_manager_score"/>
+                    <button name="action_manager_submit" string="Skip Manager"
+                            type="object"
+                            invisible="state != 'manager' or can_manager_score"
+                            groups="hr_performance.group_hr_manager"
+                            confirm="Move on to HR scoring without waiting for the department manager?"/>
+
+                    <!-- HR: scoring and approval -->
+                    <button name="action_review" string="HR Review"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'submitted'"
+                            groups="hr_performance.group_hr_manager"/>
+                    <button name="action_done" string="Promote"
+                            type="object" class="oe_highlight"
                             invisible="state != 'reviewed'"
                             groups="hr_performance.group_hr_manager"/>
 
-                    <field name="state"
-                           widget="statusbar"
-                           statusbar_visible="draft,submitted,reviewed,done"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,employee,manager,submitted,reviewed,done"/>
                 </header>
 
                 <sheet>
+                    <field name="is_hr_user" invisible="1"/>
+                    <field name="can_employee_answer" invisible="1"/>
+                    <field name="can_manager_score" invisible="1"/>
+                    <field name="can_hr_score" invisible="1"/>
+
+                    <div class="alert alert-info" role="alert"
+                         invisible="not can_employee_answer">
+                        Please answer the questions below, then click
+                        <b>Submit Self-Assessment</b>.
+                    </div>
+                    <div class="alert alert-info" role="alert"
+                         invisible="not can_manager_score">
+                        Review the employee's answers and give your
+                        <b>Manager Score</b> for each question, then click
+                        <b>Submit Scores to HR</b>.
+                    </div>
+                    <div class="alert alert-info" role="alert"
+                         invisible="not can_hr_score">
+                        Give the final <b>HR Score</b> for each question, then
+                        click <b>HR Review</b>.
+                    </div>
+
                     <group>
                         <group>
-                            <field name="employee_id" readonly="state != 'draft'"/>
-                            <field name="department_id" readonly="state != 'draft'"/>
-                            <field name="target_job_id" readonly="state != 'draft'"/>
-                            <field name="manager_id" readonly="1"/>
+                            <field name="employee_id"
+                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="department_id"
+                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="target_job_id"
+                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="include_employee"
+                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="include_dept_manager"
+                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="manager_id"
+                                   invisible="not include_dept_manager"
+                                   required="include_dept_manager"
+                                   readonly="state != 'draft' or not is_hr_user"/>
                         </group>
                         <group>
-                            <field name="appraisal_type" readonly="state != 'draft'"/>
-                            <field name="date_from" readonly="state != 'draft'"/>
-                            <field name="date_to" readonly="state != 'draft'"/>
+                            <field name="appraisal_type"
+                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="date_from"
+                                   readonly="state != 'draft' or not is_hr_user"/>
+                            <field name="date_to"
+                                   readonly="state != 'draft' or not is_hr_user"/>
                             <field name="template_id" readonly="1"/>
                         </group>
                     </group>
 
                     <notebook>
 
-                        <!-- Evaluation: single unified list, grouped by section -->
+                        <!-- Evaluation: employee answers, manager score, HR score -->
                         <page string="Evaluation">
-                            <field name="line_ids" readonly="state != 'draft'">
-                                <list editable="bottom"
-                                      default_group_by="question_id.section">
+                            <field name="line_ids"
+                                   readonly="state not in ('employee', 'manager', 'submitted')">
+                                <list editable="bottom" create="0" delete="0">
                                     <field name="question_id" readonly="1"/>
-                                    <field name="question_section" string="Section" readonly="1"/>
-                                    <field name="score"/>
-                                    <field name="is_na"/>
+                                    <field name="question_section" readonly="1"/>
+                                    <field name="employee_comment"
+                                           column_invisible="not parent.include_employee"
+                                           readonly="not parent.can_employee_answer"/>
+                                    <field name="employee_score"
+                                           column_invisible="not parent.include_employee"
+                                           readonly="not parent.can_employee_answer"/>
+                                    <field name="manager_score"
+                                           column_invisible="not parent.include_dept_manager"
+                                           readonly="not parent.can_manager_score"/>
+                                    <field name="score"
+                                           readonly="not parent.can_hr_score"/>
+                                    <field name="is_na"
+                                           readonly="not parent.can_hr_score"/>
                                 </list>
                             </field>
                         </page>
 
-                        <!-- Comments -->
-                        <page string="Comments">
+                        <!-- Employee self-assessment -->
+                        <page string="Self-Assessment"
+                              invisible="state == 'draft' or not include_employee">
                             <group>
-                                <field name="hr_comment"
-                                       readonly="not can_edit_hr_comment"/>
-                                <field name="manager_comment"
-                                       readonly="not can_edit_manager_comment"/>
+                                <field name="self_assessment_done"/>
+                                <field name="self_assessment_date"
+                                       invisible="not self_assessment_done"/>
+                            </group>
+                            <group>
+                                <field name="employee_comment"
+                                       placeholder="Your overall comments, achievements, goals..."
+                                       readonly="not can_employee_answer"/>
                             </group>
                         </page>
 
-                        <!-- Final Result -->
-                        <page string="Final Result">
-                            <group col="3">
-                                <field name="total_score" class="oe_highlight"/>
-                                <field name="percentage_score"
-                                       options="{'precision': 2}"/>
-                                <field name="final_grade" class="oe_highlight"/>
+                        <!-- Comments -->
+                        <page string="Comments"
+                              groups="hr_performance.group_dept_manager,hr_performance.group_hr_manager,hr_performance.group_ceo">
+                            <group>
+                                <field name="manager_comment"
+                                       invisible="not include_dept_manager"
+                                       readonly="not can_manager_score"/>
+                                <field name="hr_comment"
+                                       readonly="not is_hr_user"/>
+                            </group>
+                        </page>
+
+                        <!-- Final Result: manager vs HR -->
+                        <page string="Final Result"
+                              groups="hr_performance.group_dept_manager,hr_performance.group_hr_manager,hr_performance.group_ceo">
+                            <group>
+                                <group string="Department Manager Score"
+                                       invisible="not include_dept_manager">
+                                    <field name="manager_total_score" string="Total"/>
+                                    <field name="manager_percentage_score" string="Percentage"
+                                           options="{'precision': 2}"/>
+                                    <field name="manager_grade" string="Grade"/>
+                                </group>
+                                <group string="HR Score (Final)">
+                                    <field name="total_score" string="Total"/>
+                                    <field name="percentage_score" string="Percentage"
+                                           options="{'precision': 2}"/>
+                                    <field name="final_grade" string="Grade"/>
+                                </group>
                             </group>
                         </page>
 
@@ -110,11 +213,24 @@
         </field>
     </record>
 
-    <!-- Action: HR / Manager / CEO -->
+    <!-- Action: HR / Department Manager / CEO -->
     <record id="action_hr_performance_appraisal" model="ir.actions.act_window">
         <field name="name">Performance Appraisals</field>
         <field name="res_model">hr.performance.appraisal</field>
         <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Action: the logged-in employee's own appraisals -->
+    <record id="action_hr_performance_my_appraisal" model="ir.actions.act_window">
+        <field name="name">My Appraisals</field>
+        <field name="res_model">hr.performance.appraisal</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'create': False, 'delete': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No appraisals shared with you yet</p>
+            <p>When HR sends you an appraisal, it appears here.</p>
+        </field>
     </record>
 
 </odoo>
